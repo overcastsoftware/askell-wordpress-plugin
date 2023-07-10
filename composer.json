@@ -1,0 +1,23 @@
+{
+    "name": "overcastsoftware/askell-registration",
+    "description": "Sign up for recurring subscriptions directly from WordPress using Askell",
+    "type": "wordpress-plugin",
+    "require-dev": {
+        "phpcompatibility/phpcompatibility-wp": "^2.1",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+        "wp-coding-standards/wpcs": "^2.3"
+    },
+    "license": "GPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Alda Vigdís Skarphéðinsdóttir",
+            "email": "aldavigdis@aldavigdis.is"
+        }
+    ],
+    "require": {},
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}

@@ -1,0 +1,17 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "askell-registration/askell-registration",
+	"version": "0.1.0",
+	"title": "Askell Registration",
+	"category": "widgets",
+	"icon": "id",
+	"description": "Sign up for recurring subscriptions directly from WordPress using Askell",
+	"supports": {
+		"html": false
+	},
+	"textdomain": "askell-registration",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css"
+}
