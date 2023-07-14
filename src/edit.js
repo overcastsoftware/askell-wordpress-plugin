@@ -30,12 +30,5 @@ import './editor.scss';
  * @return {WPElement} Element to render.
  */
 export default function Edit() {
-	return (
-		<p { ...useBlockProps() }>
-			{ __(
-				'Askell Registration – hello from the editor!',
-				'askell-registration'
-			) }
-		</p>
-	);
+	return <div className="askell-registration-frontend-block-container"></div>;
 }

@@ -10,12 +10,23 @@
 		"build": "wp-scripts build",
 		"format": "wp-scripts format",
 		"lint:css": "wp-scripts lint-style",
-		"lint:js": "wp-scripts lint-js",
+		"lint:js": "wp-scripts lint-js ./src --fix",
 		"packages-update": "wp-scripts packages-update",
 		"plugin-zip": "wp-scripts plugin-zip",
-		"start": "wp-scripts start"
+		"start": "wp-scripts start",
+		"build-admin-css": "sass src/admin.scss build/admin.css",
+		"build-admin-js": "babel --plugins @babel/plugin-transform-react-jsx src/admin.js > build/admin.js",
+		"build-frontend-component": "babel --plugins @babel/plugin-transform-react-jsx src/askellRegistration.js > build/askellRegistration.js",
+		"build-frontend-module": "babel --plugins @babel/plugin-transform-react-jsx src/frontend.js > build/frontend.js",
+		"build-frontend-css": "sass src/style.scss build/style.css"
 	},
 	"devDependencies": {
-		"@wordpress/scripts": "^26.8.0"
+		"@babel/cli": "^7.22.5",
+		"@babel/core": "^7.22.5",
+		"@babel/preset-env": "^7.22.5",
+		"@babel/preset-react": "^7.22.5",
+		"@wordpress/eslint-plugin": "^14.8.0",
+		"@wordpress/scripts": "^26.6.0",
+		"eslint-plugin-prettier": "^5.0.0"
 	}
 }

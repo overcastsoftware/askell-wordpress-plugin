@@ -15,14 +15,33 @@
  * @package           askell-registration
  */
 
-/**
- * Registers the block using the metadata loaded from the `block.json` file.
- * Behind the scenes, it registers also all assets so they can be enqueued
- * through the block editor in the corresponding context.
- *
- * @see https://developer.wordpress.org/reference/functions/register_block_type/
- */
-function askell_registration_askell_registration_block_init() {
-	register_block_type( __DIR__ . '/build' );
+class AskellRegistration {
+	public function __construct() {
+		add_action( 'init', array( $this, 'block_init' ) );
+		add_action( 'init', array( $this, 'enqueue_frontend_script' ) );
+		add_filter( 'script_loader_tag', array( $this, 'load_frontend_script_as_module' ), 10, 3 );
+	}
+
+	public function block_init() {
+		register_block_type( __DIR__ . '/build' );
+	}
+
+	public function enqueue_frontend_script() {
+		wp_enqueue_script(
+			'askell-registration-frontend',
+			plugins_url( 'askell-registration/build/frontend.js' ),
+			array( 'wp-api', 'react', 'react-dom' ),
+			'0.1.0',
+			false
+		);
+	}
+
+	public function load_frontend_script_as_module( $tag, $handle, $src ) {
+		if ( 'askell-registration-frontend' === $handle ) {
+			$tag = '<script type="module" src="' . esc_url( $src ) . '"></script>';
+		}
+		return $tag;
+	}
 }
-add_action( 'init', 'askell_registration_askell_registration_block_init' );
+
+$askell_registration = new AskellRegistration();
