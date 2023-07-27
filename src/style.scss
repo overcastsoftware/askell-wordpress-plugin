@@ -16,7 +16,7 @@
 	.section-heading {
 		display: block;
 		font-weight: bold;
-		margin-bottom: 0.5em;
+		margin: 2em 0 1em 0;
 	}
 	.field-container {
 		display: flex;
@@ -28,13 +28,7 @@
 		margin-right: 1em;
 		margin-bottom: 0.5rem;
 	}
-	.askell-form-first-name {
-	}
-	.askell-form-last-name {
-	}
-	.askell-form-terms-checkbox {
-	}
-	label {
+	label, .label {
 		display: block;
 		margin-bottom: 0.2em;
 	}
@@ -61,7 +55,7 @@
 		width: 15em;
 	}
 	input[name=cardHolderName] {
-		width: 30em;
+		width: 24em;
 	}
 	input[name=cardNumber] {
 		width: 19em;
@@ -71,16 +65,14 @@
 		width: 4em;
 		letter-spacing: 0.1em;
 	}
-	input[type=checkbox] {
+	input[type=checkbox], input[type=radio] {
 		margin-right: 1em;
 	}
 	select[name=cardExpiryMonth] {
 		margin-right: 1em;
 	}
-	.askell-form-first-name {
-	}
 	.buttons {
-		margin: 1em 0;
+		margin: 2em 0 1em 0;
 	}
 	.hint {
 		font-size: var(--wp--preset--font-size--small);
