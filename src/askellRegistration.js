@@ -1,10 +1,10 @@
 class AskellRegistration extends React.Component {
 	constructor(props) {
-		let currentYear = new Date().getFullYear()
+		const currentYear = new Date().getFullYear();
 		super(props);
 		this.state = {
 			blockId: _.uniqueId('askell-registration-block-'),
-			currentYear: currentYear,
+			currentYear,
 			firstName: '',
 			lastName: '',
 			emailAddress: '',
@@ -18,7 +18,7 @@ class AskellRegistration extends React.Component {
 			cardExpiryYear: currentYear,
 			cardIssuer: '',
 			cardIssuerName: '',
-			cardSecurityCode: ''
+			cardSecurityCode: '',
 		};
 		this.onChangeFirstName = this.onChangeFirstName.bind(this);
 		this.onChangeLastName = this.onChangeLastName.bind(this);
@@ -26,85 +26,94 @@ class AskellRegistration extends React.Component {
 		this.onChangeUsername = this.onChangeUsername.bind(this);
 		this.onChangePassword = this.onChangePassword.bind(this);
 		this.onChangeTermsAccepted = this.onChangeTermsAccepted.bind(this);
-		this.onClickUserInformationNextStep = this.onClickUserInformationNextStep.bind(this);
+		this.onClickUserInformationNextStep =
+			this.onClickUserInformationNextStep.bind(this);
 		this.onChangeCardHolderName = this.onChangeCardHolderName.bind(this);
 		this.onChangeCardNumber = this.onChangeCardNumber.bind(this);
 		this.onChangeCardExpiryMonth = this.onChangeCardExpiryMonth.bind(this);
 		this.onChangeCardExpiryYear = this.onChangeCardExpiryYear.bind(this);
-		this.onChangeCardSecurityCode = this.onChangeCardSecurityCode.bind(this);
+		this.onChangeCardSecurityCode =
+			this.onChangeCardSecurityCode.bind(this);
 	}
 
 	onChangeFirstName(event) {
-		this.setState( { firstName: event.target.value } );
+		this.setState({ firstName: event.target.value });
 	}
 
 	onChangeLastName(event) {
-		this.setState( { lastName: event.target.value } );
+		this.setState({ lastName: event.target.value });
 	}
 
 	onChangeEmailAddress(event) {
-		this.setState( { emailAddress: event.target.value } );
+		this.setState({ emailAddress: event.target.value });
 	}
 
 	onChangeUsername(event) {
-		let sanitisedUsername = event.target.value.replace(/([^a-z|0-9])/g, '');
-		this.setState( { username: sanitisedUsername } );
+		const sanitisedUsername = event.target.value.replace(
+			/([^a-z|0-9])/g,
+			''
+		);
+		this.setState({ username: sanitisedUsername });
 	}
 
 	onChangePassword(event) {
-		this.setState( { password: event.target.value } );
+		this.setState({ password: event.target.value });
 	}
 
 	onChangeTermsAccepted(event) {
-		this.setState( { termsAccepted: event.target.checked } );
+		this.setState({ termsAccepted: event.target.checked });
 	}
 
 	onClickUserInformationNextStep(event) {
 		event.preventDefault();
-		console.log( this.state );
+		console.log(this.state);
 	}
 
 	onChangeCardHolderName(event) {
-		this.setState( { cardHolderName: event.target.value } );
+		this.setState({ cardHolderName: event.target.value });
 	}
 
 	onChangeCardNumber(event) {
 		// Sanitise the card number, removing all non-numeric characters. This
 		// is the value that is then sent to the API.
-		let cleanCardNumber = event.target.value.replace(/[^\d.-]+/g, '');
+		const cleanCardNumber = event.target.value.replace(/[^\d.-]+/g, '');
 
 		// Slices the card number into 4 space-separated sections, which is more
 		// human readable. This is the value displayed in the form field.
-		let spacedCardNumber = [
-			cleanCardNumber.slice(0,4),
-			cleanCardNumber.slice(4,8),
-			cleanCardNumber.slice(8,12),
-			cleanCardNumber.slice(12,19)
-		].filter(portion => portion !== '').join(' ');;
+		const spacedCardNumber = [
+			cleanCardNumber.slice(0, 4),
+			cleanCardNumber.slice(4, 8),
+			cleanCardNumber.slice(8, 12),
+			cleanCardNumber.slice(12, 19),
+		]
+			.filter((portion) => portion !== '')
+			.join(' ');
 
 		this.setState({
 			cardNumber: cleanCardNumber,
-			cardNumberSpaced: spacedCardNumber
+			cardNumberSpaced: spacedCardNumber,
 		});
 
 		this.displayCardIssuer(cleanCardNumber);
 	}
 
 	onChangeCardExpiryMonth(event) {
-		this.setState( { cardExpiryMonth: event.target.value } );
+		this.setState({ cardExpiryMonth: event.target.value });
 	}
 
 	onChangeCardExpiryYear(event) {
-		this.setState( { cardExpiryYear: event.target.value } );
+		this.setState({ cardExpiryYear: event.target.value });
 	}
 
 	onChangeCardSecurityCode(event) {
-		let cleanCode = event.target.value.replace(/[^\d.-]+/g, '').slice(0,4);
-		this.setState( { cardSecurityCode: cleanCode } );
+		const cleanCode = event.target.value
+			.replace(/[^\d.-]+/g, '')
+			.slice(0, 4);
+		this.setState({ cardSecurityCode: cleanCode });
 	}
 
 	cardIsAmericanExpress(cardNumber) {
-		if ((cardNumber.startsWith(34) || cardNumber.startsWith(37))) {
+		if (cardNumber.startsWith(34) || cardNumber.startsWith(37)) {
 			return true;
 		}
 
@@ -119,29 +128,29 @@ class AskellRegistration extends React.Component {
 	}
 
 	cardIsDiscover(cardNumber) {
-		if ( cardNumber.startsWith('6011') ) {
-			return true
+		if (cardNumber.startsWith('6011')) {
+			return true;
 		}
 
-		if ( cardNumber.startsWith('65') ) {
-			return true
+		if (cardNumber.startsWith('65')) {
+			return true;
 		}
 
 		if (
 			parseInt(cardNumber.slice(0, 3)) >= 644 &&
 			parseInt(cardNumber.slice(0, 3) <= 649)
 		) {
-			return true
+			return true;
 		}
 
 		if (
 			parseInt(cardNumber.slice(0, 6)) >= 622126 &&
 			parseInt(cardNumber.slice(0, 6) <= 622925)
 		) {
-			return true
+			return true;
 		}
 
-		return false
+		return false;
 	}
 
 	cardIsMaestro(cardNumber) {
@@ -171,8 +180,8 @@ class AskellRegistration extends React.Component {
 		}
 
 		if (
-			(parseInt(cardNumber.slice(0, 2)) >= 51) &&
-			(parseInt(cardNumber.slice(0, 2)) <= 55)
+			parseInt(cardNumber.slice(0, 2)) >= 51 &&
+			parseInt(cardNumber.slice(0, 2)) <= 55
 		) {
 			return true;
 		}
@@ -221,27 +230,27 @@ class AskellRegistration extends React.Component {
 		if (this.cardIsMaestro(cardNumber)) {
 			return this.setState({
 				cardIssuer: 'maestro',
-				cardIssuerName: 'Maestro' }
-			);
+				cardIssuerName: 'Maestro',
+			});
 		}
 
 		if (this.cardIsVisa(cardNumber)) {
 			return this.setState({
 				cardIssuer: 'visa',
-				cardIssuerName: 'Visa'
+				cardIssuerName: 'Visa',
 			});
 		}
 
 		if (this.cardIsMasterCard(cardNumber)) {
 			return this.setState({
 				cardIssuer: 'mastercard',
-				cardIssuerName: 'MasterCard'
+				cardIssuerName: 'MasterCard',
 			});
 		}
 
 		return this.setState({
 			cardIssuer: '',
-			cardIssuerName: ''
+			cardIssuerName: '',
 		});
 	}
 
@@ -258,7 +267,9 @@ class AskellRegistration extends React.Component {
 						/>
 						<label
 							className="inline"
-							htmlFor={this.state.blockId + '-subscription-radio-1'}
+							htmlFor={
+								this.state.blockId + '-subscription-radio-1'
+							}
 						>
 							Subscription 1 - 1.000 kr
 						</label>
@@ -271,7 +282,9 @@ class AskellRegistration extends React.Component {
 						/>
 						<label
 							className="inline"
-							htmlFor={this.state.blockId + '-subscription-radio-2'}
+							htmlFor={
+								this.state.blockId + '-subscription-radio-2'
+							}
 						>
 							Subscription 2 - 2.000 kr
 						</label>
@@ -288,8 +301,8 @@ class AskellRegistration extends React.Component {
 								id={this.state.blockId + '-first-name'}
 								name="firstName"
 								type="text"
-								value={ this.state.firstName }
-								onChange={ this.onChangeFirstName }
+								value={this.state.firstName}
+								onChange={this.onChangeFirstName}
 							/>
 						</div>
 						<div className="askell-form-last-name flex">
@@ -300,8 +313,8 @@ class AskellRegistration extends React.Component {
 								id={this.state.blockId + '-last-name'}
 								name="lastName"
 								type="text"
-								value={ this.state.lastName }
-								onChange={ this.onChangeLastName }
+								value={this.state.lastName}
+								onChange={this.onChangeLastName}
 							/>
 						</div>
 					</div>
@@ -313,8 +326,8 @@ class AskellRegistration extends React.Component {
 							id={this.state.blockId + '-email-address'}
 							name="emailAddress"
 							type="email"
-							value={ this.state.emailAddress }
-							onChange={ this.onChangeEmailAddress }
+							value={this.state.emailAddress}
+							onChange={this.onChangeEmailAddress}
 						/>
 					</div>
 					<div className="field-container">
@@ -326,8 +339,8 @@ class AskellRegistration extends React.Component {
 								id={this.state.blockId + '-username'}
 								name="username"
 								type="text"
-								value={ this.state.username }
-								onChange={ this.onChangeUsername }
+								value={this.state.username}
+								onChange={this.onChangeUsername}
 							/>
 						</div>
 						<div className="askell-form-password askell-form-field">
@@ -338,8 +351,8 @@ class AskellRegistration extends React.Component {
 								id={this.state.blockId + '-password'}
 								name="password"
 								type="password"
-								value={ this.state.password }
-								onChange={ this.onChangePassword }
+								value={this.state.password}
+								onChange={this.onChangePassword}
 							/>
 						</div>
 					</div>
@@ -348,9 +361,12 @@ class AskellRegistration extends React.Component {
 							id={this.state.blockId + '-terms-checkbox'}
 							name="termsAccepted"
 							type="checkbox"
-							onClick={ this.onChangeTermsAccepted }
+							onClick={this.onChangeTermsAccepted}
 						/>
-						<label htmlFor={this.state.blockId + '-terms-checkbox'} className="inline">
+						<label
+							htmlFor={this.state.blockId + '-terms-checkbox'}
+							className="inline"
+						>
 							I accept the <a href="#">terms of service</a>.
 						</label>
 					</div>
@@ -367,8 +383,8 @@ class AskellRegistration extends React.Component {
 							id={this.state.blockId + '-card-holder-name'}
 							type="text"
 							name="cardHolderName"
-							value={ this.state.cardHolderName }
-							onChange={ this.onChangeCardHolderName }
+							value={this.state.cardHolderName}
+							onChange={this.onChangeCardHolderName}
 						/>
 					</div>
 					<div className="askell-form-field">
@@ -391,7 +407,9 @@ class AskellRegistration extends React.Component {
 					<div className="field-container">
 						<div
 							className="askell-form-field"
-							aria-labelledby={this.state.blockId + '-expiry-label'}
+							aria-labelledby={
+								this.state.blockId + '-expiry-label'
+							}
 						>
 							<span
 								id={this.state.blockId + '-expiry-label'}
@@ -402,21 +420,29 @@ class AskellRegistration extends React.Component {
 							<select
 								name="cardExpiryMonth"
 								aria-label="Month"
-								defaultValue={ this.state.cardExpiryMonth }
-								onChange={ this.onChangeCardExpiryMonth }
+								defaultValue={this.state.cardExpiryMonth}
+								onChange={this.onChangeCardExpiryMonth}
 							>
 								{[...Array(12)].map((_, i) => (
-									<option key={'month-' + i + 1}>{i + 1}</option>
+									<option key={'month-' + i + 1}>
+										{i + 1}
+									</option>
 								))}
 							</select>
 							<select
 								name="cardExpiryYear"
 								aria-label="Year"
-								defaultValue={ this.state.cardExpiryYear }
-								onChange={ this.onChangeCardExpiryYear }
+								defaultValue={this.state.cardExpiryYear}
+								onChange={this.onChangeCardExpiryYear}
 							>
 								{[...Array(50)].map((_, i) => (
-									<option key={'year-' + new Date().getFullYear() + i}>
+									<option
+										key={
+											'year-' +
+											new Date().getFullYear() +
+											i
+										}
+									>
 										{this.state.currentYear + i}
 									</option>
 								))}
@@ -432,24 +458,23 @@ class AskellRegistration extends React.Component {
 								id={this.state.blockId + '-security-code'}
 								type="text"
 								name="cardSecurityCode"
-								value={ this.state.cardSecurityCode }
-								onChange={ this.onChangeCardSecurityCode }
+								value={this.state.cardSecurityCode}
+								onChange={this.onChangeCardSecurityCode}
 							/>
 						</div>
 					</div>
 					<div className="buttons">
-						<button
-							onClick={ this.onClickUserInformationNextStep }
-						>
+						<button onClick={this.onClickUserInformationNextStep}>
 							Confirm payment and create account
 						</button>
 					</div>
 					<p className="hint">
-						Payment processing is performed by this site's owner
-						card merchant service, via Askell by Overcast Software,
-						which runs over a secure transport layer and is a PCI
-						certified recurring payments platform. Payment
-						information is sent directly to Askell for processing.
+						Payment processing is performed by this site&apos;s
+						owner&apos; card merchant service, via Askell by
+						Overcast Software, which runs over a secure transport
+						layer and is a PCI certified recurring payments
+						platform. Payment information is sent directly to Askell
+						for processing.
 					</p>
 				</div>
 			</form>
