@@ -20,6 +20,7 @@ class AskellRegistration {
 		add_action( 'init', array( $this, 'block_init' ) );
 		add_action( 'init', array( $this, 'enqueue_frontend_script' ) );
 		add_filter( 'script_loader_tag', array( $this, 'load_frontend_script_as_module' ), 10, 3 );
+		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 	}
 
 	public function block_init() {
@@ -41,6 +42,71 @@ class AskellRegistration {
 			$tag = '<script type="module" src="' . esc_url( $src ) . '"></script>';
 		}
 		return $tag;
+	}
+
+	public function register_rest_routes() {
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/customer',
+			array(
+				'methods' => 'POST',
+				'callback' => array( $this, 'customer_rest_post' ),
+				'permission_callback' => '__return_true',
+			)
+		);
+	}
+
+	public function customer_rest_post(WP_REST_Request $request) {
+		$request_body = (array) json_decode( $request->get_body() );
+
+		if ( true === is_null($request_body) ) {
+			return new WP_Error(
+				'invalid_request_body',
+				'Invalid Request Body',
+				array( 'status' => 400 )
+			);
+		}
+
+		if ( false === (
+			array_key_exists( 'password', $request_body ) &&
+			array_key_exists( 'username', $request_body ) &&
+			array_key_exists( 'emailAddress', $request_body ) &&
+			array_key_exists( 'firstName', $request_body ) &&
+			array_key_exists( 'lastName', $request_body ) )
+		) {
+			return new WP_Error(
+				'invalid_request_body',
+				'Invalid Request Body',
+				array( 'status' => 400 )
+			);
+		}
+
+		$new_user_id = wp_insert_user(
+			array(
+				'user_pass'  => $request_body['password'],
+				'user_login' => $request_body['username'],
+				'user_email' => $request_body['emailAddress'],
+				'first_name' => $request_body['firstName'],
+				'last_name'  => $request_body['lastName'],
+				'role'       => 'subscriber'
+			)
+		);
+
+		if ( true === is_a( $new_user_id, 'WP_Error' ) ) {
+			return $new_user_id;
+		}
+
+		$user = get_user_by('id', $new_user_id);
+
+		if (false === $user) {
+			return new WP_Error(
+				'user_not_found',
+				'The new user was not found'
+			);
+		}
+
+		return $user->data;
+	}
 	}
 }
 
