@@ -79,30 +79,55 @@
 	}
 	.askell-card-number-form-field {
 		display: flex;
+		.issuer {
+			display: inline-block;
+			content: url(../images/generic.svg);
+			width: 40px;
+			height: 30px;
+			margin-left: 1em;
+		}
+		.issuer.amex {
+			content: url(../images/amex.svg);
+		}
+		.issuer.diners {
+			content: url(../images/diners.svg);
+		}
+		.issuer.discover {
+			content: url(../images/discover.svg);
+		}
+		.issuer.maestro {
+			content: url(../images/maestro.svg);
+		}
+		.issuer.mastercard {
+			content: url(../images/mastercard.svg);
+		}
+		.issuer.visa {
+			content: url(../images/visa.svg);
+		}
 	}
-	.issuer {
-		display: inline-block;
-		content: url(../images/generic.svg);
-		width: 40px;
-		height: 30px;
-		margin-left: 1em;
+	.payment-info {
+		font-size: var(--wp--preset--font-size--small);
+		margin: 0 0 1em 0;
 	}
-	.issuer.amex {
-		content: url(../images/amex.svg);
-	}
-	.issuer.diners {
-		content: url(../images/diners.svg);
-	}
-	.issuer.discover {
-		content: url(../images/discover.svg);
-	}
-	.issuer.maestro {
-		content: url(../images/maestro.svg);
-	}
-	.issuer.mastercard {
-		content: url(../images/mastercard.svg);
-	}
-	.issuer.visa {
-		content: url(../images/visa.svg);
+	.askell-form-plan-container {
+		display: flex;
+		margin-bottom: 1em;
+		input {
+			margin-right: 2em;
+			width: 25px;
+			height: auto;
+		}
+		.plan-name {
+			display: block;
+			font-weight: 600;
+		}
+		.description {
+			display: block;
+			margin: 0;
+			font-size: var(--wp--preset--font-size--small);
+		}
+		.price {
+			display: block;
+		}
 	}
 }

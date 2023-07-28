@@ -5,6 +5,8 @@ class AskellRegistration extends React.Component {
 		this.state = {
 			blockId: _.uniqueId('askell-registration-block-'),
 			currentYear,
+			plans: [],
+			selectedPlan: {},
 			firstName: '',
 			lastName: '',
 			emailAddress: '',
@@ -20,6 +22,7 @@ class AskellRegistration extends React.Component {
 			cardIssuerName: '',
 			cardSecurityCode: '',
 		};
+		this.onChangePlan = this.onChangePlan.bind(this);
 		this.onChangeFirstName = this.onChangeFirstName.bind(this);
 		this.onChangeLastName = this.onChangeLastName.bind(this);
 		this.onChangeEmailAddress = this.onChangeEmailAddress.bind(this);
@@ -34,6 +37,29 @@ class AskellRegistration extends React.Component {
 		this.onChangeCardExpiryYear = this.onChangeCardExpiryYear.bind(this);
 		this.onChangeCardSecurityCode =
 			this.onChangeCardSecurityCode.bind(this);
+	}
+
+	componentDidMount() {
+		this.getFormFields();
+	}
+
+	async getFormFields() {
+		const response = await fetch(
+			wpApiSettings.root + 'askell/v1/form_fields'
+		);
+
+		const result = await response.json();
+
+		this.setState({ plans: result.plans });
+
+		return result;
+	}
+
+	onChangePlan(event) {
+		let plan = this.state.plans.find(({ id }) => id == event.target.value);
+		this.setState({
+			selectedPlan: plan
+		});
 	}
 
 	onChangeFirstName(event) {
@@ -254,41 +280,77 @@ class AskellRegistration extends React.Component {
 		});
 	}
 
+	formatCurrency(amount, currency) {
+		let defaultLocale  = 'en-US';
+		let localeFromHTML = document.getElementsByTagName("html")[0].lang;
+		let locale         = localeFromHTML||defaultLocale;
+
+		return new Intl.NumberFormat(
+			locale, { style: 'currency', currency: currency }
+		).format(amount);
+	}
+
+	formatInterval(interval, intervalCount) {
+		if (intervalCount == 1) {
+			switch (interval) {
+				case 'day':
+					return 'per day';
+				case 'week':
+					return 'per week';
+				case 'month':
+					return 'per month';
+				case 'year':
+					return 'per year'
+				default:
+					return '';
+			}
+		}
+
+		switch (interval) {
+			case 'day':
+				return `every ${intervalCount} + days`;
+			case 'week':
+				return `every ${intervalCount} weeks`;
+			case 'month':
+				return `every ${intervalCount} weeks`;
+			case 'year':
+				return `every ${intervalCount} years`;
+			default:
+				return '';
+		}
+	}
+
 	render() {
 		return (
 			<form method="post" action="#" id={this.state.blockId}>
-				<div className="askell-subscription-picker-form">
+				<div className="askell-plan-picker-form" onChange={ this.onChangePlan }>
 					<span className="section-heading">Choose Your Plan</span>
-					<div className="askell-form-subscription-container">
-						<input
-							id={this.state.blockId + '-subscription-radio-1'}
-							name="subscription"
-							type="radio"
-						/>
-						<label
-							className="inline"
-							htmlFor={
-								this.state.blockId + '-subscription-radio-1'
-							}
+					{ this.state.plans.map((p,i) => (
+						<div
+							id={ 'askell-form-plan-container-' + i }
+							className="askell-form-plan-container"
+							key={ p.id }
 						>
-							Subscription 1 - 1.000 kr
-						</label>
-					</div>
-					<div className="askell-form-subscription-container">
-						<input
-							id={this.state.blockId + '-subscription-radio-2'}
-							name="subscription"
-							type="radio"
-						/>
-						<label
-							className="inline"
-							htmlFor={
-								this.state.blockId + '-subscription-radio-2'
-							}
-						>
-							Subscription 2 - 2.000 kr
-						</label>
-					</div>
+							<input
+								id={this.state.blockId + '-plan-radio-' + p.id}
+								name="plan"
+								type="radio"
+								value={ p.id }
+							/>
+							<label
+								className=""
+								htmlFor={
+									this.state.blockId + '-plan-radio-' + p.id
+								}
+							>
+								<span className="plan-name">{ p.name }</span>
+								{ ( p.description != '' ) && <p className="description">{ p.description }</p> }
+								<em className="price">
+									{ p.price_tag }
+								</em>
+							</label>
+						</div>
+					)) }
 				</div>
 				<div className="askell-user-info-form">
 					<span className="section-heading">Account Information</span>
@@ -373,6 +435,9 @@ class AskellRegistration extends React.Component {
 				</div>
 				<div className="askell-cc-info-form">
 					<span className="section-heading">Payment Information</span>
+					<p className="payment-info">
+						{ this.state.selectedPlan.payment_info }
+					</p>
 					<div className="askell-form-field">
 						<label
 							htmlFor={this.state.blockId + '-card-holder-name'}
