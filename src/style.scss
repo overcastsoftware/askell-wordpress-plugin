@@ -11,74 +11,99 @@
 	padding: 2px;
 }
 
-
 .askell-registration-frontend-block-container {
+
 	.section-heading {
 		display: block;
-		font-weight: bold;
+		font-weight: 700;
 		margin: 2em 0 1em 0;
 	}
+
 	.field-container {
 		display: flex;
 		align-content: stretch;
 		justify-content: flex-start;
 		width: 100%;
 	}
+
 	.askell-form-field {
 		margin-right: 1em;
 		margin-bottom: 0.5rem;
 	}
-	label, .label {
+
+	label,
+	.label {
 		display: block;
 		margin-bottom: 0.2em;
 	}
+
 	label.inline {
 		display: inline-block;
 		margin-bottom: auto;
 	}
-	input[type=text], input[type=email], input[type=password], select, button {
+
+	input[type="text"],
+	input[type="email"],
+	input[type="password"],
+	select,
+	button {
 		padding: 0.5em 1em;
 	}
-	input[name=firstName] {
+
+	input[name="firstName"] {
 		width: 15em;
 	}
-	input[name=lastName] {
+
+	input[name="lastName"] {
 		width: 20em;
 	}
-	input[name=emailAddress] {
+
+	input[name="emailAddress"] {
 		width: calc(38.5em);
 	}
-	input[name=username] {
+
+	input[name="username"] {
 		width: 20em;
 	}
-	input[name=password] {
+
+	input[name="password"] {
 		width: 15em;
 	}
-	input[name=cardHolderName] {
+
+	input[name="cardHolderName"] {
 		width: 24em;
 	}
-	input[name=cardNumber] {
+
+	input[name="cardNumber"] {
 		width: 19em;
 		letter-spacing: 0.1em;
 	}
-	input[name=cardSecurityCode] {
+
+	input[name="cardSecurityCode"] {
 		width: 4em;
 		letter-spacing: 0.1em;
 	}
-	input[type=checkbox], input[type=radio] {
+
+	input[type="checkbox"],
+	input[type="radio"] {
 		margin-right: 1em;
 	}
-	select[name=cardExpiryMonth] {
+
+	select[name="cardExpiryMonth"] {
 		margin-right: 1em;
 	}
+
 	.buttons {
 		margin: 2em 0 1em 0;
 	}
+
 	.hint {
 		font-size: var(--wp--preset--font-size--small);
 	}
+
 	.askell-card-number-form-field {
 		display: flex;
+
 		.issuer {
 			display: inline-block;
 			content: url(../images/generic.svg);
@@ -86,46 +111,58 @@
 			height: 30px;
 			margin-left: 1em;
 		}
+
 		.issuer.amex {
 			content: url(../images/amex.svg);
 		}
+
 		.issuer.diners {
 			content: url(../images/diners.svg);
 		}
+
 		.issuer.discover {
 			content: url(../images/discover.svg);
 		}
+
 		.issuer.maestro {
 			content: url(../images/maestro.svg);
 		}
+
 		.issuer.mastercard {
 			content: url(../images/mastercard.svg);
 		}
+
 		.issuer.visa {
 			content: url(../images/visa.svg);
 		}
 	}
+
 	.payment-info {
 		font-size: var(--wp--preset--font-size--small);
 		margin: 0 0 1em 0;
 	}
+
 	.askell-form-plan-container {
 		display: flex;
 		margin-bottom: 1em;
+
 		input {
 			margin-right: 2em;
 			width: 25px;
 			height: auto;
 		}
+
 		.plan-name {
 			display: block;
 			font-weight: 600;
 		}
+
 		.description {
 			display: block;
 			margin: 0;
 			font-size: var(--wp--preset--font-size--small);
 		}
+
 		.price {
 			display: block;
 		}
