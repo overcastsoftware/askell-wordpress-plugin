@@ -56,9 +56,11 @@ class AskellRegistration extends React.Component {
 	}
 
 	onChangePlan(event) {
-		let plan = this.state.plans.find(({ id }) => id == event.target.value);
+		const plan = this.state.plans.find(
+			({ id }) => id === parseInt(event.target.value)
+		);
 		this.setState({
-			selectedPlan: plan
+			selectedPlan: plan,
 		});
 	}
 
@@ -280,62 +282,25 @@ class AskellRegistration extends React.Component {
 		});
 	}
 
-	formatCurrency(amount, currency) {
-		let defaultLocale  = 'en-US';
-		let localeFromHTML = document.getElementsByTagName("html")[0].lang;
-		let locale         = localeFromHTML||defaultLocale;
-
-		return new Intl.NumberFormat(
-			locale, { style: 'currency', currency: currency }
-		).format(amount);
-	}
-
-	formatInterval(interval, intervalCount) {
-		if (intervalCount == 1) {
-			switch (interval) {
-				case 'day':
-					return 'per day';
-				case 'week':
-					return 'per week';
-				case 'month':
-					return 'per month';
-				case 'year':
-					return 'per year'
-				default:
-					return '';
-			}
-		}
-
-		switch (interval) {
-			case 'day':
-				return `every ${intervalCount} + days`;
-			case 'week':
-				return `every ${intervalCount} weeks`;
-			case 'month':
-				return `every ${intervalCount} weeks`;
-			case 'year':
-				return `every ${intervalCount} years`;
-			default:
-				return '';
-		}
-	}
-
 	render() {
 		return (
 			<form method="post" action="#" id={this.state.blockId}>
-				<div className="askell-plan-picker-form" onChange={ this.onChangePlan }>
+				<div
+					className="askell-plan-picker-form"
+					onChange={this.onChangePlan}
+				>
 					<span className="section-heading">Choose Your Plan</span>
-					{ this.state.plans.map((p,i) => (
+					{this.state.plans.map((p, i) => (
 						<div
-							id={ 'askell-form-plan-container-' + i }
+							id={'askell-form-plan-container-' + i}
 							className="askell-form-plan-container"
-							key={ p.id }
+							key={p.id}
 						>
 							<input
 								id={this.state.blockId + '-plan-radio-' + p.id}
 								name="plan"
 								type="radio"
-								value={ p.id }
+								value={p.id}
 							/>
 							<label
 								className=""
@@ -343,14 +308,16 @@ class AskellRegistration extends React.Component {
 									this.state.blockId + '-plan-radio-' + p.id
 								}
 							>
-								<span className="plan-name">{ p.name }</span>
-								{ ( p.description != '' ) && <p className="description">{ p.description }</p> }
-								<em className="price">
-									{ p.price_tag }
-								</em>
+								<span className="plan-name">{p.name}</span>
+								{p.description !== '' && (
+									<p className="description">
+										{p.description}
+									</p>
+								)}
+								<em className="price">{p.price_tag}</em>
 							</label>
 						</div>
-					)) }
+					))}
 				</div>
 				<div className="askell-user-info-form">
 					<span className="section-heading">Account Information</span>
@@ -436,7 +403,7 @@ class AskellRegistration extends React.Component {
 				<div className="askell-cc-info-form">
 					<span className="section-heading">Payment Information</span>
 					<p className="payment-info">
-						{ this.state.selectedPlan.payment_info }
+						{this.state.selectedPlan.payment_info}
 					</p>
 					<div className="askell-form-field">
 						<label
