@@ -16,6 +16,9 @@
  */
 
 class AskellRegistration {
+	const REST_NAMESPACE = 'askell/v1';
+	const USER_ROLE = 'subscriber';
+
 	public function __construct() {
 		add_action( 'init', array( $this, 'block_init' ) );
 		add_action( 'init', array( $this, 'enqueue_frontend_script' ) );
