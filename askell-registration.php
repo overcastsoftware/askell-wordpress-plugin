@@ -57,6 +57,15 @@ class AskellRegistration {
 				'permission_callback' => '__return_true',
 			)
 		);
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/form_fields',
+			array(
+				'methods' => 'GET',
+				'callback' => array( $this, 'form_fields_json_get' ),
+				'permission_callback' => '__return_true'
+			)
+		);
 	}
 
 	public function customer_rest_post(WP_REST_Request $request) {
@@ -110,6 +119,140 @@ class AskellRegistration {
 
 		return $user->data;
 	}
+
+	function form_fields_json_get() {
+		return [
+			'plans' => [
+				[
+					'id'                => 1001,
+					'name'              => 'The Peasant',
+					'alternative_name'  => 'The least expensive option',
+					'reference'         => 'OPT1',
+					'interval'          => 'month',
+					'interval_count'    => 1,
+					'amount'            => '100.0000',
+					'currency'          => 'ISK',
+					'trial_period_days' => 0,
+					'description'       => 'Be a cheapskate and get the cheapest option available.',
+					'price_tag'         => $this->format_price_tag('ISK', '100.0000', 'month', 1, 0),
+					'payment_info'      => $this->format_payment_information('ISK', '100.0000', 'month', 1, 0),
+				],
+				[
+					'id'                => 1002,
+					'name'              => 'The Rich Bastard',
+					'alternative_name'  => 'The Middle of the Road',
+					'reference'         => 'OPT2',
+					'interval'          => 'month',
+					'interval_count'    => 1,
+					'amount'            => '250.0000',
+					'currency'          => 'ISK',
+					'trial_period_days' => 30,
+					'description'       => 'This means you are a least a little supportive, which is good.',
+					'price_tag'         => $this->format_price_tag('ISK', '250.0000', 'month', 1, 30),
+					'payment_info'      => $this->format_payment_information('ISK', '250.0000', 'month', 1, 30),
+				],
+				[
+					'id'                => 1003,
+					'name'              => 'The Millionaire',
+					'alternative_name'  => 'The Fast Lane',
+					'reference'         => 'OPT3',
+					'interval'          => 'month',
+					'interval_count'    => 1,
+					'amount'            => '1500.0000',
+					'currency'          => 'ISK',
+					'trial_period_days' => 30,
+					'description'       => 'Gets you all the benefits of being a rich bastard, plus a selfie with the team.',
+					'price_tag'         => $this->format_price_tag('ISK', '1500.0000', 'month', 1, 30),
+					'payment_info'      => $this->format_payment_information('ISK', '1500.0000', 'month', 1, 30),
+				]
+			]
+		];
+	}
+
+	/**
+	 * Format an amount in a given currency, using the current WP locale
+	 *
+	 * If the required libraries as missing, it may be possible to use the
+	 * plolyfill available at
+	 * https://packagist.org/packages/symfony/polyfill-intl-icu for handling
+	 * this.
+	 */
+	private function format_currency(string $currency, string $amount) {
+		return msgfmt_format_message(
+			get_locale(),
+			"{0, number, :: currency/{$currency} unit-width-narrow}",
+			[$amount]
+		);
+	}
+
+	private function format_interval(string $interval, int $interval_count) {
+		if ($interval_count === 1) {
+			switch ($interval) {
+				case 'day':
+					return 'daily';
+				case 'week':
+					return 'weekly';
+				case 'month':
+					return 'monthly';
+				case 'year':
+					return 'annually';
+				default:
+					return false;
+			}
+		}
+
+		switch ($interval) {
+			case 'day':
+				return sprintf('every %s days', $interval_count);
+			case 'week':
+				return sprintf('every %s weeks', $interval_count);
+			case 'month':
+				return sprintf('every %s months', $interval_count);
+			case 'year':
+				return sprintf('every %s years', $interval_count);
+			default:
+				return false;
+		}
+
+		return false;
+	}
+
+	private function format_price_tag(string $currency, string $amount, string $interval, int $interval_count, int $trial_period_days) {
+		if ($trial_period_days > 0) {
+			return ucfirst(sprintf(
+				__('%s, %s (%s day free trial)', 'askell-registration'),
+				self::format_currency($currency, $amount),
+				self::format_interval($interval, $interval_count),
+				$trial_period_days
+			));
+		}
+
+		return ucfirst(sprintf(
+			__('%s, %s', 'askell-registration'),
+			self::format_currency($currency, $amount),
+			self::format_interval($interval, $interval_count),
+		));
+
+	}
+
+	private function format_payment_information(string $currency, string $amount, string $interval, int $interval_count, int $trial_period_days) {
+		if ($trial_period_days > 0) {
+			return sprintf(
+				__(
+					'Upon confirmation, your card will be charged %s, %s, after a free trial period of %s days. Your card may be tested and validated in the meantime.',
+					'askell-registration'
+				),
+				self::format_currency($currency, $amount),
+				self::format_interval($interval, $interval_count),
+				$trial_period_days
+			);
+		}
+
+		return sprintf(
+			__('Upon confirmation, your card will be immedietly charged %s and then %s for the same amount.', 'askell-registration'),
+			self::format_currency($currency, $amount),
+			self::format_interval($interval, $interval_count),
+		);
 	}
 }
 
