@@ -21,6 +21,7 @@ class AskellRegistration extends React.Component {
 			cardIssuer: '',
 			cardIssuerName: '',
 			cardSecurityCode: '',
+			disableConfirmButton: true,
 		};
 		this.createUser = this.createUser.bind(this);
 		this.onChangePlan = this.onChangePlan.bind(this);
@@ -46,7 +47,11 @@ class AskellRegistration extends React.Component {
 
 	async getFormFields() {
 		const response = await fetch(
-			wpApiSettings.root + 'askell/v1/form_fields'
+			wpApiSettings.root + 'askell/v1/form_fields',
+			{
+				method: 'GET',
+				cache: 'no-cache'
+			}
 		);
 
 		const result = await response.json();
@@ -115,6 +120,7 @@ class AskellRegistration extends React.Component {
 
 	onChangeTermsAccepted(event) {
 		this.setState({ termsAccepted: event.target.checked });
+		this.setState({ disableConfirmButton: ! event.target.checked });
 	}
 
 	onClickUserInformationNextStep(event) {
@@ -343,6 +349,14 @@ class AskellRegistration extends React.Component {
 							</label>
 						</div>
 					))}
+					<div className="buttons">
+						<button
+							disabled={ (this.state.selectedPlan.id === undefined) }
+							onClick={this.onClickUserInformationNextStep}
+						>
+							Next Step
+						</button>
+					</div>
 				</div>
 				<div className="askell-user-info-form">
 					<span className="section-heading">Account Information</span>
@@ -424,13 +438,20 @@ class AskellRegistration extends React.Component {
 							I accept the <a href="#">terms of service</a>.
 						</label>
 					</div>
+					<div className="buttons">
+						<button
+							disabled={ this.state.disableConfirmButton }
+						>
+							Create Account
+						</button>
+					</div>
 				</div>
 				<div className="askell-cc-info-form">
 					<span className="section-heading">Payment Information</span>
 					<p className="payment-info">
 						{this.state.selectedPlan.payment_info}
 					</p>
-					<div className="askell-form-field">
+					<div className="askell-form-card-holder-name askell-form-field">
 						<label
 							htmlFor={this.state.blockId + '-card-holder-name'}
 						>
@@ -444,7 +465,7 @@ class AskellRegistration extends React.Component {
 							onChange={this.onChangeCardHolderName}
 						/>
 					</div>
-					<div className="askell-form-field">
+					<div className="askell-form-card-number askell-form-field">
 						<label htmlFor={this.state.blockId + '-card-number'}>
 							Card Number
 						</label>
@@ -463,7 +484,7 @@ class AskellRegistration extends React.Component {
 					</div>
 					<div className="field-container">
 						<div
-							className="askell-form-field"
+							className="askell-form-card-expiry askell-form-field"
 							aria-labelledby={
 								this.state.blockId + '-expiry-label'
 							}
@@ -505,7 +526,7 @@ class AskellRegistration extends React.Component {
 								))}
 							</select>
 						</div>
-						<div className="askell-form-field">
+						<div className="askell-form-card-security-code askell-form-field">
 							<label
 								htmlFor={this.state.blockId + '-security-code'}
 							>
@@ -521,8 +542,10 @@ class AskellRegistration extends React.Component {
 						</div>
 					</div>
 					<div className="buttons">
-						<button onClick={this.onClickUserInformationNextStep}>
-							Confirm payment and create account
+						<button
+							disabled={ this.state.disableConfirmButton }
+						>
+							Confirm Payment
 						</button>
 					</div>
 					<p className="hint">

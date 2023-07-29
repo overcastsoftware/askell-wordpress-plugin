@@ -5,18 +5,13 @@
  * Replace them with your own styles or remove the file completely.
  */
 
-.wp-block-askell-registration-askell-registration {
-	background-color: #21759b;
-	color: #fff;
-	padding: 2px;
-}
-
 .askell-registration-frontend-block-container {
 
 	.section-heading {
 		display: block;
 		font-weight: 700;
-		margin: 2em 0 1em 0;
+		font-size: var(--wp--preset--font-size--large);
+		margin: var(--wp--preset--spacing--40) 0 var(--wp--preset--spacing--40) 0;
 	}
 
 	.field-container {
@@ -29,12 +24,54 @@
 	.askell-form-field {
 		margin-right: 1em;
 		margin-bottom: 0.5rem;
+		position: relative;
+		max-width: 100%;
+		margin-right: var(--wp--preset--spacing--30);
+	}
+
+	.askell-form-first-name {
+		width: 15em;
+	}
+
+	.askell-form-last-name {
+		width: 15em;
+	}
+
+	.askell-form-email {
+		width: 15em;
+	}
+
+	.askell-form-username {
+		width: 15em;
+	}
+
+	.askell-form-password {
+		width: 15em;
+	}
+
+	.askell-form-card-holder-name {
+		width: 23em;
+	}
+
+	.askell-form-card-number {
+		width: 18em;
+	}
+
+	.askell-form-card-expiry {
+		select {
+			width: auto;
+		}
+	}
+
+	.askell-form-card-security-code {
+		width: 6.5em;
 	}
 
 	label,
 	.label {
 		display: block;
 		margin-bottom: 0.2em;
+		font-size: var(--wp--preset--font-size--normal);
 	}
 
 	label.inline {
@@ -44,57 +81,22 @@
 
 	input[type="text"],
 	input[type="email"],
-	input[type="password"],
-	select,
-	button {
-		padding: 0.5em 1em;
-	}
-
-	input[name="firstName"] {
-		width: 15em;
-	}
-
-	input[name="lastName"] {
-		width: 20em;
-	}
-
-	input[name="emailAddress"] {
-		width: calc(38.5em);
-	}
-
-	input[name="username"] {
-		width: 20em;
-	}
-
-	input[name="password"] {
-		width: 15em;
-	}
-
-	input[name="cardHolderName"] {
-		width: 24em;
-	}
-
-	input[name="cardNumber"] {
-		width: 19em;
-		letter-spacing: 0.1em;
-	}
-
-	input[name="cardSecurityCode"] {
-		width: 4em;
-		letter-spacing: 0.1em;
+	input[type="password"]
+	{
+		width: 100%;
 	}
 
 	input[type="checkbox"],
 	input[type="radio"] {
-		margin-right: 1em;
+		margin-right: var(--wp--preset--spacing--30);;
 	}
 
 	select[name="cardExpiryMonth"] {
-		margin-right: 1em;
+		margin-right: var(--wp--preset--spacing--30);;
 	}
 
 	.buttons {
-		margin: 2em 0 1em 0;
+		margin: var(--wp--preset--spacing--50) 0 var(--wp--preset--spacing--20) 0;
 	}
 
 	.hint {
@@ -103,13 +105,13 @@
 
 	.askell-card-number-form-field {
 		display: flex;
+		align-items: center;
 
 		.issuer {
-			display: inline-block;
 			content: url(../images/generic.svg);
 			width: 40px;
 			height: 30px;
-			margin-left: 1em;
+			margin-left: var(--wp--preset--spacing--30);;
 		}
 
 		.issuer.amex {
@@ -139,28 +141,35 @@
 
 	.payment-info {
 		font-size: var(--wp--preset--font-size--small);
-		margin: 0 0 1em 0;
+		margin: 0 0 var(--wp--preset--spacing--20) 0;
 	}
 
 	.askell-form-plan-container {
 		display: flex;
 		margin-bottom: 1em;
+		align-items: center;
+
+		label {
+			padding-left: var(--wp--preset--spacing--20);
+		}
 
 		input {
-			margin-right: 2em;
 			width: 25px;
-			height: auto;
+			height: 25px;
+			flex-shrink: 0;
 		}
 
 		.plan-name {
 			display: block;
 			font-weight: 600;
+			font-size: var(--wp--preset--font-size--normal);
+			margin: 0;
 		}
 
 		.description {
 			display: block;
 			margin: 0;
-			font-size: var(--wp--preset--font-size--small);
+			font-size: var(--wp--preset--font-size--normal);
 		}
 
 		.price {

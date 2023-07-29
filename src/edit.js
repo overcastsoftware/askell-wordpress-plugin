@@ -21,6 +21,8 @@ import { useBlockProps } from '@wordpress/block-editor';
  */
 import './editor.scss';
 
+import AskellRegistration from '../src/askellRegistration.js';
+
 /**
  * The edit function describes the structure of your block in the context of the
  * editor. This represents what the editor will render when the block is used.
@@ -30,5 +32,11 @@ import './editor.scss';
  * @return {WPElement} Element to render.
  */
 export default function Edit() {
-	return <div className="askell-registration-frontend-block-container"></div>;
+	return (
+		<div { ...useBlockProps() }>
+			<div className='askell-registration-frontend-block-container'>
+				<AskellRegistration />
+			</div>
+		</div>
+	);
 }
