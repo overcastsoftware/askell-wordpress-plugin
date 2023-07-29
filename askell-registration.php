@@ -67,7 +67,9 @@ class AskellRegistration {
 			array_key_exists( 'username', $request_body ) &&
 			array_key_exists( 'emailAddress', $request_body ) &&
 			array_key_exists( 'firstName', $request_body ) &&
-			array_key_exists( 'lastName', $request_body ) )
+			array_key_exists( 'lastName', $request_body ) &&
+			array_key_exists( 'planId', $request_body ) &&
+			array_key_exists( 'planReference', $request_body ) )
 		) {
 			return new WP_Error(
 				'invalid_request_body',
@@ -91,14 +93,25 @@ class AskellRegistration {
 			return $new_user_id;
 		}
 
-		$user = get_user_by('id', $new_user_id);
+		update_user_meta(
+			$new_user_id,
+			'askell_plan_id',
+			$request_body['planId']
+		);
 
-		if (false === $user) {
-			return new WP_Error(
-				'user_not_found',
-				'The new user was not found'
-			);
-		}
+		update_user_meta(
+			$new_user_id,
+			'askell_plan_reference',
+			$request_body['planReference']
+		);
+
+		update_user_meta(
+			$new_user_id,
+			'askell_registration_status',
+			'pending'
+		);
+
+		$user = get_user_by('id', $new_user_id);
 
 		return $user->data;
 	}
