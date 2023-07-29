@@ -21,30 +21,13 @@ class AskellRegistration {
 
 	public function __construct() {
 		add_action( 'init', array( $this, 'block_init' ) );
-		add_action( 'init', array( $this, 'enqueue_frontend_script' ) );
-		add_filter( 'script_loader_tag', array( $this, 'load_frontend_script_as_module' ), 10, 3 );
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 	}
 
 	public function block_init() {
-		register_block_type( __DIR__ . '/build' );
-	}
-
-	public function enqueue_frontend_script() {
-		wp_enqueue_script(
-			'askell-registration-frontend',
-			plugins_url( 'askell-registration/build/frontend.js' ),
-			array( 'wp-api', 'react', 'react-dom' ),
-			'0.1.0',
-			false
+		register_block_type(
+			__DIR__ . '/build'
 		);
-	}
-
-	public function load_frontend_script_as_module( $tag, $handle, $src ) {
-		if ( 'askell-registration-frontend' === $handle ) {
-			$tag = '<script type="module" src="' . esc_url( $src ) . '"></script>';
-		}
-		return $tag;
 	}
 
 	public function register_rest_routes() {

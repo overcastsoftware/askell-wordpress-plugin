@@ -7,7 +7,7 @@
 	"homepage": "https://askell.is/",
 	"main": "build/index.js",
 	"scripts": {
-		"build": "wp-scripts build",
+		"build": "wp-scripts build ./src/index.js ./src/frontend.js",
 		"format": "wp-scripts format",
 		"lint:css": "wp-scripts lint-style ./src/style.scss ./src/editor.scss --fix",
 		"lint:js": "wp-scripts lint-js ./src --fix",
