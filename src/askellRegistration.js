@@ -22,6 +22,7 @@ class AskellRegistration extends React.Component {
 			cardIssuerName: '',
 			cardSecurityCode: '',
 		};
+		this.createUser = this.createUser.bind(this);
 		this.onChangePlan = this.onChangePlan.bind(this);
 		this.onChangeFirstName = this.onChangeFirstName.bind(this);
 		this.onChangeLastName = this.onChangeLastName.bind(this);
@@ -53,6 +54,30 @@ class AskellRegistration extends React.Component {
 		this.setState({ plans: result.plans });
 
 		return result;
+	}
+
+	async createUser() {
+		const response = await fetch(
+			wpApiSettings.root + 'askell/v1/customer',
+			{
+				method: 'POST',
+				mode: same-origin,
+				cache: 'no-cache',
+				headers: {
+					'Content-Type': "application/json",
+					'X-WP-Nonce': wpApiSettings.nonce
+				},
+				body: JSON.stringify({
+					password: this.state.password,
+					username: this.state.username,
+					emailAddress: this.state.emailAddress,
+					firstName: this.state.firstName,
+					lastName: this.state.lastName,
+					planId: this.state.selectedPlan.id,
+					planReference: this.state.selectedPlan.reference
+				})
+			}
+		);
 	}
 
 	onChangePlan(event) {
