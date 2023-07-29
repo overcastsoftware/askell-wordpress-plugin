@@ -213,7 +213,13 @@ class AskellRegistration {
 		return false;
 	}
 
-	private function format_price_tag(string $currency, string $amount, string $interval, int $interval_count, int $trial_period_days) {
+	private function format_price_tag(
+		string $currency,
+		string $amount,
+		string $interval,
+		int $interval_count,
+		int $trial_period_days
+	) {
 		if ($trial_period_days > 0) {
 			return ucfirst(sprintf(
 				__('%s, %s (%s day free trial)', 'askell-registration'),
@@ -231,7 +237,13 @@ class AskellRegistration {
 
 	}
 
-	private function format_payment_information(string $currency, string $amount, string $interval, int $interval_count, int $trial_period_days) {
+	private function format_payment_information(
+		string $currency,
+		string $amount,
+		string $interval,
+		int $interval_count,
+		int $trial_period_days
+	) {
 		if ($trial_period_days > 0) {
 			return sprintf(
 				__(
@@ -245,7 +257,10 @@ class AskellRegistration {
 		}
 
 		return sprintf(
-			__('Upon confirmation, your card will be immedietly charged %s and then %s for the same amount.', 'askell-registration'),
+			__(
+				'Upon confirmation, your card will be immediately charged %s and then %s for the same amount.',
+				'askell-registration'
+			),
 			self::format_currency($currency, $amount),
 			self::format_interval($interval, $interval_count),
 		);
