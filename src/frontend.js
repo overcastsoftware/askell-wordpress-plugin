@@ -1,7 +1,7 @@
 // Import our React component
 import AskellRegistration from '../src/askellRegistration.js';
 
-addEventListener("DOMContentLoaded", (event) => {
+addEventListener("DOMContentLoaded", () => {
 	// Find matching WordPress blocks
 	const containers = document.querySelectorAll(
 		'.askell-registration-frontend-block-container'
