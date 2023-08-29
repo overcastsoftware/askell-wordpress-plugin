@@ -81,7 +81,7 @@ class AskellRegistration {
 		$new_user_id = wp_insert_user(
 			array(
 				'user_pass'  => $request_body['password'],
-				'user_login' => $request_body['username'],
+				'user_login' => sanitize_user($request_body['username']),
 				'user_email' => $request_body['emailAddress'],
 				'first_name' => $request_body['firstName'],
 				'last_name'  => $request_body['lastName'],
@@ -89,8 +89,15 @@ class AskellRegistration {
 			)
 		);
 
+		# If there in an error in the user registration, wp_insert_user() will
+		# spit out a WP_Error, which we need to cast into another one with
+		# an appropriate HTTP status.
 		if ( true === is_a( $new_user_id, 'WP_Error' ) ) {
-			return $new_user_id;
+			return new WP_Error(
+				$new_user_id->get_error_code(),
+				$new_user_id->get_error_message(),
+				array( 'status' => 400 )
+			);
 		}
 
 		update_user_meta(
@@ -168,13 +175,13 @@ class AskellRegistration {
 	/**
 	 * Format an amount in a given currency, using the current WP locale
 	 *
-	 * If the required libraries as missing, it may be possible to use the
+	 * @todo If the required libraries as missing, it may be possible to use the
 	 * plolyfill available at
 	 * https://packagist.org/packages/symfony/polyfill-intl-icu for handling
 	 * this.
 	 */
 	private function format_currency(string $currency, string $amount) {
-		return msgfmt_format_message(
+		return MessageFormatter::formatMessage(
 			get_locale(),
 			"{0, number, :: currency/{$currency} unit-width-narrow}",
 			[$amount]
@@ -185,13 +192,13 @@ class AskellRegistration {
 		if ($interval_count === 1) {
 			switch ($interval) {
 				case 'day':
-					return 'daily';
+					return __('daily', 'askell-registration');
 				case 'week':
-					return 'weekly';
+					return __('weekly', 'askell-registration');
 				case 'month':
-					return 'monthly';
+					return __('monthly', 'askell-registration');
 				case 'year':
-					return 'annually';
+					return __('annually', 'askell-registration');
 				default:
 					return false;
 			}
@@ -199,13 +206,25 @@ class AskellRegistration {
 
 		switch ($interval) {
 			case 'day':
-				return sprintf('every %s days', $interval_count);
+				return sprintf(
+					__('every %d days', 'askell-registration'),
+					$interval_count
+				);
 			case 'week':
-				return sprintf('every %s weeks', $interval_count);
+				return sprintf(
+					__('every %d weeks', 'askell-registration'),
+					$interval_count
+				);
 			case 'month':
-				return sprintf('every %s months', $interval_count);
+				return sprintf(
+					__('every %d months', 'askell-registration'),
+					$interval_count
+				);
 			case 'year':
-				return sprintf('every %s years', $interval_count);
+				return sprintf(
+					__('every %d years', 'askell-registration'),
+					$interval_count
+				);
 			default:
 				return false;
 		}
@@ -222,7 +241,8 @@ class AskellRegistration {
 	) {
 		if ($trial_period_days > 0) {
 			return ucfirst(sprintf(
-				__('%s, %s (%s day free trial)', 'askell-registration'),
+				/* translators: Indicates a price tag for subscription option with a free trial ($20, monthly (30 day free trial)) */
+				__('%1$s, %2$s (%3$d day free trial)', 'askell-registration'),
 				self::format_currency($currency, $amount),
 				self::format_interval($interval, $interval_count),
 				$trial_period_days
@@ -230,7 +250,8 @@ class AskellRegistration {
 		}
 
 		return ucfirst(sprintf(
-			__('%s, %s', 'askell-registration'),
+			/* translators: Indicates a price tag for subscription option without a free trial ($20, every 2 weeks) */
+			__('%1$s, %2$s', 'askell-registration'),
 			self::format_currency($currency, $amount),
 			self::format_interval($interval, $interval_count),
 		));
@@ -246,8 +267,9 @@ class AskellRegistration {
 	) {
 		if ($trial_period_days > 0) {
 			return sprintf(
+				/* translators: Appears in the credit card information form as an indicator of for how much, how and when the card would be charged. */
 				__(
-					'Upon confirmation, your card will be charged %s, %s, after a free trial period of %s days. Your card may be tested and validated in the meantime.',
+					'Upon confirmation, your card will be charged %1$s, %2$s, after a free trial period of %3$d days. Your card may be tested and validated in the meantime.',
 					'askell-registration'
 				),
 				self::format_currency($currency, $amount),
@@ -258,7 +280,7 @@ class AskellRegistration {
 
 		return sprintf(
 			__(
-				'Upon confirmation, your card will be immediately charged %s and then %s for the same amount.',
+				'Upon confirmation, your card will be immediately charged %1$s and then %2$s for the same amount.',
 				'askell-registration'
 			),
 			self::format_currency($currency, $amount),

@@ -7,11 +7,41 @@
 
 .askell-registration-frontend-block-container {
 
+	* {
+		transition-duration: 0ms !important;
+	}
+
+	.askell-step {
+		display: none;
+	}
+
+	form {
+		min-height: 20rem;
+	}
+
+	form[data-current-step=plans] {
+		.askell-plan-picker-form {
+			display: block;
+		}
+	}
+
+	form[data-current-step=user-info] {
+		.askell-user-info-form {
+			display: block;
+		}
+	}
+
+	form[data-current-step=cc-info] {
+		.askell-cc-info-form {
+			display: block;
+		}
+	}
+
 	.section-heading {
 		display: block;
 		font-weight: 700;
 		font-size: var(--wp--preset--font-size--large);
-		margin: var(--wp--preset--spacing--40) 0 var(--wp--preset--spacing--40) 0;
+		margin: 0 0 0.5rem 0;
 	}
 
 	.field-container {
@@ -22,11 +52,14 @@
 	}
 
 	.askell-form-field {
-		margin-right: 1em;
+		margin-right: 0.5em;
 		margin-bottom: 0.5rem;
 		position: relative;
 		max-width: 100%;
-		margin-right: var(--wp--preset--spacing--30);
+	}
+
+	.askell-form-plans {
+		margin-top: 1.5rem;
 	}
 
 	.askell-form-first-name {
@@ -54,7 +87,7 @@
 	}
 
 	.askell-form-card-number {
-		width: 18em;
+		width: 17.5em;
 	}
 
 	.askell-form-card-expiry {
@@ -64,7 +97,7 @@
 	}
 
 	.askell-form-card-security-code {
-		width: 6.5em;
+		width: 5.5em;
 	}
 
 	label,
@@ -83,20 +116,53 @@
 	input[type="email"],
 	input[type="password"]
 	{
-		width: 100%;
+		width: calc( 100% - 2em - 2px );
+		padding: 0.7em 1em;
+		border: 1px solid #ccc;
+		border-radius: 3px;
+		background-color: #fff;
 	}
 
 	input[type="checkbox"],
 	input[type="radio"] {
-		margin-right: var(--wp--preset--spacing--30);;
+		margin-right: 0.5em;
+	}
+
+	input[name="plan"] {
+		margin-right: 1.5em;
+	}
+
+	select {
+		padding: 0.7em 1em;
+		border: 1px solid #ccc;
+		border-radius: 3px;
+		background-color: #fff;
 	}
 
 	select[name="cardExpiryMonth"] {
-		margin-right: var(--wp--preset--spacing--30);;
+		margin-right: 0.5em;
 	}
 
 	.buttons {
-		margin: var(--wp--preset--spacing--50) 0 var(--wp--preset--spacing--20) 0;
+		margin: 1.5rem 0 1rem 0;
+		button {
+			padding: 0.7em 1em;
+			background-color: #f0f0f0;
+			border: 1px solid #333;
+			border-radius: 3px;
+			color: #222;
+		}
+		button:hover {
+			background-color: #e0e0e0;
+		}
+		button:disabled {
+			background-color: #ccc;
+			border: 1px solid #999;
+			color: #666;
+		}
+		button:disabled:hover {
+			background-color: #ccc;
+		}
 	}
 
 	.hint {
@@ -111,7 +177,7 @@
 			content: url(../images/generic.svg);
 			width: 40px;
 			height: 30px;
-			margin-left: var(--wp--preset--spacing--30);;
+			margin-left: 1em;
 		}
 
 		.issuer.amex {
@@ -139,19 +205,27 @@
 		}
 	}
 
+	.user-info {
+		margin: 0 !important;
+		padding-bottom: 1rem !important;
+	}
+
 	.payment-info {
 		font-size: var(--wp--preset--font-size--small);
-		margin: 0 0 var(--wp--preset--spacing--20) 0;
+		margin: 0 0 1rem 0;
+	}
+
+	.error p {
+		color: #600;
+		font-weight: bold;
+		font-size: var(--wp--preset--font-size--small);
+		margin: 1rem 0;
 	}
 
 	.askell-form-plan-container {
 		display: flex;
 		margin-bottom: 1em;
 		align-items: center;
-
-		label {
-			padding-left: var(--wp--preset--spacing--20);
-		}
 
 		input {
 			width: 25px;
@@ -163,6 +237,7 @@
 			display: block;
 			font-weight: 600;
 			font-size: var(--wp--preset--font-size--normal);
+			line-height: var(--global--line-height-heading);
 			margin: 0;
 		}
 
@@ -170,10 +245,24 @@
 			display: block;
 			margin: 0;
 			font-size: var(--wp--preset--font-size--normal);
+			line-height: var(--global--line-height-heading);
 		}
 
 		.price {
 			display: block;
+			line-height: var(--global--line-height-heading);
+			margin-top: 0.2em;
+		}
+	}
+
+	.askell-user-info-form[data-checked=true] {
+		input[type=text]:invalid, input[type=password]:invalid, input[type=email]:invalid {
+			border: 1px solid #f66;
+			background-color: #fdd;
+			background-image: url(../images/not_allowed.svg);
+			background-repeat: no-repeat;
+			background-position: center right 0.75em;
+			background-size: 1em auto;
 		}
 	}
 }

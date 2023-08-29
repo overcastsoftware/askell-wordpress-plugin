@@ -10,4 +10,6 @@ Let your users sign up for recurring subscriptions directly from WordPress using
 
 == 3rd party components ==
 
-This plugin uses SVG Credit Card & Payment Icons by Aaron Fagan, licensed under the Apache license.
+Uses SVG Credit Card & Payment Icons by Aaron Fagan, licensed under the Apache license.
+
+Uses icons from the Twemoji collection. Copyright 2020 Twitter, Inc and other contributors. Licensed under CC-BY 4.0: https://creativecommons.org/licenses/by/4.0/.

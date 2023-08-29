@@ -1,3 +1,5 @@
+import { Button } from '@wordpress/components';
+
 class AskellRegistration extends React.Component {
 	constructor(props) {
 		const currentYear = new Date().getFullYear();
@@ -5,14 +7,18 @@ class AskellRegistration extends React.Component {
 		this.state = {
 			blockId: _.uniqueId('askell-registration-block-'),
 			currentYear,
+			currentStep: 'plans',
 			plans: [],
 			selectedPlan: {},
 			firstName: '',
 			lastName: '',
 			emailAddress: '',
+			emailAddressIsValid: false,
 			username: '',
 			password: '',
 			termsAccepted: false,
+			userInfoChecked: false,
+			userReference: 0,
 			cardHolderName: '',
 			cardNumber: '',
 			cardNumberSpaced: '',
@@ -22,17 +28,25 @@ class AskellRegistration extends React.Component {
 			cardIssuerName: '',
 			cardSecurityCode: '',
 			disableConfirmButton: true,
+			WpErrorCode: null,
+			WpErrorMessage: null,
+			disableNextStepButton: false
 		};
 		this.createUser = this.createUser.bind(this);
+
 		this.onChangePlan = this.onChangePlan.bind(this);
+		this.onClickPlansNextStep = this.onClickPlansNextStep.bind(this);
+
 		this.onChangeFirstName = this.onChangeFirstName.bind(this);
 		this.onChangeLastName = this.onChangeLastName.bind(this);
 		this.onChangeEmailAddress = this.onChangeEmailAddress.bind(this);
 		this.onChangeUsername = this.onChangeUsername.bind(this);
 		this.onChangePassword = this.onChangePassword.bind(this);
 		this.onChangeTermsAccepted = this.onChangeTermsAccepted.bind(this);
-		this.onClickUserInformationNextStep =
-			this.onClickUserInformationNextStep.bind(this);
+		this.onClickUserInfoNextStep = this.onClickUserInfoNextStep.bind(this);
+		this.onClickUserInfoBackButton =
+			this.onClickUserInfoBackButton.bind(this);
+
 		this.onChangeCardHolderName = this.onChangeCardHolderName.bind(this);
 		this.onChangeCardNumber = this.onChangeCardNumber.bind(this);
 		this.onChangeCardExpiryMonth = this.onChangeCardExpiryMonth.bind(this);
@@ -62,11 +76,11 @@ class AskellRegistration extends React.Component {
 	}
 
 	async createUser() {
+		this.setState({ disableNextStepButton: true })
 		const response = await fetch(
 			wpApiSettings.root + 'askell/v1/customer',
 			{
 				method: 'POST',
-				mode: same-origin,
 				cache: 'no-cache',
 				headers: {
 					'Content-Type': "application/json",
@@ -83,6 +97,31 @@ class AskellRegistration extends React.Component {
 				})
 			}
 		);
+
+		const responseData = await response.json();
+
+		if ( response.ok ) {
+			console.log(responseData);
+			this.setState({
+				disableNextStepButton: false,
+				userReference: responseData['ID'],
+				currentStep: 'cc-info',
+				disableConfirmButton: false,
+				// Take the password out of the state context as it ha been sent
+				password: ''
+			});
+		} else {
+			console.log(responseData);
+			this.setState({
+				disableNextStepButton: false,
+				WpErrorCode: responseData['code'],
+				WpErrorMessage: responseData['message']
+			});
+		}
+	}
+
+	onFormSubmit(event) {
+		event.preventDefault();
 	}
 
 	onChangePlan(event) {
@@ -94,6 +133,11 @@ class AskellRegistration extends React.Component {
 		});
 	}
 
+	onClickPlansNextStep(event) {
+		event.preventDefault();
+		this.setState({ currentStep: 'user-info' });
+	}
+
 	onChangeFirstName(event) {
 		this.setState({ firstName: event.target.value });
 	}
@@ -103,7 +147,10 @@ class AskellRegistration extends React.Component {
 	}
 
 	onChangeEmailAddress(event) {
-		this.setState({ emailAddress: event.target.value });
+		this.setState({
+			emailAddress: event.target.value,
+			emailAddressIsValid: event.target.validity.valid
+		});
 	}
 
 	onChangeUsername(event) {
@@ -120,12 +167,28 @@ class AskellRegistration extends React.Component {
 
 	onChangeTermsAccepted(event) {
 		this.setState({ termsAccepted: event.target.checked });
-		this.setState({ disableConfirmButton: ! event.target.checked });
 	}
 
-	onClickUserInformationNextStep(event) {
+	onClickUserInfoNextStep(event) {
 		event.preventDefault();
-		console.log(this.state);
+		this.setState({ userInfoChecked: true })
+
+		// Count the number of invalid elements in the user info section
+		let invalidElementCount = document.querySelectorAll(
+			'#' + this.state.blockId + ' .askell-user-info-form input:invalid'
+		).length
+
+		// Show the credit card form when there are zero validation errors in
+		// the user info section.
+		// CSS will be used for highlighting invalid fields.
+		if ((invalidElementCount == 0) && (this.state.termsAccepted == true)) {
+			this.createUser();
+		}
+	}
+
+	onClickUserInfoBackButton(event) {
+		event.preventDefault();
+		this.setState({ currentStep: 'plans' });
 	}
 
 	onChangeCardHolderName(event) {
@@ -315,51 +378,93 @@ class AskellRegistration extends React.Component {
 
 	render() {
 		return (
-			<form method="post" action="#" id={this.state.blockId}>
+			<form
+				id={this.state.blockId}
+				method="post"
+				action="#"
+				data-current-step={ this.state.currentStep }
+				onSubmit={ this.onFormSubmit }
+			>
 				<div
-					className="askell-plan-picker-form"
+					className="askell-plan-picker-form askell-step"
 					onChange={this.onChangePlan}
+					aria-labelledby={this.state.blockId + '-plan-section-heading'}
 				>
-					<span className="section-heading">Choose Your Plan</span>
-					{this.state.plans.map((p, i) => (
-						<div
-							id={'askell-form-plan-container-' + i}
-							className="askell-form-plan-container"
-							key={p.id}
-						>
-							<input
-								id={this.state.blockId + '-plan-radio-' + p.id}
-								name="plan"
-								type="radio"
-								value={p.id}
-							/>
-							<label
-								className=""
-								htmlFor={
-									this.state.blockId + '-plan-radio-' + p.id
-								}
+					<span
+						id={this.state.blockId + '-plan-section-heading'}
+						className="section-heading"
+						role="heading"
+					>
+						Choose Your Plan
+					</span>
+					<div
+						className="askell-form-plans"
+					>
+						{this.state.plans.map((p, i) => (
+							<div
+								id={'askell-form-plan-container-' + i}
+								className="askell-form-plan-container"
+								key={p.id}
+								aria-labelledby={this.state.blockId + '-plan-name-' + p.id}
 							>
-								<span className="plan-name">{p.name}</span>
-								{p.description !== '' && (
-									<p className="description">
-										{p.description}
-									</p>
-								)}
-								<em className="price">{p.price_tag}</em>
-							</label>
-						</div>
-					))}
+								<input
+									id={this.state.blockId + '-plan-radio-' + p.id}
+									name="plan"
+									type="radio"
+									value={p.id}
+								/>
+								<label
+									className=""
+									htmlFor={
+										this.state.blockId + '-plan-radio-' + p.id
+									}
+								>
+									<span
+										id={this.state.blockId + '-plan-name-' + p.id}
+										className="plan-name"
+										role="heading"
+									>
+										{p.name}
+									</span>
+									{p.description !== '' && (
+										<p className="description">
+											{p.description}
+										</p>
+									)}
+									<em className="price">{p.price_tag}</em>
+								</label>
+							</div>
+						))}
+					</div>
 					<div className="buttons">
-						<button
+						<Button
+							variant="primary"
+							size="default"
 							disabled={ (this.state.selectedPlan.id === undefined) }
-							onClick={this.onClickUserInformationNextStep}
+							onClick={this.onClickPlansNextStep}
 						>
 							Next Step
-						</button>
+						</Button>
 					</div>
 				</div>
-				<div className="askell-user-info-form">
-					<span className="section-heading">Account Information</span>
+				<div
+					className="askell-user-info-form askell-step"
+					aria-labelledby={this.state.blockId + '-user-info-section-heading'}
+					data-checked={ this.state.userInfoChecked }
+				>
+					<span
+						id={this.state.blockId + '-user-info-section-heading'}
+						className="section-heading"
+						role="heading"
+					>
+						Account Information
+					</span>
+					<p className="payment-info">
+						Here, we will create a new user for you on this site.
+						It is nessecary to enter your information into all the
+						fields below in order to get to the next step, where you
+						will enter your payment information.
+					</p>
 					<div className="field-container">
 						<div className="askell-form-first-name askell-form-field">
 							<label htmlFor={this.state.blockId + '-first-name'}>
@@ -370,6 +475,8 @@ class AskellRegistration extends React.Component {
 								name="firstName"
 								type="text"
 								value={this.state.firstName}
+								required
+								minLength="2"
 								onChange={this.onChangeFirstName}
 							/>
 						</div>
@@ -382,6 +489,8 @@ class AskellRegistration extends React.Component {
 								name="lastName"
 								type="text"
 								value={this.state.lastName}
+								required
+								minLength="2"
 								onChange={this.onChangeLastName}
 							/>
 						</div>
@@ -395,6 +504,7 @@ class AskellRegistration extends React.Component {
 							name="emailAddress"
 							type="email"
 							value={this.state.emailAddress}
+							required
 							onChange={this.onChangeEmailAddress}
 						/>
 					</div>
@@ -408,6 +518,9 @@ class AskellRegistration extends React.Component {
 								name="username"
 								type="text"
 								value={this.state.username}
+								required
+								minLength="1"
+								maxLength="60"
 								onChange={this.onChangeUsername}
 							/>
 						</div>
@@ -420,6 +533,8 @@ class AskellRegistration extends React.Component {
 								name="password"
 								type="password"
 								value={this.state.password}
+								required
+								minLength="8"
 								onChange={this.onChangePassword}
 							/>
 						</div>
@@ -438,20 +553,38 @@ class AskellRegistration extends React.Component {
 							I accept the <a href="#">terms of service</a>.
 						</label>
 					</div>
+					<div className={ 'error ' + this.state.WpErrorCode } role="alert" aria-live="assertive">
+						{ this.state.WpErrorCode !== null &&
+							<p>Error: { this.state.WpErrorMessage }</p>
+						}
+					</div>
 					<div className="buttons">
-						<button
-							disabled={ this.state.disableConfirmButton }
+						<Button
+							variant="primary"
+							size="default"
+							onClick={ this.onClickUserInfoBackButton }
+						>
+							Back
+						</Button>
+						<span> </span>
+						<Button
+							variant="primary"
+							size="default"
+							onClick={ this.onClickUserInfoNextStep }
+							disabled={ ( ! this.state.termsAccepted || this.state.disableNextStepButton ) }
 						>
 							Create Account
-						</button>
+						</Button>
 					</div>
 				</div>
-				<div className="askell-cc-info-form">
+				<div className="askell-cc-info-form askell-step">
 					<span className="section-heading">Payment Information</span>
 					<p className="payment-info">
 						{this.state.selectedPlan.payment_info}
 					</p>
-					<div className="askell-form-card-holder-name askell-form-field">
+					<div
+						className="askell-form-card-holder-name askell-form-field"
+					>
 						<label
 							htmlFor={this.state.blockId + '-card-holder-name'}
 						>
@@ -461,6 +594,7 @@ class AskellRegistration extends React.Component {
 							id={this.state.blockId + '-card-holder-name'}
 							type="text"
 							name="cardHolderName"
+							autoComplete="false"
 							value={this.state.cardHolderName}
 							onChange={this.onChangeCardHolderName}
 						/>
@@ -474,6 +608,7 @@ class AskellRegistration extends React.Component {
 								id={this.state.blockId + '-card-number'}
 								type="text"
 								name="cardNumber"
+								autoComplete="false"
 								value={this.state.cardNumberSpaced}
 								onChange={this.onChangeCardNumber}
 							/>
@@ -498,6 +633,7 @@ class AskellRegistration extends React.Component {
 							<select
 								name="cardExpiryMonth"
 								aria-label="Month"
+								autoComplete="false"
 								defaultValue={this.state.cardExpiryMonth}
 								onChange={this.onChangeCardExpiryMonth}
 							>
@@ -510,6 +646,7 @@ class AskellRegistration extends React.Component {
 							<select
 								name="cardExpiryYear"
 								aria-label="Year"
+								autoComplete="false"
 								defaultValue={this.state.cardExpiryYear}
 								onChange={this.onChangeCardExpiryYear}
 							>
@@ -536,6 +673,7 @@ class AskellRegistration extends React.Component {
 								id={this.state.blockId + '-security-code'}
 								type="text"
 								name="cardSecurityCode"
+								autoComplete="false"
 								value={this.state.cardSecurityCode}
 								onChange={this.onChangeCardSecurityCode}
 							/>
