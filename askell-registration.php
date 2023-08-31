@@ -18,10 +18,15 @@
 class AskellRegistration {
 	const REST_NAMESPACE = 'askell/v1';
 	const USER_ROLE = 'subscriber';
+	const PLUGIN_PATH = 'askell-registration';
+	const ASSETS_VERSION = '0.1.0';
 
 	public function __construct() {
 		add_action( 'init', array( $this, 'block_init' ) );
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+
+		add_action( 'admin_menu', array( $this, 'add_menu_page' ) );
+		add_action( 'admin_init', array( $this, 'enqueue_admin_script' ) );
 	}
 
 	public function block_init() {
@@ -85,7 +90,7 @@ class AskellRegistration {
 				'user_email' => $request_body['emailAddress'],
 				'first_name' => $request_body['firstName'],
 				'last_name'  => $request_body['lastName'],
-				'role'       => 'subscriber'
+				'role'       => self::USER_ROLE
 			)
 		);
 
@@ -123,52 +128,109 @@ class AskellRegistration {
 		return $user->data;
 	}
 
+	public function add_menu_page() {
+		add_menu_page(
+			__('Askell', 'askell-registration'),
+			__('Askell', 'askell-registration'),
+			'manage_options',
+			'askell-registration',
+			array( $this, 'render_admin_page' ),
+			'dashicons-id',
+			91
+		);
+	}
+
+	public function render_admin_page() {
+		if ( false === current_user_can( 'manage_options' ) ) {
+			return false;
+		}
+
+		require __DIR__ . '/views/main-page.php';
+	}
+
+	public function enqueue_admin_script() {
+		wp_enqueue_script(
+			'askell-registration-admin-view',
+			plugins_url( self::PLUGIN_PATH . '/build/admin.js' ),
+			array( 'wp-api' ),
+			self::ASSETS_VERSION,
+			false
+		);
+
+		wp_enqueue_style(
+			'askell-registration-admin-style',
+			plugins_url( self::PLUGIN_PATH . '/build/admin.scss.css' ),
+			array(),
+			self::ASSETS_VERSION,
+			false
+		);
+	}
+
+	public function plans() {
+		return [
+			[
+				'id'                => 1001,
+				'name'              => 'The Peasant',
+				'alternative_name'  => 'The least expensive option',
+				'reference'         => 'OPT1',
+				'interval'          => 'month',
+				'interval_count'    => 1,
+				'amount'            => '100.0000',
+				'currency'          => 'ISK',
+				'trial_period_days' => 0,
+				'description'       => 'Be a cheapskate and get the cheapest option available.',
+				'price_tag'         => $this->format_price_tag('ISK', '100.0000', 'month', 1, 0),
+				'payment_info'      => $this->format_payment_information('ISK', '100.0000', 'month', 1, 0),
+			],
+			[
+				'id'                => 1002,
+				'name'              => 'The Rich Bastard',
+				'alternative_name'  => 'The Middle of the Road',
+				'reference'         => 'OPT2',
+				'interval'          => 'month',
+				'interval_count'    => 1,
+				'amount'            => '250.0000',
+				'currency'          => 'ISK',
+				'trial_period_days' => 30,
+				'description'       => 'This means you are a least a little supportive, which is good.',
+				'price_tag'         => $this->format_price_tag('ISK', '250.0000', 'month', 1, 30),
+				'payment_info'      => $this->format_payment_information('ISK', '250.0000', 'month', 1, 30),
+			],
+			[
+				'id'                => 1003,
+				'name'              => 'The Millionaire',
+				'alternative_name'  => 'The Fast Lane',
+				'reference'         => 'OPT3',
+				'interval'          => 'month',
+				'interval_count'    => 1,
+				'amount'            => '1500.0000',
+				'currency'          => 'ISK',
+				'trial_period_days' => 30,
+				'description'       => 'Gets you all the benefits of being a rich bastard, plus a selfie with the team.',
+				'price_tag'         => $this->format_price_tag('ISK', '1500.0000', 'month', 1, 30),
+				'payment_info'      => $this->format_payment_information('ISK', '1500.0000', 'month', 1, 30),
+			]
+		];
+	}
+
+	function get_plan_by_reference($reference) {
+		$filter = function($a) use ($reference) {
+			return ($a['reference'] == $reference);
+		};
+
+		$filtered_plans = array_filter($this->plans(), $filter);
+
+		return reset($filtered_plans);
+	}
+
 	function form_fields_json_get() {
 		return [
-			'plans' => [
-				[
-					'id'                => 1001,
-					'name'              => 'The Peasant',
-					'alternative_name'  => 'The least expensive option',
-					'reference'         => 'OPT1',
-					'interval'          => 'month',
-					'interval_count'    => 1,
-					'amount'            => '100.0000',
-					'currency'          => 'ISK',
-					'trial_period_days' => 0,
-					'description'       => 'Be a cheapskate and get the cheapest option available.',
-					'price_tag'         => $this->format_price_tag('ISK', '100.0000', 'month', 1, 0),
-					'payment_info'      => $this->format_payment_information('ISK', '100.0000', 'month', 1, 0),
-				],
-				[
-					'id'                => 1002,
-					'name'              => 'The Rich Bastard',
-					'alternative_name'  => 'The Middle of the Road',
-					'reference'         => 'OPT2',
-					'interval'          => 'month',
-					'interval_count'    => 1,
-					'amount'            => '250.0000',
-					'currency'          => 'ISK',
-					'trial_period_days' => 30,
-					'description'       => 'This means you are a least a little supportive, which is good.',
-					'price_tag'         => $this->format_price_tag('ISK', '250.0000', 'month', 1, 30),
-					'payment_info'      => $this->format_payment_information('ISK', '250.0000', 'month', 1, 30),
-				],
-				[
-					'id'                => 1003,
-					'name'              => 'The Millionaire',
-					'alternative_name'  => 'The Fast Lane',
-					'reference'         => 'OPT3',
-					'interval'          => 'month',
-					'interval_count'    => 1,
-					'amount'            => '1500.0000',
-					'currency'          => 'ISK',
-					'trial_period_days' => 30,
-					'description'       => 'Gets you all the benefits of being a rich bastard, plus a selfie with the team.',
-					'price_tag'         => $this->format_price_tag('ISK', '1500.0000', 'month', 1, 30),
-					'payment_info'      => $this->format_payment_information('ISK', '1500.0000', 'month', 1, 30),
-				]
-			]
+			'api_key' => get_option('askell_api_key'),
+			'reference' => get_option('askell_reference', 'wordpress_id'),
+			'styles_enabled' => get_option('askell_styles_enabled', true),
+			'billing_address_enabled' => get_option('askell_billing_address_enabled', false),
+			'shipping_address_enabled' => get_option('askell_shipping_address_enabled', false),
+			'plans' => $this->plans()
 		];
 	}
 

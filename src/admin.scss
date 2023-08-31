@@ -1,0 +1,43 @@
+body.wp-admin.toplevel_page_askell-registration {
+	#wpbody-content {
+		h1 {
+			margin-bottom: 1rem;
+			font-size: 3rem;
+			font-weight: bold;
+		}
+	}
+
+	#askell-registration-settings {
+		.section {
+			background-color: #fff;
+			padding: 1rem 2rem;
+			margin: 2rem 0;
+			border: 1px solid #c3c4c7;
+			border-radius: 5px;
+			max-width: 600px;
+		}
+
+		td.radio-buttons, td.checkboxes {
+			label {
+				display: block;
+				padding: 0.5em 0;
+			}
+		}
+
+		p.submit {
+			max-width: calc(600px + 4rem);
+			display: flex;
+			align-items: center;
+			flex-wrap: wrap;
+			justify-content: flex-end;
+		}
+
+		p.submit > * {
+			flex: 0 0 0;
+		}
+
+		p.submit > img {
+			margin-right: 1rem;
+		}
+	}
+}
