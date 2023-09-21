@@ -12,9 +12,11 @@ $askell_user_query = new WP_User_Query( $askell_user_query_arguments );
 		<p><?php _e('This is an early development version of Askell for WordPress. Do not use this version of the plugin on a production website!', 'askell-registration'); ?></p>
 	</div>
 
+	<?php if ( empty ( get_option( 'askell_api_key', '' ) ) || empty( get_option( 'askell_api_secret', '' ) ) ) : ?>
 	<div class="notice notice-error">
 		<p><?php _e('The Askell API key and Shared Secret values have not been set yet. Please open the Settings pane and enter the missing values.', 'askell-registration'); ?></p>
 	</div>
+	<?php endif ?>
 
 	<h1>
 		<?php _e('Askell for WordPress', 'askell-registration'); ?>
@@ -26,7 +28,7 @@ $askell_user_query = new WP_User_Query( $askell_user_query_arguments );
 			class="nav-tab nav-tab-active"
 			href="#"
 		>
-			<?php _e('Users', 'askell-registration'); ?>
+			<?php _e('Subscribers', 'askell-registration'); ?>
 		</a>
 		<a
 			id="askell-nav-tab-settings"
@@ -38,7 +40,7 @@ $askell_user_query = new WP_User_Query( $askell_user_query_arguments );
 	</nav>
 
 	<div id="askell-registration-users">
-		<h2><?php _e('Users', 'askell-registration'); ?></h2>
+		<h2><?php _e('Subscribers', 'askell-registration'); ?></h2>
 		<table class="wp-list-table widefat fixed striped">
 			<thead>
 				<tr>
@@ -90,18 +92,28 @@ $askell_user_query = new WP_User_Query( $askell_user_query_arguments );
 				<tbody>
 					<tr>
 						<th scope="row">
-						<?php _e('API Key', 'askell-registration'); ?>
+						<?php _e('Public API Key', 'askell-registration'); ?>
 						</th>
 						<td>
-							<input type="text" class="regular-text" />
+							<input
+								class="regular-text"
+								type="text"
+								name="api_key"
+								value="<?php echo get_option( 'askell_api_key', '' ) ?>"
+							/>
 						</td>
 					</tr>
 					<tr>
 						<th scope="row">
-							<?php _e('Shared Secret', 'askell-registration'); ?>
+							<?php _e('Secret Key', 'askell-registration'); ?>
 						</th>
 						<td>
-							<input type="text" class="regular-text" />
+							<input
+								class="regular-text"
+								type="text"
+								name="api_secret"
+								value="<?php echo get_option( 'askell_api_secret', '' ) ?>"
+							/>
 							<p><?php _e('Do not share this key with anyone!', 'askell-registration'); ?></p>
 						</td>
 					</tr>
@@ -140,7 +152,7 @@ $askell_user_query = new WP_User_Query( $askell_user_query_arguments );
 								>
 								<?php _e('Icelandic Personal ID Number (Kennitala)', 'askell-registration'); ?>
 							</label>
-							<p>This is the user attribute this WordPress site and Askell use for referring to each user's information.</p>
+							<p><?php _e("This is the user attribute this WordPress site and Askell use for referring to each subscriber's records.", 'askell-registration'); ?></p>
 							<p><?php _e('Note that this should be set <strong>before the first registrations arrive</strong>, as changing this may affect the synchronisation between Askell and your website, resulting in discrepancies.', 'askell-registration'); ?></p>
 						</td>
 					</tr>
@@ -168,7 +180,7 @@ $askell_user_query = new WP_User_Query( $askell_user_query_arguments );
 							<label>
 								<input
 									type="checkbox"
-									name="enable_shipping_address"
+									name="enable_address_country"
 									<?php echo get_option('askell_shipping_address_enabled', false) ? 'checked' : '' ?>
 								>
 								<?php _e('Enable Country Selector in Addresses', 'askell-registration') ?>
@@ -195,7 +207,7 @@ $askell_user_query = new WP_User_Query( $askell_user_query_arguments );
 							<label>
 								<input
 									type="checkbox"
-									name="enable-css"
+									name="enable_css"
 									<?php echo get_option('askell_styles_enabled', true) ? 'checked' : '' ?>
 								>
 								<?php _e('Enable built-in stylesheet', 'askell-registration'); ?>
@@ -208,8 +220,14 @@ $askell_user_query = new WP_User_Query( $askell_user_query_arguments );
 		</section>
 
 		<p class="submit">
-			<img src="<?php echo esc_url( get_admin_url() . 'images/wpspin_light-2x.gif' ); ?>" />
-			<input type="submit" value="Save Settings" class="button button-primary button-hero" />
+			<img
+				id="askell-settings-loader"
+				class="hidden"
+				src="<?php echo esc_url( get_admin_url() . 'images/wpspin_light-2x.gif' ); ?>"
+				width="32"
+				height="32"
+			/>
+			<input type="submit" value="<?php _e('Save Settings', 'askell-registration') ?>" class="button button-primary button-hero" />
 		</p>
 	</form>
 </div>
