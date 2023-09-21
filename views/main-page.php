@@ -164,22 +164,6 @@ $askell_user_query = new WP_User_Query( $askell_user_query_arguments );
 							<label>
 								<input
 									type="checkbox"
-									name="enable_billing_address"
-									<?php echo get_option('askell_billing_address_enabled', false) ? 'checked' : '' ?>
-								>
-								<?php _e('Enable Billing Address', 'askell-registration'); ?>
-							</label>
-							<label>
-								<input
-									type="checkbox"
-									name="enable_shipping_address"
-									<?php echo get_option('askell_shipping_address_enabled', false) ? 'checked' : '' ?>
-								>
-								<?php _e('Enable Shipping Address', 'askell-registration') ?>
-							</label>
-							<label>
-								<input
-									type="checkbox"
 									name="enable_address_country"
 									<?php echo get_option('askell_shipping_address_enabled', false) ? 'checked' : '' ?>
 								>
