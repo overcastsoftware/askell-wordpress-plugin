@@ -1,13 +1,16 @@
 body.wp-admin.toplevel_page_askell-registration {
+
 	#wpbody-content {
+
 		h1 {
 			margin-bottom: 1rem;
 			font-size: 3rem;
-			font-weight: bold;
+			font-weight: 700;
 		}
 	}
 
 	#askell-registration-settings {
+
 		.section {
 			background-color: #fff;
 			padding: 1rem 2rem;
@@ -17,7 +20,9 @@ body.wp-admin.toplevel_page_askell-registration {
 			max-width: 600px;
 		}
 
-		td.radio-buttons, td.checkboxes {
+		td.radio-buttons,
+		td.checkboxes {
+
 			label {
 				display: block;
 				padding: 0.5em 0;
