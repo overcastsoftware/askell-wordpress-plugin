@@ -18,10 +18,35 @@
 class AskellRegistration {
 	const REST_NAMESPACE = 'askell/v1';
 	const USER_ROLE = 'subscriber';
+	const PLUGIN_PATH = 'askell-registration';
+	const ASSETS_VERSION = '0.1.0';
+
+	const ADMIN_ICON = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdod'
+		. 'D0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0c'
+		. 'DovL3d3dy53My5vcmcvMjAwMC9zdmciPgoJPHBhdGggZmlsbD0iYmxhY2siIGQ9Im0gM'
+		. 'TAuOTcsMS4xIC05LjU3MSw5LjY4IGMgLTAuMDcsMC4xIC0wLjA3LDAuMTcgMCwwLjI0I'
+		. 'GwgMS4zOTUsMS40MSBjIDAuMDcsMC4xIDAuMTczLDAuMSAwLjI0MSwwIDAsMCAwLDAgM'
+		. 'CwwIEwgMTEuMDksNC4yODQgYyAwLjEsLTAuMDcgMC4xOCwtMC4wNyAwLjI0LDAgMCwwI'
+		. 'DAsMCAwLDAgbCAxLjQyLDEuNDM2IHYgMCBoIC0xLjEzIGMgLTAuMSwwIC0wLjE3LDAuM'
+		. 'DggLTAuMTcsMC4xNyB2IDEuNDIxIGMgMCwwLjA5IDAuMSwwLjE3IDAuMTcsMC4xNyBoI'
+		. 'DQuMjEgYyAwLjE5LDAgMC4zNCwtMC4xNSAwLjM0LC0wLjM0IFYgMi44NzMgYyAwLC0wL'
+		. 'jA5IC0wLjEsLTAuMTcgLTAuMTcsLTAuMTcgaCAtMS40IGMgLTAuMSwwIC0wLjE3LDAuM'
+		. 'DggLTAuMTcsMC4xNyB2IDEuMjM4IDAgTCAxMS40NSwxLjEgYyAtMC4xMywtMC4xMzMyI'
+		. 'C0wLjM0LC0wLjEzNDcgLTAuNDgsMCAwLDEwZS00IDAsMCAwLDAgeiIgLz4KCTxwYXRoI'
+		. 'GZpbGw9ImJsYWNrIiBkPSJNIDkuNDQ1LDE1Ljc1IDYuNDI5LDEyLjcyIGMgLTAuMDcsL'
+		. 'TAuMSAtMC4xNzUsLTAuMSAtMC4yNCwwIDAsMCAwLDAgMCwwIGwgLTEuMzg1LDEuMzkgY'
+		. 'yAtMC4wNywwLjEgLTAuMDcsMC4xOCAwLDAuMjQgbCA0LjUyMSw0LjU1IGMgMC4xMywwL'
+		. 'jEzIDAuMzQ1LDAuMTMgMC40OCwwIDAsMCAwLDAgMCwwIEwgMTguNiwxMC4wNiBjIDAuM'
+		. 'SwtMC4wNyAwLjEsLTAuMTc5IDAsLTAuMjQ0IEwgMTcuMjIsOC40MjEgYyAtMC4xLC0wL'
+		. 'jA3IC0wLjE4LC0wLjA3IC0wLjI0LDAgMCwwIDAsMCAwLDAgTCA5LjY4NSwxNS43NSBjI'
+		. 'C0wLjA3LDAuMSAtMC4xNzUsMC4xIC0wLjI0LDAgeiIgLz4KPC9zdmc+Cg==';
 
 	public function __construct() {
 		add_action( 'init', array( $this, 'block_init' ) );
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+
+		add_action( 'admin_menu', array( $this, 'add_menu_page' ) );
+		add_action( 'admin_init', array( $this, 'enqueue_admin_script' ) );
 	}
 
 	public function block_init() {
@@ -49,6 +74,58 @@ class AskellRegistration {
 				'permission_callback' => '__return_true'
 			)
 		);
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/settings',
+			array(
+				'methods' => 'POST',
+				'callback' => array( $this, 'settings_rest_post' ),
+				'permission_callback' => function() {
+					return current_user_can( 'manage_options' );
+				}
+			)
+		);
+	}
+
+	public function settings_rest_post(WP_REST_Request $request) {
+		$request_body = (array) json_decode( $request->get_body() );
+
+		if ( array_key_exists( 'api_key', $request_body ) ) {
+			update_option(
+				'askell_api_key',
+				$request_body['api_key']
+			);
+		}
+
+		if ( array_key_exists( 'api_secret', $request_body ) ) {
+			update_option(
+				'askell_api_secret',
+				$request_body['api_secret']
+			);
+		}
+
+		if ( array_key_exists( 'enable_address_country', $request_body ) ) {
+			update_option(
+				'askell_enable_address_country',
+				$request_body['enable_address_country']
+			);
+		}
+
+		if ( array_key_exists( 'enable_css', $request_body ) ) {
+			update_option(
+				'askell_enable_css',
+				$request_body['enable_css']
+			);
+		}
+
+		if ( array_key_exists( 'reference', $request_body ) ) {
+			update_option(
+				'askell_reference',
+				$request_body['reference']
+			);
+		}
+
+		return true;
 	}
 
 	public function customer_rest_post(WP_REST_Request $request) {
@@ -85,7 +162,7 @@ class AskellRegistration {
 				'user_email' => $request_body['emailAddress'],
 				'first_name' => $request_body['firstName'],
 				'last_name'  => $request_body['lastName'],
-				'role'       => 'subscriber'
+				'role'       => self::USER_ROLE
 			)
 		);
 
@@ -123,52 +200,109 @@ class AskellRegistration {
 		return $user->data;
 	}
 
+	public function add_menu_page() {
+		add_menu_page(
+			__('Askell', 'askell-registration'),
+			__('Askell', 'askell-registration'),
+			'manage_options',
+			'askell-registration',
+			array( $this, 'render_admin_page' ),
+			self::ADMIN_ICON,
+			91
+		);
+	}
+
+	public function render_admin_page() {
+		if ( false === current_user_can( 'manage_options' ) ) {
+			return false;
+		}
+
+		require __DIR__ . '/views/main-page.php';
+	}
+
+	public function enqueue_admin_script() {
+		wp_enqueue_script(
+			'askell-registration-admin-view',
+			plugins_url( self::PLUGIN_PATH . '/build/admin.js' ),
+			array( 'wp-api' ),
+			self::ASSETS_VERSION,
+			false
+		);
+
+		wp_enqueue_style(
+			'askell-registration-admin-style',
+			plugins_url( self::PLUGIN_PATH . '/build/admin.scss.css' ),
+			array(),
+			self::ASSETS_VERSION,
+			false
+		);
+	}
+
+	public function plans() {
+		return [
+			[
+				'id'                => 1001,
+				'name'              => 'The Peasant',
+				'alternative_name'  => 'The least expensive option',
+				'reference'         => 'OPT1',
+				'interval'          => 'month',
+				'interval_count'    => 1,
+				'amount'            => '100.0000',
+				'currency'          => 'ISK',
+				'trial_period_days' => 0,
+				'description'       => 'Be a cheapskate and get the cheapest option available.',
+				'price_tag'         => $this->format_price_tag('ISK', '100.0000', 'month', 1, 0),
+				'payment_info'      => $this->format_payment_information('ISK', '100.0000', 'month', 1, 0),
+			],
+			[
+				'id'                => 1002,
+				'name'              => 'The Rich Bastard',
+				'alternative_name'  => 'The Middle of the Road',
+				'reference'         => 'OPT2',
+				'interval'          => 'month',
+				'interval_count'    => 1,
+				'amount'            => '250.0000',
+				'currency'          => 'ISK',
+				'trial_period_days' => 30,
+				'description'       => 'This means you are a least a little supportive, which is good.',
+				'price_tag'         => $this->format_price_tag('ISK', '250.0000', 'month', 1, 30),
+				'payment_info'      => $this->format_payment_information('ISK', '250.0000', 'month', 1, 30),
+			],
+			[
+				'id'                => 1003,
+				'name'              => 'The Millionaire',
+				'alternative_name'  => 'The Fast Lane',
+				'reference'         => 'OPT3',
+				'interval'          => 'month',
+				'interval_count'    => 1,
+				'amount'            => '1500.0000',
+				'currency'          => 'ISK',
+				'trial_period_days' => 30,
+				'description'       => 'Gets you all the benefits of being a rich bastard, plus a selfie with the team.',
+				'price_tag'         => $this->format_price_tag('ISK', '1500.0000', 'month', 1, 30),
+				'payment_info'      => $this->format_payment_information('ISK', '1500.0000', 'month', 1, 30),
+			]
+		];
+	}
+
+	function get_plan_by_reference($reference) {
+		$filter = function($a) use ($reference) {
+			return ($a['reference'] == $reference);
+		};
+
+		$filtered_plans = array_filter($this->plans(), $filter);
+
+		return reset($filtered_plans);
+	}
+
 	function form_fields_json_get() {
 		return [
-			'plans' => [
-				[
-					'id'                => 1001,
-					'name'              => 'The Peasant',
-					'alternative_name'  => 'The least expensive option',
-					'reference'         => 'OPT1',
-					'interval'          => 'month',
-					'interval_count'    => 1,
-					'amount'            => '100.0000',
-					'currency'          => 'ISK',
-					'trial_period_days' => 0,
-					'description'       => 'Be a cheapskate and get the cheapest option available.',
-					'price_tag'         => $this->format_price_tag('ISK', '100.0000', 'month', 1, 0),
-					'payment_info'      => $this->format_payment_information('ISK', '100.0000', 'month', 1, 0),
-				],
-				[
-					'id'                => 1002,
-					'name'              => 'The Rich Bastard',
-					'alternative_name'  => 'The Middle of the Road',
-					'reference'         => 'OPT2',
-					'interval'          => 'month',
-					'interval_count'    => 1,
-					'amount'            => '250.0000',
-					'currency'          => 'ISK',
-					'trial_period_days' => 30,
-					'description'       => 'This means you are a least a little supportive, which is good.',
-					'price_tag'         => $this->format_price_tag('ISK', '250.0000', 'month', 1, 30),
-					'payment_info'      => $this->format_payment_information('ISK', '250.0000', 'month', 1, 30),
-				],
-				[
-					'id'                => 1003,
-					'name'              => 'The Millionaire',
-					'alternative_name'  => 'The Fast Lane',
-					'reference'         => 'OPT3',
-					'interval'          => 'month',
-					'interval_count'    => 1,
-					'amount'            => '1500.0000',
-					'currency'          => 'ISK',
-					'trial_period_days' => 30,
-					'description'       => 'Gets you all the benefits of being a rich bastard, plus a selfie with the team.',
-					'price_tag'         => $this->format_price_tag('ISK', '1500.0000', 'month', 1, 30),
-					'payment_info'      => $this->format_payment_information('ISK', '1500.0000', 'month', 1, 30),
-				]
-			]
+			'api_key' => get_option('askell_api_key'),
+			'reference' => get_option('askell_reference', 'wordpress_id'),
+			'styles_enabled' => get_option('askell_styles_enabled', true),
+			'billing_address_enabled' => get_option('askell_billing_address_enabled', false),
+			'shipping_address_enabled' => get_option('askell_shipping_address_enabled', false),
+			'plans' => $this->plans()
 		];
 	}
 

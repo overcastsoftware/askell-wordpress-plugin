@@ -7,18 +7,13 @@
 	"homepage": "https://askell.is/",
 	"main": "build/index.js",
 	"scripts": {
-		"build": "wp-scripts build ./src/index.js ./src/frontend.js",
+		"build": "wp-scripts build ./src/index.js ./src/frontend.js ./src/admin.js ./src/admin.scss ./src/style.scss ./src/askellRegistration.js",
 		"format": "wp-scripts format",
-		"lint:css": "wp-scripts lint-style ./src/style.scss ./src/editor.scss --fix",
+		"lint:css": "wp-scripts lint-style ./src/admin.scss ./src/style.scss ./src/editor.scss --fix",
 		"lint:js": "wp-scripts lint-js ./src --fix",
 		"packages-update": "wp-scripts packages-update",
 		"plugin-zip": "wp-scripts plugin-zip",
-		"start": "wp-scripts start",
-		"build-admin-css": "sass src/admin.scss build/admin.css",
-		"build-admin-js": "babel --plugins @babel/plugin-transform-react-jsx src/admin.js > build/admin.js",
-		"build-frontend-component": "babel --plugins @babel/plugin-transform-react-jsx src/askellRegistration.js > build/askellRegistration.js",
-		"build-frontend-module": "babel --plugins @babel/plugin-transform-react-jsx src/frontend.js > build/frontend.js",
-		"build-frontend-css": "sass src/style.scss build/style.css"
+		"start": "wp-scripts start ./src/index.js ./src/frontend.js ./src/admin.js ./src/admin.scss ./src/style.scss ./src/askellRegistration.js"
 	},
 	"devDependencies": {
 		"@babel/cli": "^7.22.5",
@@ -28,5 +23,12 @@
 		"@wordpress/eslint-plugin": "^14.8.0",
 		"@wordpress/scripts": "^26.6.0",
 		"eslint-plugin-prettier": "^5.0.0"
-	}
+	},
+	"files": [
+		"readme.txt",
+		"askell-registration.php",
+		"views",
+		"build",
+		"assets"
+	]
 }
