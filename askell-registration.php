@@ -74,6 +74,58 @@ class AskellRegistration {
 				'permission_callback' => '__return_true'
 			)
 		);
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/settings',
+			array(
+				'methods' => 'POST',
+				'callback' => array( $this, 'settings_rest_post' ),
+				'permission_callback' => function() {
+					return current_user_can( 'manage_options' );
+				}
+			)
+		);
+	}
+
+	public function settings_rest_post(WP_REST_Request $request) {
+		$request_body = (array) json_decode( $request->get_body() );
+
+		if ( array_key_exists( 'api_key', $request_body ) ) {
+			update_option(
+				'askell_api_key',
+				$request_body['api_key']
+			);
+		}
+
+		if ( array_key_exists( 'api_secret', $request_body ) ) {
+			update_option(
+				'askell_api_secret',
+				$request_body['api_secret']
+			);
+		}
+
+		if ( array_key_exists( 'enable_address_country', $request_body ) ) {
+			update_option(
+				'askell_enable_address_country',
+				$request_body['enable_address_country']
+			);
+		}
+
+		if ( array_key_exists( 'enable_css', $request_body ) ) {
+			update_option(
+				'askell_enable_css',
+				$request_body['enable_css']
+			);
+		}
+
+		if ( array_key_exists( 'reference', $request_body ) ) {
+			update_option(
+				'askell_reference',
+				$request_body['reference']
+			);
+		}
+
+		return true;
 	}
 
 	public function customer_rest_post(WP_REST_Request $request) {
