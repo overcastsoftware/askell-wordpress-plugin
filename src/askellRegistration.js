@@ -38,6 +38,7 @@ class AskellRegistration extends React.Component {
 		this.onChangePlan = this.onChangePlan.bind(this);
 		this.onClickPlansNextStep = this.onClickPlansNextStep.bind(this);
 
+		this.onChangeKennitala = this.onChangeKennitala.bind(this);
 		this.onChangeFirstName = this.onChangeFirstName.bind(this);
 		this.onChangeLastName = this.onChangeLastName.bind(this);
 		this.onChangeEmailAddress = this.onChangeEmailAddress.bind(this);
@@ -144,6 +145,22 @@ class AskellRegistration extends React.Component {
 	onClickPlansNextStep(event) {
 		event.preventDefault();
 		this.setState({ currentStep: 'user-info' });
+	}
+
+	onChangeKennitala(event) {
+		const cleanKennitala = event.target.value.replace(/[^0-9]/g, '');
+
+		const spacedKennitala = [
+			cleanKennitala.slice(0, 6),
+			cleanKennitala.slice(6, 10),
+		]
+			.filter((portion) => portion !== '')
+			.join('-');
+
+		this.setState({
+			kennitala: cleanKennitala,
+			kennitalaSpaced: spacedKennitala,
+		});
 	}
 
 	onChangeFirstName(event) {
@@ -473,6 +490,23 @@ class AskellRegistration extends React.Component {
 						fields below in order to get to the next step, where you
 						will enter your payment information.
 					</p>
+					{ this.state.reference == 'kennitala' &&
+						<div className="field-container">
+							<div className="askell-form-kennitala askell-form-field">
+								<label htmlFor={this.state.blockId + '-kennitala'}>
+									Kennitala
+								</label>
+								<input
+									id={this.state.blockId + '-kennitala'}
+									type="text"
+									value={this.state.kennitalaSpaced}
+									required
+									pattern="/^([0-9]{6}-[0-9]{4})$/"
+									onChange={this.onChangeKennitala}
+								/>
+							</div>
+						</div>
+					}
 					<div className="field-container">
 						<div className="askell-form-first-name askell-form-field">
 							<label htmlFor={this.state.blockId + '-first-name'}>
