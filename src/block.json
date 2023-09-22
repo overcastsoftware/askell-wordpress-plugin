@@ -5,7 +5,6 @@
 	"version": "0.1.0",
 	"title": "Askell Registration",
 	"category": "widgets",
-	"icon": "id",
 	"description": "Sign up for recurring subscriptions directly from WordPress using Askell",
 	"supports": {
 		"html": false
