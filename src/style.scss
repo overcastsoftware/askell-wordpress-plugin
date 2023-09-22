@@ -19,19 +19,22 @@
 		min-height: 20rem;
 	}
 
-	form[data-current-step=plans] {
+	form[data-current-step="plans"] {
+
 		.askell-plan-picker-form {
 			display: block;
 		}
 	}
 
-	form[data-current-step=user-info] {
+	form[data-current-step="user-info"] {
+
 		.askell-user-info-form {
 			display: block;
 		}
 	}
 
-	form[data-current-step=cc-info] {
+	form[data-current-step="cc-info"] {
+
 		.askell-cc-info-form {
 			display: block;
 		}
@@ -62,6 +65,11 @@
 		margin-top: 1.5rem;
 	}
 
+	.askell-form-kennitala {
+		width: 15em;
+		margin-bottom: 1.5rem;
+	}
+
 	.askell-form-first-name {
 		width: 15em;
 	}
@@ -90,12 +98,6 @@
 		width: 17.5em;
 	}
 
-	.askell-form-card-expiry {
-		select {
-			width: auto;
-		}
-	}
-
 	.askell-form-card-security-code {
 		width: 5.5em;
 	}
@@ -114,9 +116,8 @@
 
 	input[type="text"],
 	input[type="email"],
-	input[type="password"]
-	{
-		width: calc( 100% - 2em - 2px );
+	input[type="password"] {
+		width: calc(100% - 2em - 2px);
 		padding: 0.7em 1em;
 		border: 1px solid #ccc;
 		border-radius: 3px;
@@ -139,12 +140,20 @@
 		background-color: #fff;
 	}
 
+	.askell-form-card-expiry {
+
+		select {
+			width: auto;
+		}
+	}
+
 	select[name="cardExpiryMonth"] {
 		margin-right: 0.5em;
 	}
 
 	.buttons {
 		margin: 1.5rem 0 1rem 0;
+
 		button {
 			padding: 0.7em 1em;
 			background-color: #f0f0f0;
@@ -152,14 +161,17 @@
 			border-radius: 3px;
 			color: #222;
 		}
+
 		button:hover {
 			background-color: #e0e0e0;
 		}
+
 		button:disabled {
 			background-color: #ccc;
 			border: 1px solid #999;
 			color: #666;
 		}
+
 		button:disabled:hover {
 			background-color: #ccc;
 		}
@@ -217,7 +229,7 @@
 
 	.error p {
 		color: #600;
-		font-weight: bold;
+		font-weight: 700;
 		font-size: var(--wp--preset--font-size--small);
 		margin: 1rem 0;
 	}
@@ -255,8 +267,11 @@
 		}
 	}
 
-	.askell-user-info-form[data-checked=true] {
-		input[type=text]:invalid, input[type=password]:invalid, input[type=email]:invalid {
+	.askell-user-info-form[data-checked="true"] {
+
+		input[type="text"]:invalid,
+		input[type="password"]:invalid,
+		input[type="email"]:invalid {
 			border: 1px solid #f66;
 			background-color: #fdd;
 			background-image: url(../images/not_allowed.svg);
