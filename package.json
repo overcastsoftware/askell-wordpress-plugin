@@ -7,22 +7,22 @@
 	"homepage": "https://askell.is/",
 	"main": "build/index.js",
 	"scripts": {
-		"build": "wp-scripts build ./src/index.js ./src/frontend.js ./src/admin.js ./src/admin.scss ./src/style.scss ./src/askellRegistration.js",
+		"build": "wp-scripts build ./src/admin.js ./src/index.js ./src/frontend.js ./src/admin.scss ./src/style.scss ./src/askellRegistration.js",
 		"format": "wp-scripts format",
 		"lint:css": "wp-scripts lint-style ./src/admin.scss ./src/style.scss ./src/editor.scss --fix",
 		"lint:js": "wp-scripts lint-js ./src --fix",
 		"packages-update": "wp-scripts packages-update",
 		"plugin-zip": "wp-scripts plugin-zip",
-		"start": "wp-scripts start ./src/index.js ./src/frontend.js ./src/admin.js ./src/admin.scss ./src/style.scss ./src/askellRegistration.js"
+		"start": "wp-scripts start ./src/admin.js ./src/index.js ./src/frontend.js ./src/admin.js ./src/admin.scss ./src/style.scss ./src/askellRegistration.js"
 	},
 	"devDependencies": {
-		"@babel/cli": "^7.22.5",
-		"@babel/core": "^7.22.5",
-		"@babel/preset-env": "^7.22.5",
-		"@babel/preset-react": "^7.22.5",
-		"@wordpress/eslint-plugin": "^14.8.0",
-		"@wordpress/scripts": "^26.6.0",
-		"eslint-plugin-prettier": "^5.0.0"
+		"@babel/cli": "*",
+		"@babel/core": "*",
+		"@babel/preset-env": "*",
+		"@babel/preset-react": "*",
+		"@wordpress/eslint-plugin": "*",
+		"@wordpress/scripts": "*",
+		"eslint-plugin-prettier": "*"
 	},
 	"files": [
 		"readme.txt",
