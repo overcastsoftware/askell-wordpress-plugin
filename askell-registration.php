@@ -348,8 +348,7 @@ class AskellRegistration {
 			'api_key' => get_option('askell_api_key'),
 			'reference' => get_option('askell_reference', 'wordpress_id'),
 			'styles_enabled' => get_option('askell_styles_enabled', true),
-			'billing_address_enabled' => get_option('askell_billing_address_enabled', false),
-			'shipping_address_enabled' => get_option('askell_shipping_address_enabled', false),
+			'address_country_enabled' => get_option('askell_address_country_enabled', false),
 			'plans' => $this->get_public_plans()
 		];
 	}
