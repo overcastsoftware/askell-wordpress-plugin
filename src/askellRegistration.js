@@ -18,7 +18,7 @@ class AskellRegistration extends React.Component {
 			password: '',
 			termsAccepted: false,
 			userInfoChecked: false,
-			userReference: 0,
+			userID: 0,
 			cardHolderName: '',
 			cardNumber: '',
 			cardNumberSpaced: '',
@@ -30,7 +30,8 @@ class AskellRegistration extends React.Component {
 			disableConfirmButton: true,
 			WpErrorCode: null,
 			WpErrorMessage: null,
-			disableNextStepButton: false
+			disableNextStepButton: false,
+			cleanKennitala: null,
 		};
 		this.createUser = this.createUser.bind(this);
 
@@ -70,7 +71,13 @@ class AskellRegistration extends React.Component {
 
 		const result = await response.json();
 
-		this.setState({ plans: result.plans });
+		this.setState({
+			APIKey: result.api_key,
+			reference: result.reference,
+			stylesEnabled: result.styles_enabled,
+			countrySelectorEnabled: result.address_country_enabled,
+			plans: result.plans
+		});
 
 		return result;
 	}
@@ -93,7 +100,8 @@ class AskellRegistration extends React.Component {
 					firstName: this.state.firstName,
 					lastName: this.state.lastName,
 					planId: this.state.selectedPlan.id,
-					planReference: this.state.selectedPlan.reference
+					planReference: this.state.selectedPlan.reference,
+					kennitala: this.state.cleanKennitala
 				})
 			}
 		);
@@ -104,7 +112,7 @@ class AskellRegistration extends React.Component {
 			console.log(responseData);
 			this.setState({
 				disableNextStepButton: false,
-				userReference: responseData['ID'],
+				userID: responseData['ID'],
 				currentStep: 'cc-info',
 				disableConfirmButton: false,
 				// Take the password out of the state context as it ha been sent
