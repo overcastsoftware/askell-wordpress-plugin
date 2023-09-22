@@ -241,6 +241,23 @@ class AskellRegistration {
 	public function plans() {
 		return [
 			[
+				'id'                => 1000,
+				'name'              => 'The Special Friend',
+				'alternative_name'  => 'The special deal for special friends',
+				'reference'         => 'OPT0',
+				'interval'          => 'year',
+				'interval_count'    => 1,
+				'amount'            => '10.0000',
+				'currency'          => 'ISK',
+				'trial_period_days' => 0,
+				'description'       => 'The special deal for special friends, that comes with all the benefits at a special price.',
+				'price_tag'         => $this->format_price_tag('ISK', '10.0000', 'year', 1, 0),
+				'payment_info'      => $this->format_payment_information('ISK', '10.0000', 'month', 1, 0),
+				'enabled'           => true,
+				'private'           => true,
+				'electronic_only'   => false,
+			],
+			[
 				'id'                => 1001,
 				'name'              => 'The Peasant',
 				'alternative_name'  => 'The least expensive option',
@@ -253,6 +270,9 @@ class AskellRegistration {
 				'description'       => 'Be a cheapskate and get the cheapest option available.',
 				'price_tag'         => $this->format_price_tag('ISK', '100.0000', 'month', 1, 0),
 				'payment_info'      => $this->format_payment_information('ISK', '100.0000', 'month', 1, 0),
+				'enabled'           => true,
+				'private'           => false,
+				'electronic_only'   => false,
 			],
 			[
 				'id'                => 1002,
@@ -267,6 +287,9 @@ class AskellRegistration {
 				'description'       => 'This means you are a least a little supportive, which is good.',
 				'price_tag'         => $this->format_price_tag('ISK', '250.0000', 'month', 1, 30),
 				'payment_info'      => $this->format_payment_information('ISK', '250.0000', 'month', 1, 30),
+				'enabled'           => true,
+				'private'           => false,
+				'electronic_only'   => false,
 			],
 			[
 				'id'                => 1003,
@@ -281,18 +304,43 @@ class AskellRegistration {
 				'description'       => 'Gets you all the benefits of being a rich bastard, plus a selfie with the team.',
 				'price_tag'         => $this->format_price_tag('ISK', '1500.0000', 'month', 1, 30),
 				'payment_info'      => $this->format_payment_information('ISK', '1500.0000', 'month', 1, 30),
+				'enabled'           => true,
+				'private'           => false,
+				'electronic_only'   => false,
+			],
+			[
+				'id'                => 1004,
+				'name'              => 'The E-Girl',
+				'alternative_name'  => 'The Digital Subscription for Digital Girls',
+				'reference'         => 'OPT3',
+				'interval'          => 'month',
+				'interval_count'    => 1,
+				'amount'            => '200.0000',
+				'currency'          => 'ISK',
+				'trial_period_days' => 30,
+				'description'       => 'Great for those who can\'t receive postal mail. We will send you the sticker packs and artwork as digital copies, plus exclusive extras.',
+				'price_tag'         => $this->format_price_tag('ISK', '200.0000', 'month', 1, 30),
+				'payment_info'      => $this->format_payment_information('ISK', '200.0000', 'month', 1, 0),
+				'enabled'           => true,
+				'private'           => false,
+				'electronic_only'   => true,
 			]
 		];
 	}
 
+	function get_public_plans() {
+		return array_values(array_filter($this->plans(), function($a) {
+			return ($a['private'] == false);
+		}));
+	}
+
 	function get_plan_by_reference($reference) {
-		$filter = function($a) use ($reference) {
+		return array_filter(
+			$this->plans(),
+			function($a) use ($reference) {
 			return ($a['reference'] == $reference);
-		};
-
-		$filtered_plans = array_filter($this->plans(), $filter);
-
-		return reset($filtered_plans);
+			}
+		);
 	}
 
 	function form_fields_json_get() {
@@ -302,7 +350,7 @@ class AskellRegistration {
 			'styles_enabled' => get_option('askell_styles_enabled', true),
 			'billing_address_enabled' => get_option('askell_billing_address_enabled', false),
 			'shipping_address_enabled' => get_option('askell_shipping_address_enabled', false),
-			'plans' => $this->plans()
+			'plans' => $this->get_public_plans()
 		];
 	}
 
