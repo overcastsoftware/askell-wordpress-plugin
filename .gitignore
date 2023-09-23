@@ -34,3 +34,7 @@ node_modules/
 
 # The PHP Composer vendor directory
 /vendor/
+
+# The DockPress development environment is currently too experimental to include
+compose.yml
+/dockpress-secrets/
