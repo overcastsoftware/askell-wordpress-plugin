@@ -47,6 +47,15 @@ class AskellRegistration {
 
 		add_action( 'admin_menu', array( $this, 'add_menu_page' ) );
 		add_action( 'admin_init', array( $this, 'enqueue_admin_script' ) );
+
+		add_action( 'askell_sync_cron', array( $this, 'pull_plans' ) );
+		add_action( 'init', array( $this, 'schedule_sync_cron' ) );
+	}
+
+	public function schedule_sync_cron() {
+		if ( ! wp_next_scheduled( 'askell_sync_cron' ) ) {
+			wp_schedule_event( time(), 'hourly', 'askell_sync_cron' );
+		}
 	}
 
 	public function block_init() {
@@ -239,93 +248,25 @@ class AskellRegistration {
 	}
 
 	public function plans() {
-		return [
-			[
-				'id'                => 1000,
-				'name'              => 'The Special Friend',
-				'alternative_name'  => 'The special deal for special friends',
-				'reference'         => 'OPT0',
-				'interval'          => 'year',
-				'interval_count'    => 1,
-				'amount'            => '10.0000',
-				'currency'          => 'ISK',
-				'trial_period_days' => 0,
-				'description'       => 'The special deal for special friends, that comes with all the benefits at a special price.',
-				'price_tag'         => $this->format_price_tag('ISK', '10.0000', 'year', 1, 0),
-				'payment_info'      => $this->format_payment_information('ISK', '10.0000', 'month', 1, 0),
-				'enabled'           => true,
-				'private'           => true,
-				'electronic_only'   => false,
-			],
-			[
-				'id'                => 1001,
-				'name'              => 'The Peasant',
-				'alternative_name'  => 'The least expensive option',
-				'reference'         => 'OPT1',
-				'interval'          => 'month',
-				'interval_count'    => 1,
-				'amount'            => '100.0000',
-				'currency'          => 'ISK',
-				'trial_period_days' => 0,
-				'description'       => 'Be a cheapskate and get the cheapest option available.',
-				'price_tag'         => $this->format_price_tag('ISK', '100.0000', 'month', 1, 0),
-				'payment_info'      => $this->format_payment_information('ISK', '100.0000', 'month', 1, 0),
-				'enabled'           => true,
-				'private'           => false,
-				'electronic_only'   => false,
-			],
-			[
-				'id'                => 1002,
-				'name'              => 'The Rich Bastard',
-				'alternative_name'  => 'The Middle of the Road',
-				'reference'         => 'OPT2',
-				'interval'          => 'month',
-				'interval_count'    => 1,
-				'amount'            => '250.0000',
-				'currency'          => 'ISK',
-				'trial_period_days' => 30,
-				'description'       => 'This means you are a least a little supportive, which is good.',
-				'price_tag'         => $this->format_price_tag('ISK', '250.0000', 'month', 1, 30),
-				'payment_info'      => $this->format_payment_information('ISK', '250.0000', 'month', 1, 30),
-				'enabled'           => true,
-				'private'           => false,
-				'electronic_only'   => false,
-			],
-			[
-				'id'                => 1003,
-				'name'              => 'The Millionaire',
-				'alternative_name'  => 'The Fast Lane',
-				'reference'         => 'OPT3',
-				'interval'          => 'month',
-				'interval_count'    => 1,
-				'amount'            => '1500.0000',
-				'currency'          => 'ISK',
-				'trial_period_days' => 30,
-				'description'       => 'Gets you all the benefits of being a rich bastard, plus a selfie with the team.',
-				'price_tag'         => $this->format_price_tag('ISK', '1500.0000', 'month', 1, 30),
-				'payment_info'      => $this->format_payment_information('ISK', '1500.0000', 'month', 1, 30),
-				'enabled'           => true,
-				'private'           => false,
-				'electronic_only'   => false,
-			],
-			[
-				'id'                => 1004,
-				'name'              => 'The E-Girl',
-				'alternative_name'  => 'The Digital Subscription for Digital Girls',
-				'reference'         => 'OPT3',
-				'interval'          => 'month',
-				'interval_count'    => 1,
-				'amount'            => '200.0000',
-				'currency'          => 'ISK',
-				'trial_period_days' => 30,
-				'description'       => 'Great for those who can\'t receive postal mail. We will send you the sticker packs and artwork as digital copies, plus exclusive extras.',
-				'price_tag'         => $this->format_price_tag('ISK', '200.0000', 'month', 1, 30),
-				'payment_info'      => $this->format_payment_information('ISK', '200.0000', 'month', 1, 0),
-				'enabled'           => true,
-				'private'           => false,
-				'electronic_only'   => true,
-			]
-		];
+		$plans = get_option( 'askell_plans', [] );
+		foreach ( $plans as $k=>$p ) {
+			$plans[$k]['price_tag'] = $this->format_price_tag(
+				$plans[$k]['currency'],
+				$plans[$k]['amount'],
+				$plans[$k]['interval'],
+				$plans[$k]['interval_count'],
+				$plans[$k]['trial_period_days']
+			);
+			$plans[$k]['payment_info'] = $this->format_payment_information(
+				$plans[$k]['currency'],
+				$plans[$k]['amount'],
+				$plans[$k]['interval'],
+				$plans[$k]['interval_count'],
+				$plans[$k]['trial_period_days']
+			);
+		}
+
+		return $plans;
 	}
 
 	function get_public_plans() {
@@ -351,6 +292,24 @@ class AskellRegistration {
 			'address_country_enabled' => get_option('askell_address_country_enabled', false),
 			'plans' => $this->get_public_plans()
 		];
+	}
+
+	function pull_plans() {
+		$private_key = get_option('askell_api_secret');
+
+		$api_response = wp_remote_get(
+			'https://askell.is/api/plans/',
+			array(
+				'headers' => array(
+					'accept' => 'application/json',
+					'Authorization' => "Api-Key {$private_key}"
+				)
+			)
+		);
+
+		$plans = json_decode($api_response['body'], true);
+		update_option( 'askell_plans', $plans );
+		return $plans;
 	}
 
 	/**
@@ -471,3 +430,11 @@ class AskellRegistration {
 }
 
 $askell_registration = new AskellRegistration();
+
+# Cleanup tasks for the plugin.
+register_deactivation_hook( __FILE__, 'askell_registration_deactivate' );
+
+function askell_registration_deactivate() {
+    $timestamp = wp_next_scheduled( 'askell_sync_cron' );
+    wp_unschedule_event( $timestamp, 'askell_sync_cron' );
+}
