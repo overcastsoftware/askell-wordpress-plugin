@@ -23,7 +23,7 @@ class AskellRegistration extends React.Component {
 			cardNumber: '',
 			cardNumberSpaced: '',
 			cardExpiryMonth: '1',
-			cardExpiryYear: currentYear,
+			cardExpiryYear: currentYear.toString(),
 			cardIssuer: '',
 			cardIssuerName: '',
 			cardSecurityCode: '',
@@ -32,6 +32,11 @@ class AskellRegistration extends React.Component {
 			WpErrorMessage: null,
 			disableNextStepButton: false,
 			cleanKennitala: null,
+			paymentWindow: null,
+			paymentToken: null,
+			checkPaymentTokenIntervalID: null,
+			registrationToken: null,
+			paymentErrorMessage: null
 		};
 		this.createUser = this.createUser.bind(this);
 
@@ -54,6 +59,13 @@ class AskellRegistration extends React.Component {
 		this.onChangeCardExpiryYear = this.onChangeCardExpiryYear.bind(this);
 		this.onChangeCardSecurityCode =
 			this.onChangeCardSecurityCode.bind(this);
+
+		this.onClickConfirmPayment = this.onClickConfirmPayment.bind(this);
+
+		this.showSuccess = this.showSuccess.bind(this);
+		this.assignPaymentMethod = this.assignPaymentMethod.bind(this);
+		this.setPaymentError = this.setPaymentError.bind(this);
+		this.clearPaymentError = this.clearPaymentError.bind(this);
 	}
 
 	componentDidMount() {
@@ -109,23 +121,164 @@ class AskellRegistration extends React.Component {
 		const responseData = await response.json();
 
 		if ( response.ok ) {
-			console.log(responseData);
 			this.setState({
 				disableNextStepButton: false,
 				userID: responseData['ID'],
+				registrationToken: responseData['registration_token'],
 				currentStep: 'cc-info',
 				disableConfirmButton: false,
 				// Take the password out of the state context as it ha been sent
 				password: ''
 			});
 		} else {
-			console.log(responseData);
 			this.setState({
 				disableNextStepButton: false,
 				WpErrorCode: responseData['code'],
 				WpErrorMessage: responseData['message']
 			});
 		}
+	}
+
+	onClickConfirmPayment() {
+		this.openPaymentModal();
+		this.createTemporaryPaymentMethod();
+	}
+
+	openPaymentModal() {
+		let paymentWindow = window.open(
+			'',
+			'askell_payment_window',
+			'popup,width=600,height=400'
+		);
+
+		window.paymentWindow = paymentWindow;
+	}
+
+	async createTemporaryPaymentMethod() {
+		this.clearPaymentError();
+		const response = await fetch(
+			'https://askell.is/api/temporarypaymentmethod/',
+			{
+				method: 'POST',
+				cache: 'no-cache',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': 'Api-Key ' + this.state.APIKey
+				},
+				body: JSON.stringify({
+					card_number: this.state.cardNumber,
+					expiration_year: this.state.cardExpiryYear.slice(2),
+					expiration_month: this.state.cardExpiryMonth,
+					cvv_number: this.state.cardSecurityCode,
+					plan: this.state.selectedPlan.id
+				})
+			}
+		);
+
+		const responseData = await response.json();
+
+		if ( response.ok ) {
+			let url = responseData.card_verification_url;
+			let paymentToken = responseData.token;
+
+			window.paymentWindow.location = url;
+			this.setState({ paymentToken: paymentToken });
+
+			this.checkPaymentTokenLoop(
+				paymentToken,
+				this.state.APIKey,
+				this.state.registrationToken,
+				this.state.selectedPlan.id,
+				this
+			);
+		} else {
+			this.setPaymentError(responseData.error);
+		}
+	}
+
+	async checkPaymentToken(paymentToken, apiKey, registrationToken, planID, parent) {
+		const response = await fetch(
+			'https://askell.is/api/temporarypaymentmethod/' + paymentToken,
+			{
+				method: 'GET',
+				cache: 'no-cache',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': 'Api-Key ' + apiKey
+				}
+			}
+		);
+
+		const responseData = await response.json();
+
+		console.log(responseData);
+
+		if ( response.ok ) {
+			if (responseData.status !== 'initial') {
+				clearInterval(window.askellTokenIntervalID);
+				if ( responseData.status === 'tokencreated' ) {
+					parent.assignPaymentMethod(
+						paymentToken,
+						registrationToken,
+						planID,
+						parent
+					)
+				}
+			}
+		} else {
+			parent.setPaymentError(responseData.error);
+		}
+	}
+
+	checkPaymentTokenLoop(token, APIKey, registrationToken, planID, parent) {
+		console.log(parent);
+		let intervalID = setInterval(
+			this.checkPaymentToken,
+			2500,
+			token,
+			APIKey,
+			registrationToken,
+			planID,
+			parent
+		);
+		window.askellTokenIntervalID = intervalID;
+	}
+
+	async assignPaymentMethod(paymentToken, registrationToken, planID, parent) {
+		const response = await fetch(
+			wpApiSettings.root + 'askell/v1/customer_payment_method',
+			{
+				method: 'POST',
+				cache: 'no-cache',
+				headers: {
+					'Content-Type': "application/json",
+					'X-WP-Nonce': wpApiSettings.nonce
+				},
+				body: JSON.stringify({
+					paymentToken: paymentToken,
+					registrationToken: registrationToken,
+					planID: planID
+				})
+			}
+		);
+
+		if ( response.ok ) {
+			parent.showSuccess();
+		} else {
+			parent.setPaymentError(responseData.error);
+		}
+	}
+
+	showSuccess() {
+		this.setState({ currentStep: 'success' });
+	}
+
+	setPaymentError(errorMessage) {
+		this.setState({ paymentErrorMessage: errorMessage });
+	}
+
+	clearPaymentError() {
+		this.setState({ paymentErrorMessage: null });
 	}
 
 	onFormSubmit(event) {
@@ -602,7 +755,7 @@ class AskellRegistration extends React.Component {
 							id={this.state.blockId + '-card-holder-name'}
 							type="text"
 							name="cardHolderName"
-							autoComplete="false"
+							autoComplete="off"
 							value={this.state.cardHolderName}
 							onChange={this.onChangeCardHolderName}
 						/>
@@ -616,7 +769,7 @@ class AskellRegistration extends React.Component {
 								id={this.state.blockId + '-card-number'}
 								type="text"
 								name="cardNumber"
-								autoComplete="false"
+								autoComplete="off"
 								value={this.state.cardNumberSpaced}
 								onChange={this.onChangeCardNumber}
 							/>
@@ -654,7 +807,7 @@ class AskellRegistration extends React.Component {
 							<select
 								name="cardExpiryYear"
 								aria-label="Year"
-								autoComplete="false"
+								autoComplete="off"
 								defaultValue={this.state.cardExpiryYear}
 								onChange={this.onChangeCardExpiryYear}
 							>
@@ -681,15 +834,21 @@ class AskellRegistration extends React.Component {
 								id={this.state.blockId + '-security-code'}
 								type="text"
 								name="cardSecurityCode"
-								autoComplete="false"
+								autoComplete="off"
 								value={this.state.cardSecurityCode}
 								onChange={this.onChangeCardSecurityCode}
 							/>
 						</div>
 					</div>
+					<div className={ 'error ' } role="alert" aria-live="assertive">
+						{ this.state.paymentErrorMessage !== null &&
+							<p>Error: { this.state.paymentErrorMessage }</p>
+						}
+					</div>
 					<div className="buttons">
 						<button
 							disabled={ this.state.disableConfirmButton }
+							onClick={this.onClickConfirmPayment}
 						>
 							Confirm Payment
 						</button>
@@ -701,6 +860,14 @@ class AskellRegistration extends React.Component {
 						layer and is a PCI certified recurring payments
 						platform. Payment information is sent directly to Askell
 						for processing.
+					</p>
+				</div>
+				<div className="askell-success-form askell-step">
+					<span className="section-heading">Success!</span>
+					<p>
+						You should have received a confirmation email with the
+						relevant details about how to edit or cancel your
+						subscription.
 					</p>
 				</div>
 			</form>
