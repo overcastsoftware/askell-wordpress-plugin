@@ -193,6 +193,7 @@ class AskellRegistration extends React.Component {
 			);
 		} else {
 			this.setPaymentError(responseData.error);
+			window.paymentWindow.close();
 		}
 	}
 
