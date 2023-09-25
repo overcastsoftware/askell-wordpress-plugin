@@ -186,6 +186,17 @@ class AskellRegistration {
 			);
 		}
 
+		if (
+			array_key_exists( 'kennitala', $request_body ) &&
+			(!is_null($request_body['kennitala']))
+		) {
+			update_user_meta(
+				$new_user_id,
+				'askell_kennitala',
+				$request_body['kennitala']
+			);
+		}
+
 		update_user_meta(
 			$new_user_id,
 			'askell_plan_id',
