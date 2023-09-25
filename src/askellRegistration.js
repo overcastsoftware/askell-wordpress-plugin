@@ -212,18 +212,24 @@ class AskellRegistration extends React.Component {
 
 		const responseData = await response.json();
 
-		console.log(responseData);
-
 		if ( response.ok ) {
 			if (responseData.status !== 'initial') {
+				this.setState({disableConfirmButton: false})
 				clearInterval(window.askellTokenIntervalID);
-				if ( responseData.status === 'tokencreated' ) {
-					parent.assignPaymentMethod(
-						paymentToken,
-						registrationToken,
-						planID,
-						parent
-					)
+
+				switch (responseData.status) {
+					case 'failed':
+						parent.setPaymentError(
+							"Card processing failed. Please check if the information if correct and try again."
+						);
+						break;
+					case 'tokencreated':
+						parent.assignPaymentMethod(
+							paymentToken,
+							registrationToken,
+							planID,
+							parent
+						);
 				}
 			}
 		} else {
@@ -232,7 +238,8 @@ class AskellRegistration extends React.Component {
 	}
 
 	checkPaymentTokenLoop(token, APIKey, registrationToken, planID, parent) {
-		console.log(parent);
+		this.setState({disableConfirmButton: true})
+
 		let intervalID = setInterval(
 			this.checkPaymentToken,
 			2500,
