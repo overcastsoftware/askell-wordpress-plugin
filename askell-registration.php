@@ -50,6 +50,27 @@ class AskellRegistration {
 
 		add_action( 'askell_sync_cron', array( $this, 'pull_plans' ) );
 		add_action( 'init', array( $this, 'schedule_sync_cron' ) );
+		add_action( 'init', array( $this, 'load_textdomain' ) );
+	}
+
+	public function load_textdomain() {
+		load_plugin_textdomain(
+			'askell-registration',
+			false,
+			dirname( plugin_basename( __FILE__ ) ) . '/languages'
+		);
+
+		wp_set_script_translations(
+			'askell-registration-askell-registration-view-script',
+			'askell-registration',
+			plugin_dir_path( __FILE__ ) . '/languages'
+		);
+
+		wp_set_script_translations(
+			'askell-registration-askell-registration-editor-script',
+			'askell-registration',
+			plugin_dir_path( __FILE__ ) . '/languages'
+		);
 	}
 
 	public function schedule_sync_cron() {
