@@ -1,4 +1,4 @@
-import { Button } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 
 class AskellRegistration extends React.Component {
 	constructor(props) {
@@ -226,7 +226,10 @@ class AskellRegistration extends React.Component {
 				switch (responseData.status) {
 					case 'failed':
 						parent.setPaymentError(
-							'Card processing failed. Please check if the information if correct and try again.'
+							__(
+								'Card processing failed. Please check if the information if correct and try again.',
+								'askell-registration'
+							)
 						);
 						break;
 					case 'tokencreated':
@@ -280,7 +283,10 @@ class AskellRegistration extends React.Component {
 			parent.showSuccess();
 		} else {
 			parent.setPaymentError(
-				'Unable to assign the payment method to your account. Please contact the site owner.'
+				__(
+					'Unable to assign the payment method to your account. Please contact the site owner.',
+					'askell-registration'
+				)
 			);
 		}
 	}
@@ -574,7 +580,7 @@ class AskellRegistration extends React.Component {
 						className="section-heading"
 						role="heading"
 					>
-						Choose Your Plan
+						{__('Choose Your Plan', 'askell-registration')}
 					</span>
 					<div className="askell-form-plans">
 						{this.state.plans.map((p, i) => (
@@ -626,14 +632,12 @@ class AskellRegistration extends React.Component {
 						))}
 					</div>
 					<div className="buttons">
-						<Button
-							variant="primary"
-							size="default"
+						<button
 							disabled={this.state.selectedPlan.id === undefined}
 							onClick={this.onClickPlansNextStep}
 						>
-							Next Step
-						</Button>
+							{__('Next Step', 'askell-registration')}
+						</button>
 					</div>
 				</div>
 				<div
@@ -648,18 +652,18 @@ class AskellRegistration extends React.Component {
 						className="section-heading"
 						role="heading"
 					>
-						Account Information
+						{__('Account Information', 'askell-registration')}
 					</span>
 					<p className="payment-info">
-						Here, we will create a new user for you on this site. It
-						is nessecary to enter your information into all the
-						fields below in order to get to the next step, where you
-						will enter your payment information.
+						{__(
+							'Here, we will create a new user for you on this site. It is necessary to enter your information into all the fields below in order to get to the next step, where you will enter your payment information.',
+							'askell-registration'
+						)}
 					</p>
 					<div className="field-container">
 						<div className="askell-form-first-name askell-form-field">
 							<label htmlFor={this.state.blockId + '-first-name'}>
-								First Name
+								{__('First Name', 'askell-registration')}
 							</label>
 							<input
 								id={this.state.blockId + '-first-name'}
@@ -673,7 +677,7 @@ class AskellRegistration extends React.Component {
 						</div>
 						<div className="askell-form-last-name flex">
 							<label htmlFor={this.state.blockId + '-last-name'}>
-								Last Name
+								{__('Last Name', 'askell-registration')}
 							</label>
 							<input
 								id={this.state.blockId + '-last-name'}
@@ -688,7 +692,7 @@ class AskellRegistration extends React.Component {
 					</div>
 					<div className="askell-form-email askell-form-field">
 						<label htmlFor={this.state.blockId + '-email-address'}>
-							Email Address
+							{__('Email Address', 'askell-registration')}
 						</label>
 						<input
 							id={this.state.blockId + '-email-address'}
@@ -702,7 +706,7 @@ class AskellRegistration extends React.Component {
 					<div className="field-container">
 						<div className="askell-form-username askell-form-field">
 							<label htmlFor={this.state.blockId + '-username'}>
-								Username
+								{__('Username', 'askell-registration')}
 							</label>
 							<input
 								id={this.state.blockId + '-username'}
@@ -717,7 +721,7 @@ class AskellRegistration extends React.Component {
 						</div>
 						<div className="askell-form-password askell-form-field">
 							<label htmlFor={this.state.blockId + '-password'}>
-								Password
+								{__('Password', 'askell-registration')}
 							</label>
 							<input
 								id={this.state.blockId + '-password'}
@@ -741,7 +745,13 @@ class AskellRegistration extends React.Component {
 							htmlFor={this.state.blockId + '-terms-checkbox'}
 							className="inline"
 						>
-							I accept the <a href="#">terms of service</a>.
+							<a href="#">
+								{__(
+									'I accept the terms of service',
+									'askell-registration'
+								)}
+							</a>
+							.
 						</label>
 					</div>
 					<div
@@ -750,33 +760,32 @@ class AskellRegistration extends React.Component {
 						aria-live="assertive"
 					>
 						{this.state.WpErrorCode !== null && (
-							<p>Error: {this.state.WpErrorMessage}</p>
+							<p>
+								{__('Error: ', 'askell-registration') +
+									this.state.WpErrorMessage}
+							</p>
 						)}
 					</div>
 					<div className="buttons">
-						<Button
-							variant="primary"
-							size="default"
-							onClick={this.onClickUserInfoBackButton}
-						>
-							Back
-						</Button>
+						<button onClick={this.onClickUserInfoBackButton}>
+							{__('Back', 'askell-registration')}
+						</button>
 						<span> </span>
-						<Button
-							variant="primary"
-							size="default"
+						<button
 							onClick={this.onClickUserInfoNextStep}
 							disabled={
 								!this.state.termsAccepted ||
 								this.state.disableNextStepButton
 							}
 						>
-							Create Account
-						</Button>
+							{__('Create Account', 'askell-registration')}
+						</button>
 					</div>
 				</div>
 				<div className="askell-cc-info-form askell-step">
-					<span className="section-heading">Payment Information</span>
+					<span className="section-heading">
+						{__('Payment Information', 'askell-registration')}
+					</span>
 					<p className="payment-info">
 						{this.state.selectedPlan.payment_info}
 					</p>
@@ -784,7 +793,7 @@ class AskellRegistration extends React.Component {
 						<label
 							htmlFor={this.state.blockId + '-card-holder-name'}
 						>
-							Card Holder Name
+							{__('Card Holder Name', 'askell-registration')}
 						</label>
 						<input
 							id={this.state.blockId + '-card-holder-name'}
@@ -797,7 +806,7 @@ class AskellRegistration extends React.Component {
 					</div>
 					<div className="askell-form-card-number askell-form-field">
 						<label htmlFor={this.state.blockId + '-card-number'}>
-							Card Number
+							{__('Card Number', 'askell-registration')}
 						</label>
 						<div className="askell-card-number-form-field">
 							<input
@@ -824,7 +833,7 @@ class AskellRegistration extends React.Component {
 								id={this.state.blockId + '-expiry-label'}
 								className="label"
 							>
-								Card Expiry
+								{__('Card Expiry', 'askell-registration')}
 							</span>
 							<select
 								name="cardExpiryMonth"
@@ -863,7 +872,7 @@ class AskellRegistration extends React.Component {
 							<label
 								htmlFor={this.state.blockId + '-security-code'}
 							>
-								Security Code
+								{__('Security Code', 'askell-registration')}
 							</label>
 							<input
 								id={this.state.blockId + '-security-code'}
@@ -881,7 +890,10 @@ class AskellRegistration extends React.Component {
 						aria-live="assertive"
 					>
 						{this.state.paymentErrorMessage !== null && (
-							<p>Error: {this.state.paymentErrorMessage}</p>
+							<p>
+								{__('Error: ', 'askell-registration')}
+								{this.state.paymentErrorMessage}
+							</p>
 						)}
 					</div>
 					<div className="buttons">
@@ -889,24 +901,23 @@ class AskellRegistration extends React.Component {
 							disabled={this.state.disableConfirmButton}
 							onClick={this.onClickConfirmPayment}
 						>
-							Confirm Payment
+							{__('Confirm Payment', 'askell-registration')}
 						</button>
 					</div>
 					<p className="hint">
-						Payment processing is performed by this site&apos;s
-						owner&apos; card merchant service, via Askell by
-						Overcast Software, which runs over a secure transport
-						layer and is a PCI certified recurring payments
-						platform. Payment information is sent directly to Askell
-						for processing.
+						{__(
+							'Payment processing is performed by this site&apos;s owner&apos; card merchant service, via Askell by Overcast Software, which runs over a secure transport layer and is a PCI certified recurring payments platform. Payment information is sent directly to Askell for processing.',
+							'askell-registration'
+						)}
 					</p>
 				</div>
 				<div className="askell-success-form askell-step">
 					<span className="section-heading">Success!</span>
 					<p>
-						You should have received a confirmation email with the
-						relevant details about how to edit or cancel your
-						subscription.
+						{__(
+							'You should have received a confirmation email with the relevant details about how to edit or cancel your subscription.',
+							'askell-registration'
+						)}
 					</p>
 				</div>
 			</form>
