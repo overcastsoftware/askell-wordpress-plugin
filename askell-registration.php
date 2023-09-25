@@ -76,6 +76,15 @@ class AskellRegistration {
 		);
 		register_rest_route(
 			self::REST_NAMESPACE,
+			'/customer_payment_method',
+			array(
+				'methods' => 'POST',
+				'callback' => array( $this, 'customer_payment_method_post' ),
+				'permission_callback' => '__return_true',
+			)
+		);
+		register_rest_route(
+			self::REST_NAMESPACE,
 			'/form_fields',
 			array(
 				'methods' => 'GET',
@@ -94,6 +103,34 @@ class AskellRegistration {
 				}
 			)
 		);
+	}
+
+	public function customer_payment_method_post(WP_REST_Request $request) {
+		$request_body = (array) json_decode( $request->get_body() );
+
+		$user_query = new WP_User_Query(
+			array(
+				'meta_key' => 'askell_registration_token',
+				'meta_value' => $request_body['registrationToken']
+			)
+		);
+
+		$users = $user_query->get_results();
+
+		if ( 0 === count($users) ) {
+			return new WP_Error(
+				'user_not_found',
+				'User Not Found',
+				array( 'status' => 404 )
+			);
+		}
+
+		$user = $users[0];
+		$payment_token = $request_body['paymentToken'];
+		$plan_id = $request_body['planID'];
+
+		$this->assign_payment_method_to_user_in_askell($user, $payment_token);
+		$this->assign_subscription_to_user_in_askell($user, $plan_id);
 	}
 
 	public function settings_rest_post(WP_REST_Request $request) {
@@ -198,15 +235,93 @@ class AskellRegistration {
 			$request_body['planReference']
 		);
 
+		$token = base64_encode(random_bytes(32));
+
 		update_user_meta(
 			$new_user_id,
-			'askell_registration_status',
-			'pending'
+			'askell_registration_token',
+			$token
 		);
 
 		$user = get_user_by('id', $new_user_id);
 
-		return $user->data;
+		$this->register_user_in_askell($user);
+
+		return array(
+			'ID' => $user->data->ID,
+			'registration_token' => $token,
+		);
+	}
+
+	public function register_user_in_askell(WP_User $user) {
+		$endpoint_url = 'https://askell.is/api/customers/';
+		$api_key = get_option( 'askell_api_secret', '' );
+
+		$request_body = array(
+			'first_name' => $user->first_name,
+			'last_name' => $user->last_name,
+			'email' => $user->user_email,
+			'customer_reference' => (string) $user->ID
+		);
+
+		return wp_remote_post(
+			$endpoint_url,
+			array(
+				'headers' => array(
+					'Content-Type' => 'application/json',
+					'Authorization' => "Api-Key $api_key"
+				),
+				'body' => wp_json_encode($request_body)
+			)
+		);
+	}
+
+	public function assign_payment_method_to_user_in_askell(
+		WP_User $user,
+		$payment_token
+	) {
+		$user_reference = (string) $user->ID;
+		$endpoint_url = "https://askell.is/api/customers/paymentmethod/";
+		$api_key = get_option( 'askell_api_secret', '' );
+
+		$request_body = array(
+			'customer_reference' => $user_reference,
+			'token' => $payment_token
+		);
+
+		return wp_remote_post(
+			$endpoint_url,
+			array(
+				'headers' => array(
+					'Content-Type' => 'application/json',
+					'Authorization' => "Api-Key $api_key"
+				),
+				'body' => wp_json_encode($request_body)
+			)
+		);
+	}
+
+	public function assign_subscription_to_user_in_askell(WP_User $user, $plan_id) {
+		$user_reference = $user->ID;
+		$endpoint_url = "https://askell.is/api/customers/$user_reference/subscriptions/add/";
+		$api_key = get_option( 'askell_api_secret', '' );
+		$plan = $this->get_plan_by_id($plan_id);
+
+		$request_body = array(
+			"plan" => $plan_id,
+			"reference" => $plan['reference']
+		);
+
+		return wp_remote_post(
+			$endpoint_url,
+			array(
+				'headers' => array(
+					'Content-Type' => 'application/json',
+					'Authorization' => "Api-Key $api_key"
+				),
+				'body' => wp_json_encode($request_body)
+			)
+		);
 	}
 
 	public function add_menu_page() {
@@ -282,6 +397,15 @@ class AskellRegistration {
 			return ($a['reference'] == $reference);
 			}
 		);
+	}
+
+	function get_plan_by_id($id) {
+		return array_filter(
+			$this->plans(),
+			function($a) use ($id) {
+			return ($a['id'] == $id);
+			}
+		)[0];
 	}
 
 	function form_fields_json_get() {

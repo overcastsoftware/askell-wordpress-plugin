@@ -23,7 +23,7 @@ class AskellRegistration extends React.Component {
 			cardNumber: '',
 			cardNumberSpaced: '',
 			cardExpiryMonth: '1',
-			cardExpiryYear: currentYear,
+			cardExpiryYear: currentYear.toString(),
 			cardIssuer: '',
 			cardIssuerName: '',
 			cardSecurityCode: '',
@@ -32,6 +32,11 @@ class AskellRegistration extends React.Component {
 			WpErrorMessage: null,
 			disableNextStepButton: false,
 			cleanKennitala: null,
+			paymentWindow: null,
+			paymentToken: null,
+			checkPaymentTokenIntervalID: null,
+			registrationToken: null,
+			paymentErrorMessage: null,
 		};
 		this.createUser = this.createUser.bind(this);
 
@@ -54,6 +59,13 @@ class AskellRegistration extends React.Component {
 		this.onChangeCardExpiryYear = this.onChangeCardExpiryYear.bind(this);
 		this.onChangeCardSecurityCode =
 			this.onChangeCardSecurityCode.bind(this);
+
+		this.onClickConfirmPayment = this.onClickConfirmPayment.bind(this);
+
+		this.showSuccess = this.showSuccess.bind(this);
+		this.assignPaymentMethod = this.assignPaymentMethod.bind(this);
+		this.setPaymentError = this.setPaymentError.bind(this);
+		this.clearPaymentError = this.clearPaymentError.bind(this);
 	}
 
 	componentDidMount() {
@@ -65,7 +77,7 @@ class AskellRegistration extends React.Component {
 			wpApiSettings.root + 'askell/v1/form_fields',
 			{
 				method: 'GET',
-				cache: 'no-cache'
+				cache: 'no-cache',
 			}
 		);
 
@@ -76,22 +88,22 @@ class AskellRegistration extends React.Component {
 			reference: result.reference,
 			stylesEnabled: result.styles_enabled,
 			countrySelectorEnabled: result.address_country_enabled,
-			plans: result.plans
+			plans: result.plans,
 		});
 
 		return result;
 	}
 
 	async createUser() {
-		this.setState({ disableNextStepButton: true })
+		this.setState({ disableNextStepButton: true });
 		const response = await fetch(
 			wpApiSettings.root + 'askell/v1/customer',
 			{
 				method: 'POST',
 				cache: 'no-cache',
 				headers: {
-					'Content-Type': "application/json",
-					'X-WP-Nonce': wpApiSettings.nonce
+					'Content-Type': 'application/json',
+					'X-WP-Nonce': wpApiSettings.nonce,
 				},
 				body: JSON.stringify({
 					password: this.state.password,
@@ -101,31 +113,188 @@ class AskellRegistration extends React.Component {
 					lastName: this.state.lastName,
 					planId: this.state.selectedPlan.id,
 					planReference: this.state.selectedPlan.reference,
-					kennitala: this.state.cleanKennitala
-				})
+					kennitala: this.state.cleanKennitala,
+				}),
 			}
 		);
 
 		const responseData = await response.json();
 
-		if ( response.ok ) {
-			console.log(responseData);
+		if (response.ok) {
 			this.setState({
 				disableNextStepButton: false,
-				userID: responseData['ID'],
+				userID: responseData.ID,
+				registrationToken: responseData.registration_token,
 				currentStep: 'cc-info',
 				disableConfirmButton: false,
 				// Take the password out of the state context as it ha been sent
-				password: ''
+				password: '',
 			});
 		} else {
-			console.log(responseData);
 			this.setState({
 				disableNextStepButton: false,
-				WpErrorCode: responseData['code'],
-				WpErrorMessage: responseData['message']
+				WpErrorCode: responseData.code,
+				WpErrorMessage: responseData.message,
 			});
 		}
+	}
+
+	onClickConfirmPayment() {
+		this.openPaymentModal();
+		this.createTemporaryPaymentMethod();
+	}
+
+	openPaymentModal() {
+		const paymentWindow = window.open(
+			'',
+			'askell_payment_window',
+			'popup,width=600,height=400'
+		);
+
+		window.paymentWindow = paymentWindow;
+	}
+
+	async createTemporaryPaymentMethod() {
+		this.clearPaymentError();
+		const response = await fetch(
+			'https://askell.is/api/temporarypaymentmethod/',
+			{
+				method: 'POST',
+				cache: 'no-cache',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: 'Api-Key ' + this.state.APIKey,
+				},
+				body: JSON.stringify({
+					card_number: this.state.cardNumber,
+					expiration_year: this.state.cardExpiryYear.slice(2),
+					expiration_month: this.state.cardExpiryMonth,
+					cvv_number: this.state.cardSecurityCode,
+					plan: this.state.selectedPlan.id,
+				}),
+			}
+		);
+
+		const responseData = await response.json();
+
+		if (response.ok) {
+			const url = responseData.card_verification_url;
+			const paymentToken = responseData.token;
+
+			window.paymentWindow.location = url;
+			this.setState({ paymentToken });
+
+			this.checkPaymentTokenLoop(
+				paymentToken,
+				this.state.APIKey,
+				this.state.registrationToken,
+				this.state.selectedPlan.id,
+				this
+			);
+		} else {
+			this.setPaymentError(responseData.error);
+			window.paymentWindow.close();
+		}
+	}
+
+	async checkPaymentToken(
+		paymentToken,
+		apiKey,
+		registrationToken,
+		planID,
+		parent
+	) {
+		const response = await fetch(
+			'https://askell.is/api/temporarypaymentmethod/' + paymentToken,
+			{
+				method: 'GET',
+				cache: 'no-cache',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: 'Api-Key ' + apiKey,
+				},
+			}
+		);
+
+		const responseData = await response.json();
+
+		if (response.ok) {
+			if (responseData.status !== 'initial') {
+				this.setState({ disableConfirmButton: false });
+				clearInterval(window.askellTokenIntervalID);
+
+				switch (responseData.status) {
+					case 'failed':
+						parent.setPaymentError(
+							'Card processing failed. Please check if the information if correct and try again.'
+						);
+						break;
+					case 'tokencreated':
+						parent.assignPaymentMethod(
+							paymentToken,
+							registrationToken,
+							planID,
+							parent
+						);
+				}
+			}
+		} else {
+			parent.setPaymentError(responseData.error);
+		}
+	}
+
+	checkPaymentTokenLoop(token, APIKey, registrationToken, planID, parent) {
+		this.setState({ disableConfirmButton: true });
+
+		const intervalID = setInterval(
+			this.checkPaymentToken,
+			2500,
+			token,
+			APIKey,
+			registrationToken,
+			planID,
+			parent
+		);
+		window.askellTokenIntervalID = intervalID;
+	}
+
+	async assignPaymentMethod(paymentToken, registrationToken, planID, parent) {
+		const response = await fetch(
+			wpApiSettings.root + 'askell/v1/customer_payment_method',
+			{
+				method: 'POST',
+				cache: 'no-cache',
+				headers: {
+					'Content-Type': 'application/json',
+					'X-WP-Nonce': wpApiSettings.nonce,
+				},
+				body: JSON.stringify({
+					paymentToken,
+					registrationToken,
+					planID,
+				}),
+			}
+		);
+
+		if (response.ok) {
+			parent.showSuccess();
+		} else {
+			parent.setPaymentError(
+				'Unable to assign the payment method to your account. Please contact the site owner.'
+			);
+		}
+	}
+
+	showSuccess() {
+		this.setState({ currentStep: 'success' });
+	}
+
+	setPaymentError(errorMessage) {
+		this.setState({ paymentErrorMessage: errorMessage });
+	}
+
+	clearPaymentError() {
+		this.setState({ paymentErrorMessage: null });
 	}
 
 	onFormSubmit(event) {
@@ -157,7 +326,7 @@ class AskellRegistration extends React.Component {
 	onChangeEmailAddress(event) {
 		this.setState({
 			emailAddress: event.target.value,
-			emailAddressIsValid: event.target.validity.valid
+			emailAddressIsValid: event.target.validity.valid,
 		});
 	}
 
@@ -179,17 +348,17 @@ class AskellRegistration extends React.Component {
 
 	onClickUserInfoNextStep(event) {
 		event.preventDefault();
-		this.setState({ userInfoChecked: true })
+		this.setState({ userInfoChecked: true });
 
 		// Count the number of invalid elements in the user info section
-		let invalidElementCount = document.querySelectorAll(
+		const invalidElementCount = document.querySelectorAll(
 			'#' + this.state.blockId + ' .askell-user-info-form input:invalid'
-		).length
+		).length;
 
 		// Show the credit card form when there are zero validation errors in
 		// the user info section.
 		// CSS will be used for highlighting invalid fields.
-		if ((invalidElementCount == 0) && (this.state.termsAccepted == true)) {
+		if (invalidElementCount === 0 && this.state.termsAccepted === true) {
 			this.createUser();
 		}
 	}
@@ -390,13 +559,15 @@ class AskellRegistration extends React.Component {
 				id={this.state.blockId}
 				method="post"
 				action="#"
-				data-current-step={ this.state.currentStep }
-				onSubmit={ this.onFormSubmit }
+				data-current-step={this.state.currentStep}
+				onSubmit={this.onFormSubmit}
 			>
 				<div
 					className="askell-plan-picker-form askell-step"
 					onChange={this.onChangePlan}
-					aria-labelledby={this.state.blockId + '-plan-section-heading'}
+					aria-labelledby={
+						this.state.blockId + '-plan-section-heading'
+					}
 				>
 					<span
 						id={this.state.blockId + '-plan-section-heading'}
@@ -405,18 +576,22 @@ class AskellRegistration extends React.Component {
 					>
 						Choose Your Plan
 					</span>
-					<div
-						className="askell-form-plans"
-					>
+					<div className="askell-form-plans">
 						{this.state.plans.map((p, i) => (
 							<div
 								id={'askell-form-plan-container-' + i}
 								className="askell-form-plan-container"
 								key={p.id}
-								aria-labelledby={this.state.blockId + '-plan-name-' + p.id}
+								aria-labelledby={
+									this.state.blockId + '-plan-name-' + p.id
+								}
 							>
 								<input
-									id={this.state.blockId + '-plan-radio-' + p.id}
+									id={
+										this.state.blockId +
+										'-plan-radio-' +
+										p.id
+									}
 									name="plan"
 									type="radio"
 									value={p.id}
@@ -424,11 +599,17 @@ class AskellRegistration extends React.Component {
 								<label
 									className=""
 									htmlFor={
-										this.state.blockId + '-plan-radio-' + p.id
+										this.state.blockId +
+										'-plan-radio-' +
+										p.id
 									}
 								>
 									<span
-										id={this.state.blockId + '-plan-name-' + p.id}
+										id={
+											this.state.blockId +
+											'-plan-name-' +
+											p.id
+										}
 										className="plan-name"
 										role="heading"
 									>
@@ -448,7 +629,7 @@ class AskellRegistration extends React.Component {
 						<Button
 							variant="primary"
 							size="default"
-							disabled={ (this.state.selectedPlan.id === undefined) }
+							disabled={this.state.selectedPlan.id === undefined}
 							onClick={this.onClickPlansNextStep}
 						>
 							Next Step
@@ -457,8 +638,10 @@ class AskellRegistration extends React.Component {
 				</div>
 				<div
 					className="askell-user-info-form askell-step"
-					aria-labelledby={this.state.blockId + '-user-info-section-heading'}
-					data-checked={ this.state.userInfoChecked }
+					aria-labelledby={
+						this.state.blockId + '-user-info-section-heading'
+					}
+					data-checked={this.state.userInfoChecked}
 				>
 					<span
 						id={this.state.blockId + '-user-info-section-heading'}
@@ -468,8 +651,8 @@ class AskellRegistration extends React.Component {
 						Account Information
 					</span>
 					<p className="payment-info">
-						Here, we will create a new user for you on this site.
-						It is nessecary to enter your information into all the
+						Here, we will create a new user for you on this site. It
+						is nessecary to enter your information into all the
 						fields below in order to get to the next step, where you
 						will enter your payment information.
 					</p>
@@ -561,16 +744,20 @@ class AskellRegistration extends React.Component {
 							I accept the <a href="#">terms of service</a>.
 						</label>
 					</div>
-					<div className={ 'error ' + this.state.WpErrorCode } role="alert" aria-live="assertive">
-						{ this.state.WpErrorCode !== null &&
-							<p>Error: { this.state.WpErrorMessage }</p>
-						}
+					<div
+						className={'error ' + this.state.WpErrorCode}
+						role="alert"
+						aria-live="assertive"
+					>
+						{this.state.WpErrorCode !== null && (
+							<p>Error: {this.state.WpErrorMessage}</p>
+						)}
 					</div>
 					<div className="buttons">
 						<Button
 							variant="primary"
 							size="default"
-							onClick={ this.onClickUserInfoBackButton }
+							onClick={this.onClickUserInfoBackButton}
 						>
 							Back
 						</Button>
@@ -578,8 +765,11 @@ class AskellRegistration extends React.Component {
 						<Button
 							variant="primary"
 							size="default"
-							onClick={ this.onClickUserInfoNextStep }
-							disabled={ ( ! this.state.termsAccepted || this.state.disableNextStepButton ) }
+							onClick={this.onClickUserInfoNextStep}
+							disabled={
+								!this.state.termsAccepted ||
+								this.state.disableNextStepButton
+							}
 						>
 							Create Account
 						</Button>
@@ -590,9 +780,7 @@ class AskellRegistration extends React.Component {
 					<p className="payment-info">
 						{this.state.selectedPlan.payment_info}
 					</p>
-					<div
-						className="askell-form-card-holder-name askell-form-field"
-					>
+					<div className="askell-form-card-holder-name askell-form-field">
 						<label
 							htmlFor={this.state.blockId + '-card-holder-name'}
 						>
@@ -602,7 +790,7 @@ class AskellRegistration extends React.Component {
 							id={this.state.blockId + '-card-holder-name'}
 							type="text"
 							name="cardHolderName"
-							autoComplete="false"
+							autoComplete="off"
 							value={this.state.cardHolderName}
 							onChange={this.onChangeCardHolderName}
 						/>
@@ -616,7 +804,7 @@ class AskellRegistration extends React.Component {
 								id={this.state.blockId + '-card-number'}
 								type="text"
 								name="cardNumber"
-								autoComplete="false"
+								autoComplete="off"
 								value={this.state.cardNumberSpaced}
 								onChange={this.onChangeCardNumber}
 							/>
@@ -654,7 +842,7 @@ class AskellRegistration extends React.Component {
 							<select
 								name="cardExpiryYear"
 								aria-label="Year"
-								autoComplete="false"
+								autoComplete="off"
 								defaultValue={this.state.cardExpiryYear}
 								onChange={this.onChangeCardExpiryYear}
 							>
@@ -681,15 +869,25 @@ class AskellRegistration extends React.Component {
 								id={this.state.blockId + '-security-code'}
 								type="text"
 								name="cardSecurityCode"
-								autoComplete="false"
+								autoComplete="off"
 								value={this.state.cardSecurityCode}
 								onChange={this.onChangeCardSecurityCode}
 							/>
 						</div>
 					</div>
+					<div
+						className={'error '}
+						role="alert"
+						aria-live="assertive"
+					>
+						{this.state.paymentErrorMessage !== null && (
+							<p>Error: {this.state.paymentErrorMessage}</p>
+						)}
+					</div>
 					<div className="buttons">
 						<button
-							disabled={ this.state.disableConfirmButton }
+							disabled={this.state.disableConfirmButton}
+							onClick={this.onClickConfirmPayment}
 						>
 							Confirm Payment
 						</button>
@@ -701,6 +899,14 @@ class AskellRegistration extends React.Component {
 						layer and is a PCI certified recurring payments
 						platform. Payment information is sent directly to Askell
 						for processing.
+					</p>
+				</div>
+				<div className="askell-success-form askell-step">
+					<span className="section-heading">Success!</span>
+					<p>
+						You should have received a confirmation email with the
+						relevant details about how to edit or cancel your
+						subscription.
 					</p>
 				</div>
 			</form>

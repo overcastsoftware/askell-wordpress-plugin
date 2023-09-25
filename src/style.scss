@@ -40,6 +40,13 @@
 		}
 	}
 
+	form[data-current-step="success"] {
+
+		.askell-success-form {
+			display: block;
+		}
+	}
+
 	.section-heading {
 		display: block;
 		font-weight: 700;

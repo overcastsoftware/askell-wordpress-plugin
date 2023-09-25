@@ -67,7 +67,7 @@ $askell_user_query = new WP_User_Query( $askell_user_query_arguments );
 					<td><?php echo $u->user_login; ?></td>
 					<td><a href="mailto:<?php echo $u->user_email ?>"><?php echo $u->user_email ?></a></td>
 
-					<td><?php echo $askell_registration->get_plan_by_reference('OPT3')['name'] ?></td>
+					<td><?php echo get_user_meta($u->ID, 'askell_plan_id', true) ?></td>
 					<td><?php echo get_user_meta($u->ID, 'askell_registration_status', true) ?></td>
 
 					<td><?php echo $u->user_registered ?></td>
