@@ -29,6 +29,7 @@
 		"askell-registration.php",
 		"views",
 		"build",
-		"assets"
+		"assets",
+		"languages"
 	]
 }
