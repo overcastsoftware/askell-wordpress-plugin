@@ -1,18 +1,15 @@
-# Copyright (C) 2023 Overcast Software
-# This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
 "Project-Id-Version: Askell Registration 0.1.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/askell-"
-"registration\n"
-"POT-Creation-Date: 2023-09-25T22:33:41+02:00\n"
-"PO-Revision-Date: 2023-09-26 11:54+0000\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/askell-registration\n"
 "Last-Translator: \n"
 "Language-Team: \n"
-"Language: is_IS\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2023-09-25T22:33:41+02:00\n"
+"PO-Revision-Date: 2023-09-26 11:54+0000\n"
+"Language: is_IS\n"
 "X-Generator: Poedit 3.3.2\n"
 "X-Domain: askell-registration\n"
 
@@ -25,15 +22,15 @@ msgid "https://askell.is/"
 msgstr ""
 
 #. Description of the plugin
-msgid ""
-"Sign up for recurring subscriptions directly from WordPress using Askell"
+msgid "Sign up for recurring subscriptions directly from WordPress using Askell"
 msgstr ""
 
 #. Author of the plugin
 msgid "Overcast Software"
 msgstr ""
 
-#: askell-registration.php:329 askell-registration.php:330
+#: askell-registration.php:329
+#: askell-registration.php:330
 msgid "Askell"
 msgstr "Áskell"
 
@@ -81,47 +78,32 @@ msgstr "%1$s, %2$s"
 
 #. translators: Appears in the credit card information form as an indicator of for how much, how and when the card would be charged.
 #: askell-registration.php:535
-msgid ""
-"Upon confirmation, your card will be charged %1$s, %2$s, after a free trial "
-"period of %3$d days. Your card may be tested and validated in the meantime."
-msgstr ""
-"Þegar þú staðfestir verður kortið þitt skuldfært um %1%s, %2$s, eftir frían "
-"%3$d daga prufutíma. Við munum núna framkvæma heimildarleit til að staðfesta "
-"að kortið sé í lagi."
+msgid "Upon confirmation, your card will be charged %1$s, %2$s, after a free trial period of %3$d days. Your card may be tested and validated in the meantime."
+msgstr "Þegar þú staðfestir verður kortið þitt skuldfært um %1%s, %2$s, eftir frían %3$d daga prufutíma. Við munum núna framkvæma heimildarleit til að staðfesta að kortið sé í lagi."
 
 #: askell-registration.php:546
-msgid ""
-"Upon confirmation, your card will be immediately charged %1$s and then %2$s "
-"for the same amount."
-msgstr ""
-"Þegar þú staðfestir verður kortið þitt skuldfært um %1$s og síðan %2$s fyrir "
-"sömu upphæð."
+msgid "Upon confirmation, your card will be immediately charged %1$s and then %2$s for the same amount."
+msgstr "Þegar þú staðfestir verður kortið þitt skuldfært um %1$s og síðan %2$s fyrir sömu upphæð."
 
 #: views/main-page.php:12
-msgid ""
-"This is an early development version of Askell for WordPress. Do not use "
-"this version of the plugin on a production website!"
-msgstr ""
-"Þetta er þróunarútgafa af Áskeli fyrir WordPress. Ekki nota þessa útgáfu af "
-"viðbótinni á raun-útgáfu af vefsíðunni þinni."
+msgid "This is an early development version of Askell for WordPress. Do not use this version of the plugin on a production website!"
+msgstr "Þetta er þróunarútgafa af Áskeli fyrir WordPress. Ekki nota þessa útgáfu af viðbótinni á raun-útgáfu af vefsíðunni þinni."
 
 #: views/main-page.php:17
-msgid ""
-"The Askell API key and Shared Secret values have not been set yet. Please "
-"open the Settings pane and enter the missing values."
-msgstr ""
-"API lykill og leynilegi lykillinn hafa ekki verið stillt. Opnaðu "
-"stillingarnar og fylltu út í reitina sem vantar."
+msgid "The Askell API key and Shared Secret values have not been set yet. Please open the Settings pane and enter the missing values."
+msgstr "API lykill og leynilegi lykillinn hafa ekki verið stillt. Opnaðu stillingarnar og fylltu út í reitina sem vantar."
 
 #: views/main-page.php:22
 msgid "Askell for WordPress"
 msgstr ""
 
-#: views/main-page.php:31 views/main-page.php:43
+#: views/main-page.php:31
+#: views/main-page.php:43
 msgid "Subscribers"
 msgstr "Áskrifendur"
 
-#: views/main-page.php:38 views/main-page.php:82
+#: views/main-page.php:38
+#: views/main-page.php:82
 msgid "Settings"
 msgstr "Stillingar"
 
@@ -129,16 +111,21 @@ msgstr "Stillingar"
 msgid "Name"
 msgstr "Nafn"
 
-#: views/main-page.php:48 views/main-page.php:134
+#: views/main-page.php:48
+#: views/main-page.php:134
 msgid "Customer Reference"
 msgstr "Tilvísun viðskiptavinar"
 
-#: views/main-page.php:49 build/frontend.js:1 build/index.js:1
+#: views/main-page.php:49
+#: build/frontend.js:1
+#: build/index.js:1
 #: src/askellRegistration.js:709
 msgid "Username"
 msgstr ""
 
-#: views/main-page.php:50 build/frontend.js:1 build/index.js:1
+#: views/main-page.php:50
+#: build/frontend.js:1
+#: build/index.js:1
 #: src/askellRegistration.js:695
 msgid "Email Address"
 msgstr "Notandanafn"
@@ -184,22 +171,12 @@ msgid "Icelandic Personal ID Number (Kennitala)"
 msgstr "Kennitala"
 
 #: views/main-page.php:155
-msgid ""
-"This is the user attribute this WordPress site and Askell use for referring "
-"to each subscriber's records."
-msgstr ""
-"Þetta er auðkenni notandans sem þessi Wordpress síða og Áskell nota til þess "
-"að tengja saman áskriftir hvers áskrifanda."
+msgid "This is the user attribute this WordPress site and Askell use for referring to each subscriber's records."
+msgstr "Þetta er auðkenni notandans sem þessi Wordpress síða og Áskell nota til þess að tengja saman áskriftir hvers áskrifanda."
 
 #: views/main-page.php:156
-msgid ""
-"Note that this should be set <strong>before the first registrations arrive</"
-"strong>, as changing this may affect the synchronisation between Askell and "
-"your website, resulting in discrepancies."
-msgstr ""
-"Athugið að þetta ætti að stilla <strong>áður en fyrstu skráningar berast</"
-"strong>, þar sem breytingar á þessari stillingu geta haft áhrif á tengingu "
-"vefsíðunnar við Áskel og valdið ósamræmi."
+msgid "Note that this should be set <strong>before the first registrations arrive</strong>, as changing this may affect the synchronisation between Askell and your website, resulting in discrepancies."
+msgstr "Athugið að þetta ætti að stilla <strong>áður en fyrstu skráningar berast</strong>, þar sem breytingar á þessari stillingu geta haft áhrif á tengingu vefsíðunnar við Áskel og valdið ósamræmi."
 
 #: views/main-page.php:161
 msgid "Addresses"
@@ -222,136 +199,21 @@ msgid "Enable built-in stylesheet"
 msgstr "Virkja innbyggt stílsnið (e. stylesheet)"
 
 #: views/main-page.php:199
-msgid ""
-"Disable this to remove the additional CSS styles provided by Askell from the "
-"registration block. It may be useful for those who need to have full control "
-"of how their website is displayed."
-msgstr ""
-"Slökktu á þessu til þess að slökkva á CSS stílum sem fylgja með Áskels "
-"skráningar blokkinni. Það gæti verið gagnlegt ef þú vilt hafa fulla stjórn á "
-"því hvernig skráningarformið lítur út."
+msgid "Disable this to remove the additional CSS styles provided by Askell from the registration block. It may be useful for those who need to have full control of how their website is displayed."
+msgstr "Slökktu á þessu til þess að slökkva á CSS stílum sem fylgja með Áskels skráningar blokkinni. Það gæti verið gagnlegt ef þú vilt hafa fulla stjórn á því hvernig skráningarformið lítur út."
 
 #: views/main-page.php:214
 msgid "Save Settings"
 msgstr "Vista stillingar"
 
-#: build/frontend.js:1 build/index.js:1 src/askellRegistration.js:229
-msgid ""
-"Card processing failed. Please check if the information if correct and try "
-"again."
-msgstr ""
-"Ekki tókst að skuldfæra kort. Vinsamlegast athugaðu hvort allar upplýsingar "
-"séu réttar og reyndu aftur."
-
-#: build/frontend.js:1 build/index.js:1 src/askellRegistration.js:286
-msgid ""
-"Unable to assign the payment method to your account. Please contact the site "
-"owner."
-msgstr ""
-"Ekki tókst að vista greiðslumátann. Vinsamlegast hafðu samband við eiganda "
-"vefsíðunnar."
-
-#: build/frontend.js:1 build/index.js:1 src/askellRegistration.js:583
-msgid "Choose Your Plan"
-msgstr "Veldu þér áskrift"
-
-#: build/frontend.js:1 build/index.js:1 src/askellRegistration.js:639
-msgid "Next Step"
-msgstr "Næsta skref"
-
-#: build/frontend.js:1 build/index.js:1 src/askellRegistration.js:655
-msgid "Account Information"
-msgstr "Upplýsingar um notandareikning"
-
-#: build/frontend.js:1 build/index.js:1 src/askellRegistration.js:658
-msgid ""
-"Here, we will create a new user for you on this site. It is necessary to "
-"enter your information into all the fields below in order to get to the next "
-"step, where you will enter your payment information."
-msgstr ""
-"Við munum stofna notandaaðgang fyrir þig. Það er nauðsynlegt að fylla út í "
-"alla reiti hér að neðan til þess að komast í næsta skref, þar sem við munum "
-"biðja þig um greiðslukortaupplýsingar."
-
-#: build/frontend.js:1 build/index.js:1 src/askellRegistration.js:666
-msgid "First Name"
-msgstr "Eiginnafn / millinafn"
-
-#: build/frontend.js:1 build/index.js:1 src/askellRegistration.js:680
-msgid "Last Name"
-msgstr "Kenninafn"
-
-#: build/frontend.js:1 build/index.js:1 src/askellRegistration.js:724
-msgid "Password"
-msgstr "Lykilorð"
-
-#: build/frontend.js:1 build/index.js:1 src/askellRegistration.js:749
-msgid "I accept the terms of service"
-msgstr "Ég samþykki skilmálana"
-
-#: build/frontend.js:1 build/index.js:1 src/askellRegistration.js:764
-#: src/askellRegistration.js:894
-msgid "Error: "
-msgstr "Villa: "
-
-#: build/frontend.js:1 build/index.js:1 src/askellRegistration.js:771
-msgid "Back"
-msgstr "Til baka"
-
-#: build/frontend.js:1 build/index.js:1 src/askellRegistration.js:781
-msgid "Create Account"
-msgstr "Búa til aðgang"
-
-#: build/frontend.js:1 build/index.js:1 src/askellRegistration.js:787
-msgid "Payment Information"
-msgstr "Greiðsluupplýsingar"
-
-#: build/frontend.js:1 build/index.js:1 src/askellRegistration.js:796
-msgid "Card Holder Name"
-msgstr "Nafn korthafa"
-
-#: build/frontend.js:1 build/index.js:1 src/askellRegistration.js:809
-msgid "Card Number"
-msgstr "Kortanúmer"
-
-#: build/frontend.js:1 build/index.js:1 src/askellRegistration.js:836
-msgid "Card Expiry"
-msgstr "Gildistími"
-
-#: build/frontend.js:1 build/index.js:1 src/askellRegistration.js:875
-msgid "Security Code"
-msgstr "Öryggisnúmer"
-
-#: build/frontend.js:1 build/index.js:1 src/askellRegistration.js:904
-msgid "Confirm Payment"
-msgstr "Staðfesta greiðslu"
-
-#: build/frontend.js:1 build/index.js:1 src/askellRegistration.js:908
-msgid ""
-"Payment processing is performed by this site&apos;s owner&apos; card "
-"merchant service, via Askell by Overcast Software, which runs over a secure "
-"transport layer and is a PCI certified recurring payments platform. Payment "
-"information is sent directly to Askell for processing."
-msgstr ""
-"Skuldfærsla á greiðslukort er framkvæmd af færsluhirði sem þjónustar eiganda "
-"þessarar vefsíðu, í gegnum Áskel áskriftarkerfi, sem er í eigu Overcast ehf. "
-"Áskell er öruggt, PCI vottað greiðsluumhverfi. Greiðsluupplýsingar eru "
-"sendar beint til Áskels til frekari vinnslu."
-
-#: build/frontend.js:1 build/index.js:1 src/askellRegistration.js:917
-msgid ""
-"You should have received a confirmation email with the relevant details "
-"about how to edit or cancel your subscription."
-msgstr ""
-"Þú ættir að hafa fengið staðfestingarpóst með upplýsingum um áskriftina"
-
-#: build/block.json src/block.json
+#: build/block.json
+#: src/block.json
 msgctxt "block title"
 msgid "Askell Registration"
 msgstr ""
 
-#: build/block.json src/block.json
+#: build/block.json
+#: src/block.json
 msgctxt "block description"
-msgid ""
-"Sign up for recurring subscriptions directly from WordPress using Askell"
+msgid "Sign up for recurring subscriptions directly from WordPress using Askell"
 msgstr ""
