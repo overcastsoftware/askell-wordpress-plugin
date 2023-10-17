@@ -265,40 +265,6 @@ class AskellRegistration {
 	}
 
 	/**
-	 * Add a subscription to a WordPress user
-	 *
-	 * @param WP_User $user The WP_User object representing the user.
-	 * @param array   $subscription An array representing the subscription,
-	 *                              including the keys `id`, `plan_id`,
-	 *                              `trial_end`, `start_date`, `ended_at`,
-	 *                              `active` and `is_on_trial`.
-	 *
-	 * @return int|bool The result of the WP update_user_meta call.
-	 */
-	public function add_subscription_to_user(
-		WP_User $user,
-		array $subscription
-	) {
-		$current_subscriptions = get_user_meta(
-			$user->ID,
-			'askell_subscriptions',
-			true
-		);
-
-		if ( is_array( $current_subscriptions ) ) {
-			array_push( $current_subscriptions, $subscription );
-		} else {
-			$current_subscriptions = array( $subscription );
-		}
-
-		return update_user_meta(
-			$user->ID,
-			'askell_subscriptions',
-			$current_subscriptions
-		);
-	}
-
-	/**
 	 * Set and overwrite a user's subscriptions
 	 *
 	 * @param WP_User $user The WP_User object representing the user.
@@ -312,40 +278,6 @@ class AskellRegistration {
 			$user->ID,
 			'askell_subscriptions',
 			$subscriptions
-		);
-	}
-
-	/**
-	 * Remove a subscription from a user based on its ID
-	 *
-	 * @param WP_User $user The WP_User object representing the user.
-	 * @param string  $subscription_id The ID of the subscription to remove.
-	 */
-	public function remove_subscription_from_user(
-		WP_User $user,
-		string $subscription_id
-	) {
-		$current_subscriptions = get_user_meta(
-			$user->ID,
-			'askell_subscriptions',
-			true
-		);
-
-		if ( is_array( $current_subscriptions ) ) {
-			foreach ( $current_subscriptions as $i => $s ) {
-				if ( $subscription_id === $s['id'] ) {
-					array_splice( $current_subscriptions, $i, 1 );
-					break;
-				}
-			}
-		} else {
-			$current_subscriptions = array();
-		}
-
-		return update_user_meta(
-			$user->ID,
-			'askell_subscriptions',
-			$current_subscriptions
 		);
 	}
 
