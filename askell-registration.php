@@ -48,7 +48,7 @@ class AskellRegistration {
 		add_action( 'admin_menu', array( $this, 'add_menu_page' ) );
 		add_action( 'admin_init', array( $this, 'enqueue_admin_script' ) );
 
-		add_action( 'askell_sync_cron', array( $this, 'pull_plans' ) );
+		add_action( 'askell_sync_cron', array( $this, 'save_plans' ) );
 		add_action( 'init', array( $this, 'schedule_sync_cron' ) );
 		add_action( 'init', array( $this, 'load_textdomain' ) );
 	}
@@ -152,6 +152,8 @@ class AskellRegistration {
 
 		$this->assign_payment_method_to_user_in_askell($user, $payment_token);
 		$this->assign_subscription_to_user_in_askell($user, $plan_id);
+
+		update_user_meta( $user->ID, 'askell_payment_token', $payment_token );
 	}
 
 	public function settings_rest_post(WP_REST_Request $request) {
@@ -244,18 +246,6 @@ class AskellRegistration {
 			);
 		}
 
-		update_user_meta(
-			$new_user_id,
-			'askell_plan_id',
-			$request_body['planId']
-		);
-
-		update_user_meta(
-			$new_user_id,
-			'askell_plan_reference',
-			$request_body['planReference']
-		);
-
 		$token = base64_encode(random_bytes(32));
 
 		update_user_meta(
@@ -271,6 +261,23 @@ class AskellRegistration {
 		return array(
 			'ID' => $user->data->ID,
 			'registration_token' => $token,
+		);
+	}
+
+	/**
+	 * Set and overwrite a user's subscriptions
+	 *
+	 * @param WP_User $user The WP_User object representing the user.
+	 * @param array   $subscriptions An array of subscription arrays.
+	 */
+	public function set_subscriptions_for_user(
+		WP_User $user,
+		array $subscriptions
+	) {
+		return update_user_meta(
+			$user->ID,
+			'askell_subscriptions',
+			$subscriptions
 		);
 	}
 
@@ -439,21 +446,233 @@ class AskellRegistration {
 		];
 	}
 
-	function pull_plans() {
-		$private_key = get_option('askell_api_secret');
+	/**
+	 * Push customer information to the Askell API
+	 *
+	 * @param WP_User $user The WordPress user object.
+	 */
+	public function push_customer( WP_User $user ) {
+		if ( false === $user->exists() ) {
+			return false;
+		}
+
+		$private_key = get_option( 'askell_api_secret' );
+
+		if ( false === $private_key ) {
+			return false;
+		}
+
+		$request_body = wp_json_encode(
+			array(
+				'first_name' => $user->first_name,
+				'last_name'  => $user->last_name,
+				'email'      => $user->user_email,
+			)
+		);
+
+		$api_response = wp_remote_request(
+			"https://askell.is/api/customers/{$user->ID}/",
+			array(
+				'method'  => 'PATCH',
+				'body'    => $request_body,
+				'headers' => array(
+					'accept'        => 'application/json',
+					'Authorization' => "Api-Key {$private_key}",
+				),
+			)
+		);
+
+		if ( 200 !== $api_response['response']['code'] ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Save customer's information to the WordPress users table
+	 *
+	 * @param WP_User $user The WordPress user object.
+	 *
+	 * @return bool True on success. False on failure.
+	 */
+	public function save_customer_to_user( WP_User $user ) {
+		if ( false === $user->exists() ) {
+			return false;
+		}
+
+		$customer = $this->pull_customer( $user );
+
+		if ( false === $customer ) {
+			return false;
+		}
+
+		$user->first_name = $customer['first_name'];
+		$user->last_name  = $customer['last_name'];
+		$user->user_email = $customer['email'];
+
+		return wp_update_user( $customer );
+	}
+
+	/**
+	 * Pull customer information from the Askell API
+	 *
+	 * @param WP_User $user The WordPress user object.
+	 *
+	 * @return bool True on success. False on failure.
+	 */
+	public function pull_customer( WP_User $user ) {
+		if ( false === $user->exists() ) {
+			return false;
+		}
+
+		$private_key = get_option( 'askell_api_secret' );
+
+		if ( false === $private_key ) {
+			return false;
+		}
+
+		$api_response = wp_remote_get(
+			"https://askell.is/api/customers/{$user->ID}/",
+			array(
+				'headers' => array(
+					'accept'        => 'application/json',
+					'Authorization' => "Api-Key {$private_key}",
+				),
+			)
+		);
+
+		if ( 200 !== $api_response['response']['code'] ) {
+			return false;
+		}
+
+		$user = json_decode( $api_response['body'], true );
+
+		return array(
+			'first_name' => $user['first_name'],
+			'last_name'  => $user['last_name'],
+			'email'      => $user['email'],
+		);
+	}
+
+	/**
+	 * Pull in and save subscriptions for a specific user from the Askell API
+	 *
+	 * @param WP_User $user The WordPress user object.
+	 *
+	 * @return bool True on success. False on failure.
+	 */
+	public function save_customer_subscriptions_to_user( WP_User $user ) {
+		if ( false === $user->exists() ) {
+			return false;
+		}
+
+		$subscriptions = $this->pull_customer_subscriptions( $user->ID );
+
+		if ( ! is_array( $subscriptions ) ) {
+			return false;
+		}
+
+		return $this->set_subscriptions_for_user( $user, $subscriptions );
+	}
+
+	/**
+	 * Pull subscription for a specific user from the Askell API
+	 *
+	 * @param WP_User $user The WordPress user object.
+	 *
+	 * @return array|bool Array of subscriptions on success. False on failure.
+	 */
+	public function pull_customer_subscriptions( WP_User $user ) {
+		if ( false === $user->exists() ) {
+			return false;
+		}
+
+		$private_key = get_option( 'askell_api_secret' );
+
+		if ( false === $private_key ) {
+			return false;
+		}
+
+		$user_id = (int) $user->ID;
+
+		$api_response = wp_remote_get(
+			"https://askell.is/api/customers/{$user_id}/subscriptions/",
+			array(
+				'headers' => array(
+					'accept'        => 'application/json',
+					'Authorization' => "Api-Key {$private_key}",
+				),
+			)
+		);
+
+		if ( 200 !== $api_response['response']['code'] ) {
+			return false;
+		}
+
+		$askell_subscriptions = json_decode( $api_response['body'], true );
+
+		$subscriptions = array();
+		foreach ( $askell_subscriptions as $s ) {
+			$subscriptions[] = array(
+				'id'          => $s['id'],
+				'plan_id'     => $s['plan']['id'],
+				'trial_end'   => $s['trial_end'],
+				'start_date'  => $s['start_date'],
+				'ended_at'    => $s['ended_at'],
+				'active'      => $s['active'],
+				'is_on_trial' => $s['is_on_trial'],
+				'token'       => $s['token'],
+			);
+		}
+
+		return $subscriptions;
+	}
+
+	/**
+	 * Pull in and save plans from the Askell API
+	 *
+	 * @return bool True on success, false on failure.
+	 */
+	public function save_plans() {
+		$plans = $this->pull_plans();
+		if ( false === $plans ) {
+			return false;
+		}
+
+		return update_option( 'askell_plans', $plans );
+	}
+
+	/**
+	 * Pull the subscription plans from the Askell API
+	 *
+	 * @return array|bool An array of subscription plans on success or false on
+	 *                    failure. Failure can occur if the API secret key has
+	 *                    not been set or if the API does not respond with an
+	 *                    "OK" status.
+	 */
+	public function pull_plans() {
+		$private_key = get_option( 'askell_api_secret' );
+
+		if ( false === $private_key ) {
+			return false;
+		}
 
 		$api_response = wp_remote_get(
 			'https://askell.is/api/plans/',
 			array(
 				'headers' => array(
-					'accept' => 'application/json',
-					'Authorization' => "Api-Key {$private_key}"
-				)
+					'accept'        => 'application/json',
+					'Authorization' => "Api-Key {$private_key}",
+				),
 			)
 		);
 
-		$plans = json_decode($api_response['body'], true);
-		update_option( 'askell_plans', $plans );
+		if ( 200 !== $api_response['response']['code'] ) {
+			return false;
+		}
+
+		$plans = json_decode( $api_response['body'], true );
 		return $plans;
 	}
 
