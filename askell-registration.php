@@ -671,7 +671,7 @@ class AskellRegistration {
 			return false;
 		}
 
-		$subscriptions = $this->pull_customer_subscriptions( $user->ID );
+		$subscriptions = $this->pull_customer_subscriptions( $user );
 
 		if ( ! is_array( $subscriptions ) ) {
 			return false;
