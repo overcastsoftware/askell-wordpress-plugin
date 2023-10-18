@@ -126,19 +126,32 @@ class AskellRegistration {
 		);
 	}
 
-	public function customer_payment_method_post(WP_REST_Request $request) {
+	/**
+	 * Handle the HTTP POST request for assigning payment method to customer
+	 *
+	 * This is the latter step of the user registration process via the React
+	 * component. The user is already assumed to be in the WP user table,
+	 * so this is only used for assigning a payment method and subscription to
+	 * that user.
+	 *
+	 * @param WP_REST_Request $request The WordPress REST request.
+	 *
+	 * @return WP_Error|bool
+	 */
+	public function customer_payment_method_post( WP_REST_Request $request ) {
 		$request_body = (array) json_decode( $request->get_body() );
 
 		$user_query = new WP_User_Query(
 			array(
-				'meta_key' => 'askell_registration_token',
-				'meta_value' => $request_body['registrationToken']
+				'count'      => 1,
+				'meta_key'   => 'askell_registration_token',
+				'meta_value' => $request_body['registrationToken'],
 			)
 		);
 
 		$users = $user_query->get_results();
 
-		if ( 0 === count($users) ) {
+		if ( 0 === count( $users ) ) {
 			return new WP_Error(
 				'user_not_found',
 				'User Not Found',
@@ -146,12 +159,54 @@ class AskellRegistration {
 			);
 		}
 
-		$user = $users[0];
+		$user          = $users[0];
 		$payment_token = $request_body['paymentToken'];
-		$plan_id = $request_body['planID'];
+		$plan_id       = $request_body['planID'];
 
-		$this->assign_payment_method_to_user_in_askell($user, $payment_token);
-		$this->assign_subscription_to_user_in_askell($user, $plan_id);
+		// Save the user's payment token as user meta, as we may want to use it
+		// later.
+		update_user_meta( $user->ID, 'askell_payment_token', $payment_token );
+
+		// Create a payment method for the user in the Askell API.
+		if (
+			false === $this->assign_payment_method_to_user_in_askell(
+				$user,
+				$payment_token
+			)
+		) {
+			return new WP_Error(
+				'payment_method_not_set',
+				'Payment Method Not Set',
+				array( 'status' => 500 )
+			);
+		}
+		usleep( 100000 ); // 100 ms pause to prevent race conditions.
+
+		// Assign the subscription to the user in Askell.
+		if (
+			false === $this->assign_subscription_to_user_in_askell(
+				$user,
+				$plan_id
+			)
+		) {
+			return new WP_Error(
+				'subscription_not_assigned',
+				'Subscription Not Assigned',
+				array( 'status' => 500 )
+			);
+		}
+		usleep( 100000 ); // 100 ms pause to prevent race conditions.
+
+		// Pull the subscription information in from the Askell API.
+		if ( false === $this->save_customer_subscriptions_to_user( $user ) ) {
+			return new WP_Error(
+				'subscription_not_saved_to_user',
+				'Subscription Not Saved to User',
+				array( 'status' => 500 )
+			);
+		}
+
+		return true;
 	}
 
 	public function settings_rest_post(WP_REST_Request $request) {
@@ -297,52 +352,103 @@ class AskellRegistration {
 		);
 	}
 
+	/**
+	 * Assign payment method to a customer/user in the Askell API
+	 *
+	 * This needs to be done before a subscription is assigned to the customer.
+	 *
+	 * @param WP_User $user The WordPress user object for the customer.
+	 * @param string  $payment_token the payment token from the
+	 *                `customer_payment_method_post` call.
+	 *
+	 * @return bool True on success. False on failure.
+	 */
 	public function assign_payment_method_to_user_in_askell(
 		WP_User $user,
-		$payment_token
+		string $payment_token
 	) {
-		$user_reference = (string) $user->ID;
-		$endpoint_url = "https://askell.is/api/customers/paymentmethod/";
-		$api_key = get_option( 'askell_api_secret', '' );
+		if ( false === $user->exists() ) {
+			return false;
+		}
+
+		$private_key = get_option( 'askell_api_secret' );
+
+		if ( false === $private_key ) {
+			return false;
+		}
+
+		$endpoint_url = 'https://askell.is/api/customers/paymentmethod/';
 
 		$request_body = array(
-			'customer_reference' => $user_reference,
-			'token' => $payment_token
+			'customer_reference' => $user->ID,
+			'token'              => $payment_token,
 		);
 
-		return wp_remote_post(
+		$api_response = wp_remote_post(
 			$endpoint_url,
 			array(
+				'body'    => wp_json_encode( $request_body ),
 				'headers' => array(
-					'Content-Type' => 'application/json',
-					'Authorization' => "Api-Key $api_key"
+					'Content-Type'  => 'application/json',
+					'Authorization' => "Api-Key $private_key",
 				),
-				'body' => wp_json_encode($request_body)
 			)
 		);
+
+		if ( 201 !== $api_response['response']['code'] ) {
+			return false;
+		}
+
+		return true;
 	}
 
-	public function assign_subscription_to_user_in_askell(WP_User $user, $plan_id) {
-		$user_reference = $user->ID;
-		$endpoint_url = "https://askell.is/api/customers/$user_reference/subscriptions/add/";
-		$api_key = get_option( 'askell_api_secret', '' );
-		$plan = $this->get_plan_by_id($plan_id);
+	/**
+	 * Assign a subscription to customer by WP user and plan ID
+	 *
+	 * @param WP_User $user The WordPress user object for the customer.
+	 * @param int     $plan_id The ID of the subscription plan.
+	 *
+	 * @return bool True on success. False on failure.
+	 */
+	public function assign_subscription_to_user_in_askell(
+		WP_User $user,
+		int $plan_id
+	) {
+		if ( false === $user->exists() ) {
+			return false;
+		}
+
+		$private_key = get_option( 'askell_api_secret' );
+
+		if ( false === $private_key ) {
+			return false;
+		}
+
+		$plan = $this->get_plan_by_id( $plan_id );
+
+		$endpoint_url = "https://askell.is/api/customers/$user->ID/subscriptions/add/";
 
 		$request_body = array(
-			"plan" => $plan_id,
-			"reference" => $plan['reference']
+			'plan'      => $plan_id,
+			'reference' => $plan['reference'],
 		);
 
-		return wp_remote_post(
+		$api_response = wp_remote_post(
 			$endpoint_url,
 			array(
+				'body'    => wp_json_encode( $request_body ),
 				'headers' => array(
-					'Content-Type' => 'application/json',
-					'Authorization' => "Api-Key $api_key"
+					'Content-Type'  => 'application/json',
+					'Authorization' => "Api-Key $private_key",
 				),
-				'body' => wp_json_encode($request_body)
 			)
 		);
+
+		if ( 201 !== $api_response['response']['code'] ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	public function add_menu_page() {
