@@ -87,7 +87,6 @@ class AskellRegistration extends React.Component {
 			APIKey: result.api_key,
 			reference: result.reference,
 			stylesEnabled: result.styles_enabled,
-			countrySelectorEnabled: result.address_country_enabled,
 			plans: result.plans,
 		});
 
