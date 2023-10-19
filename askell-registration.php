@@ -15,6 +15,11 @@
  * @package           askell-registration
  */
 
+/**
+ * The main AskellRegistration class
+ *
+ * @package askell-registration
+ */
 class AskellRegistration {
 	const REST_NAMESPACE = 'askell/v1';
 	const USER_ROLE = 'subscriber';
@@ -85,60 +90,85 @@ class AskellRegistration {
 		);
 	}
 
+	/**
+	 * Register the WP REST routes used by the plugin
+	 */
 	public function register_rest_routes() {
 		register_rest_route(
 			self::REST_NAMESPACE,
 			'/customer',
 			array(
-				'methods' => 'POST',
-				'callback' => array( $this, 'customer_rest_post' ),
+				'methods'             => 'POST',
 				'permission_callback' => '__return_true',
+				'callback'            => array( $this, 'customer_rest_post' ),
 			)
 		);
 		register_rest_route(
 			self::REST_NAMESPACE,
 			'/customer_payment_method',
 			array(
-				'methods' => 'POST',
-				'callback' => array( $this, 'customer_payment_method_post' ),
+				'methods'             => 'POST',
 				'permission_callback' => '__return_true',
+				'callback'            => array(
+					$this,
+					'customer_payment_method_post',
+				),
 			)
 		);
 		register_rest_route(
 			self::REST_NAMESPACE,
 			'/form_fields',
 			array(
-				'methods' => 'GET',
-				'callback' => array( $this, 'form_fields_json_get' ),
-				'permission_callback' => '__return_true'
+				'methods'             => 'GET',
+				'permission_callback' => '__return_true',
+				'callback'            => array(
+					$this,
+					'form_fields_json_get',
+				),
 			)
 		);
 		register_rest_route(
 			self::REST_NAMESPACE,
 			'/settings',
 			array(
-				'methods' => 'POST',
-				'callback' => array( $this, 'settings_rest_post' ),
-				'permission_callback' => function() {
+				'methods'             => 'POST',
+				'permission_callback' => function () {
 					return current_user_can( 'manage_options' );
-				}
+				},
+				'callback'            => array(
+					$this,
+					'settings_rest_post',
+				),
 			)
 		);
 	}
 
-	public function customer_payment_method_post(WP_REST_Request $request) {
+	/**
+	 * Handle the HTTP POST request for assigning payment method to customer
+	 *
+	 * This is the latter step of the user registration process via the React
+	 * component. The user is already assumed to be in the WP user table,
+	 * so this is only used for assigning a payment method and subscription to
+	 * that user, based on a registration token that is already assigned.
+	 *
+	 * @param WP_REST_Request $request The WordPress REST request.
+	 *
+	 * @return WP_Error|bool
+	 */
+	public function customer_payment_method_post( WP_REST_Request $request ) {
 		$request_body = (array) json_decode( $request->get_body() );
 
 		$user_query = new WP_User_Query(
 			array(
-				'meta_key' => 'askell_registration_token',
-				'meta_value' => $request_body['registrationToken']
+				'count'      => 1,
+				'meta_key'   => 'askell_registration_token',
+				'meta_value' => $request_body['registrationToken'],
 			)
 		);
 
 		$users = $user_query->get_results();
 
-		if ( 0 === count($users) ) {
+		if ( 0 === count( $users ) ) {
 			return new WP_Error(
 				'user_not_found',
 				'User Not Found',
@@ -146,17 +176,62 @@ class AskellRegistration {
 			);
 		}
 
-		$user = $users[0];
+		$user          = $users[0];
 		$payment_token = $request_body['paymentToken'];
-		$plan_id = $request_body['planID'];
+		$plan_id       = $request_body['planID'];
 
-		$this->assign_payment_method_to_user_in_askell($user, $payment_token);
-		$this->assign_subscription_to_user_in_askell($user, $plan_id);
-
+		// Save the user's payment token as user meta, as we may want to use it
+		// later.
 		update_user_meta( $user->ID, 'askell_payment_token', $payment_token );
+
+		// Create a payment method for the user in the Askell API.
+		if (
+			false === $this->assign_payment_method_to_user_in_askell(
+				$user,
+				$payment_token
+			)
+		) {
+			return new WP_Error(
+				'payment_method_not_set',
+				'Payment Method Not Set',
+				array( 'status' => 500 )
+			);
+		}
+		usleep( 100000 ); // 100 ms pause to prevent race conditions.
+
+		// Assign the subscription to the user in Askell.
+		if (
+			false === $this->assign_subscription_to_user_in_askell(
+				$user,
+				$plan_id
+			)
+		) {
+			return new WP_Error(
+				'subscription_not_assigned',
+				'Subscription Not Assigned',
+				array( 'status' => 500 )
+			);
+		}
+		usleep( 100000 ); // 100 ms pause to prevent race conditions.
+
+		// Pull the subscription information in from the Askell API.
+		if ( false === $this->save_customer_subscriptions_to_user( $user ) ) {
+			return new WP_Error(
+				'subscription_not_saved_to_user',
+				'Subscription Not Saved to User',
+				array( 'status' => 500 )
+			);
+		}
+
+		return true;
 	}
 
-	public function settings_rest_post(WP_REST_Request $request) {
+	/**
+	 * Handle the WP REST request for updating settings from the admin view
+	 *
+	 * @param WP_REST_Request $request The WordPress REST request.
+	 */
+	public function settings_rest_post( WP_REST_Request $request ) {
 		$request_body = (array) json_decode( $request->get_body() );
 
 		if ( array_key_exists( 'api_key', $request_body ) ) {
@@ -197,10 +272,21 @@ class AskellRegistration {
 		return true;
 	}
 
-	public function customer_rest_post(WP_REST_Request $request) {
+	/**
+	 * The HTTP POST request handler for registering a new user
+	 *
+	 * As a part of the registration process a registration token is assigned to
+	 * the new user in order to finalise the process in the next step.
+	 *
+	 * @param WP_REST_Request $request The WP REST request.
+	 *
+	 * @return WP_Error|array An array containing the user ID and registration
+	 *                        token or WP_Error on failure.
+	 */
+	public function customer_rest_post( WP_REST_Request $request ) {
 		$request_body = (array) json_decode( $request->get_body() );
 
-		if ( true === is_null($request_body) ) {
+		if ( true === is_null( $request_body ) ) {
 			return new WP_Error(
 				'invalid_request_body',
 				'Invalid Request Body',
@@ -227,17 +313,17 @@ class AskellRegistration {
 		$new_user_id = wp_insert_user(
 			array(
 				'user_pass'  => $request_body['password'],
-				'user_login' => sanitize_user($request_body['username']),
+				'user_login' => sanitize_user( $request_body['username'] ),
 				'user_email' => $request_body['emailAddress'],
 				'first_name' => $request_body['firstName'],
 				'last_name'  => $request_body['lastName'],
-				'role'       => self::USER_ROLE
+				'role'       => self::USER_ROLE,
 			)
 		);
 
-		# If there in an error in the user registration, wp_insert_user() will
-		# spit out a WP_Error, which we need to cast into another one with
-		# an appropriate HTTP status.
+		// If there in an error in the user registration, wp_insert_user() will
+		// spit out a WP_Error, which we need to cast into another one with
+		// an appropriate HTTP status.
 		if ( true === is_a( $new_user_id, 'WP_Error' ) ) {
 			return new WP_Error(
 				$new_user_id->get_error_code(),
@@ -246,21 +332,21 @@ class AskellRegistration {
 			);
 		}
 
-		$token = base64_encode(random_bytes(32));
+		$registration_token = base64_encode( random_bytes( 32 ) );
 
 		update_user_meta(
 			$new_user_id,
 			'askell_registration_token',
-			$token
+			$registration_token
 		);
 
-		$user = get_user_by('id', $new_user_id);
+		$user = get_user_by( 'id', $new_user_id );
 
-		$this->register_user_in_askell($user);
+		$this->register_user_in_askell( $user );
 
 		return array(
-			'ID' => $user->data->ID,
-			'registration_token' => $token,
+			'ID'                 => $user->data->ID,
+			'registration_token' => $registration_token,
 		);
 	}
 
@@ -269,87 +355,164 @@ class AskellRegistration {
 	 *
 	 * @param WP_User $user The WP_User object representing the user.
 	 * @param array   $subscriptions An array of subscription arrays.
+	 *
+	 * @return bool True on success. False if the user does not exist.
 	 */
 	public function set_subscriptions_for_user(
 		WP_User $user,
 		array $subscriptions
 	) {
-		return update_user_meta(
+		if ( false === $user->exists() ) {
+			return false;
+		}
+
+		update_user_meta(
 			$user->ID,
 			'askell_subscriptions',
 			$subscriptions
 		);
+
+		return true;
 	}
 
-	public function register_user_in_askell(WP_User $user) {
+	/**
+	 * Register a WordPress user as customer in the Askell API
+	 *
+	 * @param WP_User $user The WP_User object representing the user.
+	 *
+	 * @return bool True on success. False on failure.
+	 */
+	public function register_user_in_askell( WP_User $user ) {
+		$private_key = get_option( 'askell_api_secret' );
+
+		if ( false === $private_key ) {
+			return false;
+		}
+
 		$endpoint_url = 'https://askell.is/api/customers/';
-		$api_key = get_option( 'askell_api_secret', '' );
 
 		$request_body = array(
-			'first_name' => $user->first_name,
-			'last_name' => $user->last_name,
-			'email' => $user->user_email,
-			'customer_reference' => (string) $user->ID
+			'first_name'         => $user->first_name,
+			'last_name'          => $user->last_name,
+			'email'              => $user->user_email,
+			'customer_reference' => (string) $user->ID,
 		);
 
-		return wp_remote_post(
+		$api_response = wp_remote_post(
 			$endpoint_url,
 			array(
+				'body'    => wp_json_encode( $request_body ),
 				'headers' => array(
-					'Content-Type' => 'application/json',
-					'Authorization' => "Api-Key $api_key"
+					'Content-Type'  => 'application/json',
+					'Authorization' => "Api-Key $private_key",
 				),
-				'body' => wp_json_encode($request_body)
 			)
 		);
+
+		if ( 201 !== $api_response['response']['code'] ) {
+			return false;
+		}
+
+		return true;
 	}
 
+	/**
+	 * Assign payment method to a customer/user in the Askell API
+	 *
+	 * This needs to be done before a subscription is assigned to the customer.
+	 *
+	 * @param WP_User $user The WordPress user object for the customer.
+	 * @param string  $payment_token the payment token from the
+	 *                `customer_payment_method_post` call.
+	 *
+	 * @return bool True on success. False on failure.
+	 */
 	public function assign_payment_method_to_user_in_askell(
 		WP_User $user,
-		$payment_token
+		string $payment_token
 	) {
-		$user_reference = (string) $user->ID;
-		$endpoint_url = "https://askell.is/api/customers/paymentmethod/";
-		$api_key = get_option( 'askell_api_secret', '' );
+		if ( false === $user->exists() ) {
+			return false;
+		}
+
+		$private_key = get_option( 'askell_api_secret' );
+
+		if ( false === $private_key ) {
+			return false;
+		}
+
+		$endpoint_url = 'https://askell.is/api/customers/paymentmethod/';
 
 		$request_body = array(
-			'customer_reference' => $user_reference,
-			'token' => $payment_token
+			'customer_reference' => $user->ID,
+			'token'              => $payment_token,
 		);
 
-		return wp_remote_post(
+		$api_response = wp_remote_post(
 			$endpoint_url,
 			array(
+				'body'    => wp_json_encode( $request_body ),
 				'headers' => array(
-					'Content-Type' => 'application/json',
-					'Authorization' => "Api-Key $api_key"
+					'Content-Type'  => 'application/json',
+					'Authorization' => "Api-Key $private_key",
 				),
-				'body' => wp_json_encode($request_body)
 			)
 		);
+
+		if ( 201 !== $api_response['response']['code'] ) {
+			return false;
+		}
+
+		return true;
 	}
 
-	public function assign_subscription_to_user_in_askell(WP_User $user, $plan_id) {
-		$user_reference = $user->ID;
-		$endpoint_url = "https://askell.is/api/customers/$user_reference/subscriptions/add/";
-		$api_key = get_option( 'askell_api_secret', '' );
-		$plan = $this->get_plan_by_id($plan_id);
+	/**
+	 * Assign a subscription to customer by WP user and plan ID
+	 *
+	 * @param WP_User $user The WordPress user object for the customer.
+	 * @param int     $plan_id The ID of the subscription plan.
+	 *
+	 * @return bool True on success. False on failure.
+	 */
+	public function assign_subscription_to_user_in_askell(
+		WP_User $user,
+		int $plan_id
+	) {
+		if ( false === $user->exists() ) {
+			return false;
+		}
+
+		$private_key = get_option( 'askell_api_secret' );
+
+		if ( false === $private_key ) {
+			return false;
+		}
+
+		$plan = $this->get_plan_by_id( $plan_id );
+
+		$endpoint_url = "https://askell.is/api/customers/$user->ID/subscriptions/add/";
 
 		$request_body = array(
-			"plan" => $plan_id,
-			"reference" => $plan['reference']
+			'plan'      => $plan_id,
+			'reference' => $plan['reference'],
 		);
 
-		return wp_remote_post(
+		$api_response = wp_remote_post(
 			$endpoint_url,
 			array(
+				'body'    => wp_json_encode( $request_body ),
 				'headers' => array(
-					'Content-Type' => 'application/json',
-					'Authorization' => "Api-Key $api_key"
+					'Content-Type'  => 'application/json',
+					'Authorization' => "Api-Key $private_key",
 				),
-				'body' => wp_json_encode($request_body)
 			)
 		);
+
+		if ( 201 !== $api_response['response']['code'] ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	public function add_menu_page() {
@@ -567,7 +730,7 @@ class AskellRegistration {
 			return false;
 		}
 
-		$subscriptions = $this->pull_customer_subscriptions( $user->ID );
+		$subscriptions = $this->pull_customer_subscriptions( $user );
 
 		if ( ! is_array( $subscriptions ) ) {
 			return false;
@@ -632,7 +795,8 @@ class AskellRegistration {
 	/**
 	 * Pull in and save plans from the Askell API
 	 *
-	 * @return bool True on success, false on failure.
+	 * @return bool True if the plans are updated, false on failure or if the
+	 *              plans are unchanged.
 	 */
 	public function save_plans() {
 		$plans = $this->pull_plans();
@@ -795,10 +959,10 @@ class AskellRegistration {
 
 $askell_registration = new AskellRegistration();
 
-# Cleanup tasks for the plugin.
+// Cleanup tasks for the plugin.
 register_deactivation_hook( __FILE__, 'askell_registration_deactivate' );
 
 function askell_registration_deactivate() {
-    $timestamp = wp_next_scheduled( 'askell_sync_cron' );
-    wp_unschedule_event( $timestamp, 'askell_sync_cron' );
+	$timestamp = wp_next_scheduled( 'askell_sync_cron' );
+	wp_unschedule_event( $timestamp, 'askell_sync_cron' );
 }
