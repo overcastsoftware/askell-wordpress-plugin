@@ -189,7 +189,7 @@ class AskellRegistration {
 	}
 
 	public function check_hmac( WP_REST_Request $request ) {
-		$webhook_secret = get_option( 'askell_webhook_secret' );
+		$webhook_secret = get_option( 'askell_customer_webhook_secret' );
 
 		if ( false === $webhook_secret ) {
 			return false;
