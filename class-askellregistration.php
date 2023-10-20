@@ -203,6 +203,7 @@ class AskellRegistration {
 				'sha512',
 				$raw_body,
 				$webhook_secret,
+				true
 			)
 		);
 
