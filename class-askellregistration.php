@@ -812,6 +812,7 @@ class AskellRegistration {
 				'body'    => $request_body,
 				'headers' => array(
 					'accept'        => 'application/json',
+					'Content-Type'  => 'application/json',
 					'Authorization' => "Api-Key {$private_key}",
 				),
 			)
