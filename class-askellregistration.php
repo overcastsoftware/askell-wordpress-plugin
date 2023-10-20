@@ -53,6 +53,11 @@ class AskellRegistration {
 		add_action( 'askell_sync_cron', array( $this, 'save_plans' ) );
 		add_action( 'init', array( $this, 'schedule_sync_cron' ) );
 		add_action( 'init', array( $this, 'load_textdomain' ) );
+
+		add_action(
+			'wp_update_user',
+			array( $this, 'push_customer_on_user_update' )
+		);
 	}
 
 	/**
@@ -150,6 +155,85 @@ class AskellRegistration {
 				),
 			)
 		);
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/webhooks/customer',
+			array(
+				'methods'             => 'POST',
+				'permission_callback' => array(
+					$this,
+					'check_hmac',
+				),
+				'callback'            => array(
+					$this,
+					'webhooks_customer_post',
+				),
+			)
+		);
+	}
+
+	public function push_customer_on_user_update(
+		int $user_id,
+		array $userdata,
+		array $userdata_raw
+	) {
+		// Prevent an infinite loop from happening if the update was requested
+		// by a web hook. Web hooks always use the Hook-HMAC HTTP header so they
+		// can be identified that way.
+		if ( isset( $_SERVER['HTTP_HOOK-HMAC'] ) ) {
+			return false;
+		}
+
+		$user = get_user_by( 'ID', $user_id );
+		return $this->push_customer( $user );
+	}
+
+	public function check_hmac( WP_REST_Request $request ) {
+		$webhook_secret = get_option( 'askell_webhook_secret' );
+
+		if ( false === $webhook_secret ) {
+			return false;
+		}
+
+		$raw_body    = $request->get_body();
+		$hmac_header = $request->get_header( 'Hook-HMAC' );
+
+		$hmac = base64_encode(
+			hash_hmac(
+				'sha512',
+				$raw_body,
+				$webhook_secret,
+			)
+		);
+
+		return ( $hmac === $hmac_header );
+	}
+
+	public function webhooks_customer_post( WP_REST_Request $request ) {
+		$request_body = (array) json_decode( $request->get_body() );
+
+		if (
+			false === isset(
+				$request_body['customer_reference'],
+				$request_body['first_name'],
+				$request_body['last_name'],
+				$request_body['user_email']
+			)
+		) {
+			return false;
+		}
+
+		$user = get_user_by( 'ID', $request_body['customer_reference'] );
+
+		if ( false === $user->exists() ) {
+			return false;
+		}
+
+		$user->first_name = $request_body['first_name'];
+		$user->last_name  = $request_body['last_name'];
+		$user->user_email = $request_body['user_email'];
+
+		wp_update_user( $user );
 	}
 
 	/**
