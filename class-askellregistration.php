@@ -440,6 +440,13 @@ class AskellRegistration {
 			);
 		}
 
+		if ( array_key_exists( 'customer_webhook_secret', $request_body ) ) {
+			update_option(
+				'askell_customer_webhook_secret',
+				$request_body['customer_webhook_secret']
+			);
+		}
+
 		return true;
 	}
 

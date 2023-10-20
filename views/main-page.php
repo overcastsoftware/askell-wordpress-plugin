@@ -123,6 +123,39 @@ $askell_user_query = new WP_User_Query( $askell_user_query_arguments );
 
 		<section class="section">
 			<div class="setion-header">
+				<h3><?php _e('Web Hooks', 'askell-registration'); ?></h3>
+				<hr />
+			</div>
+
+			<table class="form-table">
+				<tbody>
+					<tr>
+						<th scope="row">
+							<?php _e( 'Customer Webhook URL', 'askell-registration' ); ?>
+						</th>
+						<td>
+							<?php echo get_rest_url( null, '/webhooks/customer' ); ?>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
+							<?php _e( 'Customer Webhook Secret', 'askell-registration' ); ?>
+						</th>
+						<td>
+							<input
+								class="regular-text"
+								type="text"
+								name="customer_webhook_secret"
+								value="<?php echo get_option( 'askell_customer_webhook_secret', '' ) ?>"
+							/>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</section>
+
+		<section class="section">
+			<div class="setion-header">
 				<h3><?php _e('Form Fields and References', 'askell-registration'); ?></h3>
 				<hr />
 			</div>
