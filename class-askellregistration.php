@@ -59,6 +59,11 @@ class AskellRegistration {
 			'wp_update_user',
 			array( $this, 'push_customer_on_user_update' )
 		);
+
+		add_action(
+			'delete_user',
+			array( $this, 'delete_customer_on_user_delete' )
+		);
 	}
 
 	/**
@@ -188,6 +193,71 @@ class AskellRegistration {
 			)
 		);
 	}
+
+	/**
+	 * Delete customer data from the Askell API based on user ID
+	 *
+	 * This is our wp_delete_user handler. An error is logged if a failure
+	 * in communication with the Askell API occurs.
+	 *
+	 * @todo Create a wp-cron job that re-attempts the deletion after a certain
+	 *       amount of time, if the deletion fails on first try.
+	 *
+	 * @param int $user_id The user's ID and Askell customer reference.
+	 *
+	 * @return bool True on success. False on failure.
+	 */
+	public function delete_customer_on_user_delete( int $user_id ) {
+		$user = get_user_by( 'ID', $user_id );
+
+		if ( false === $user ) {
+			return false;
+		}
+
+		if ( false === in_array( self::USER_ROLE, $user->roles, true ) ) {
+			return false;
+		}
+
+		$deletion = $this->delete_customer_in_askell_by_user_id( $user_id );
+		if ( false === $deletion ) {
+			error_log( "Unable to delete user $user_id via the Askell API" );
+		}
+
+		return $deletion;
+	}
+
+	/**
+	 * Delete user from the Askell API based on user ID
+	 *
+	 * This does not perform any checks on the user.
+	 *
+	 * @param int $user_id The user's ID and Askell customer reference.
+	 *
+	 * @return bool True on success. False on failure.
+	 */
+	private function delete_customer_in_askell_by_user_id( int $user_id ) {
+		$private_key = get_option( 'askell_api_secret' );
+
+		if ( false === $private_key ) {
+			return false;
+		}
+
+		$api_response = wp_remote_request(
+			"https://askell.is/api/customers/{$user_id}/",
+			array(
+				'method'  => 'DELETE',
+				'headers' => array(
+					'accept'        => 'application/json',
+					'Authorization' => "Api-Key {$private_key}",
+				),
+			)
+		);
+
+		if ( 204 !== $api_response['response']['code'] ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
