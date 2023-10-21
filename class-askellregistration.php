@@ -17,6 +17,7 @@
 class AskellRegistration {
 	const REST_NAMESPACE = 'askell/v1';
 	const USER_ROLE      = 'subscriber';
+	const WEBHOOK_TYPES  = array( 'customer', 'subscription' );
 	const PLUGIN_PATH    = 'askell-registration';
 	const ASSETS_VERSION = '0.1.0';
 
@@ -224,24 +225,19 @@ class AskellRegistration {
 	public function check_hmac( WP_REST_Request $request ) {
 		$request_body = json_decode( $request->get_body() );
 
-		if ( false === defined( $request_body->event ) ) {
+		if ( false === isset( $request_body->event ) ) {
 			return new WP_Error(
 				'invalid_request_body',
 				'Invalid Request Body: Event attribute missing',
 				array( 'status' => 400 )
 			);
 		}
-		$event = $request_body->event;
 
-		if ( true === str_starts_with( $event, 'customer.' ) ) {
-			$secret = get_option(
-				'askell_customer_webhook_secret'
-			);
-		} elseif ( true === str_starts_with( $event, 'subscription.' ) ) {
-			$secret = get_option(
-				'askell_subscription_webhook_secret'
-			);
-		} else {
+		$event      = $request_body->event;
+		$event_type = $this->webhook_event_type( $event );
+		$secret     = $this->webhook_event_type_secret( $event_type );
+
+		if ( false === $secret ) {
 			return new WP_Error(
 				'unsupported_webhook_event',
 				"Unsupported webhook event: $event",
@@ -1336,5 +1332,17 @@ class AskellRegistration {
 			self::format_currency( $currency, $amount ),
 			self::format_interval( $interval, $interval_count ),
 		);
+	}
+
+	private function webhook_event_type( string $event ) {
+		return explode( '.', $event )[0];
+	}
+
+	private function webhook_event_type_secret( string $event_type ) {
+		if ( false === in_array( $event_type, $this::WEBHOOK_TYPES, true ) ) {
+			return false;
+		}
+
+		return get_option( "askell_{$event_type}_webhook_secret" );
 	}
 }
