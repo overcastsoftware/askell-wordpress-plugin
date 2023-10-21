@@ -170,6 +170,23 @@ class AskellRegistration {
 				),
 			)
 		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/webhooks/subscription',
+			array(
+				'methods'             => 'POST',
+				'permission_callback' => array(
+					$this,
+					'check_hmac',
+				),
+				'callback'            => array(
+					$this,
+					'webhooks_subscription_post',
+				),
+			)
+		);
+	}
 	}
 
 	/**
@@ -248,6 +265,41 @@ class AskellRegistration {
 		);
 
 		return ( $hmac === $hmac_header );
+	}
+
+	public function webhooks_subscription_post( WP_REST_Request $request ) {
+		$request_body = json_decode( $request->get_body() );
+
+		$user = get_user_by( 'ID', $request_body->data->customer_reference );
+
+		if ( false === $user->exists() ) {
+			return new WP_Error(
+				'user_not_found',
+				'User Not Found',
+				array( 'status' => 404 )
+			);
+		}
+
+		if ( false === in_array( self::USER_ROLE, $user->roles, true ) ) {
+			return new WP_Error(
+				'invalid_user_role',
+				'Invalid User Role, must be ' . self::USER_ROLE,
+				array( 'status' => 400 )
+			);
+		}
+
+		if ( false === $this->save_customer_subscriptions_to_user( $user ) ) {
+			return new WP_Error(
+				'subscriptions_not_updated',
+				"Subscriptions not updated for user $user->ID",
+				array( 'status' => 304 )
+			);
+		}
+
+		return new WP_REST_Response(
+			"Subscriptions updated for user $user->ID",
+			200
+		);
 	}
 
 	/**
