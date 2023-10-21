@@ -284,7 +284,7 @@ class AskellRegistration {
 
 		$user = get_user_by( 'ID', $request_body->data->customer_reference );
 
-		if ( false === $user->exists() ) {
+		if ( ( false === $user ) || ( false === $user->exists() ) ) {
 			return new WP_Error(
 				'user_not_found',
 				'User Not Found',
@@ -368,7 +368,7 @@ class AskellRegistration {
 
 		$user = get_user_by( 'ID', $request_body->data->customer_reference );
 
-		if ( false === $user->exists() ) {
+		if ( ( false === $user ) || ( false === $user->exists() ) ) {
 			return new WP_Error(
 				'user_not_found',
 				'User Not Found',
