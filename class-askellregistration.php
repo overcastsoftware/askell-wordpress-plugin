@@ -17,6 +17,7 @@
 class AskellRegistration {
 	const REST_NAMESPACE = 'askell/v1';
 	const USER_ROLE      = 'subscriber';
+	const WEBHOOK_TYPES  = array( 'customer', 'subscription' );
 	const PLUGIN_PATH    = 'askell-registration';
 	const ASSETS_VERSION = '0.1.0';
 
@@ -53,6 +54,16 @@ class AskellRegistration {
 		add_action( 'askell_sync_cron', array( $this, 'save_plans' ) );
 		add_action( 'init', array( $this, 'schedule_sync_cron' ) );
 		add_action( 'init', array( $this, 'load_textdomain' ) );
+
+		add_action(
+			'wp_update_user',
+			array( $this, 'push_customer_on_user_update' )
+		);
+
+		add_action(
+			'delete_user',
+			array( $this, 'delete_customer_on_user_delete' )
+		);
 	}
 
 	/**
@@ -150,6 +161,315 @@ class AskellRegistration {
 				),
 			)
 		);
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/webhooks/customer',
+			array(
+				'methods'             => 'POST',
+				'permission_callback' => array(
+					$this,
+					'check_hmac',
+				),
+				'callback'            => array(
+					$this,
+					'webhooks_customer_post',
+				),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/webhooks/subscription',
+			array(
+				'methods'             => 'POST',
+				'permission_callback' => array(
+					$this,
+					'check_hmac',
+				),
+				'callback'            => array(
+					$this,
+					'webhooks_subscription_post',
+				),
+			)
+		);
+	}
+
+	/**
+	 * Delete customer data from the Askell API based on user ID
+	 *
+	 * This is our wp_delete_user handler. An error is logged if a failure
+	 * in communication with the Askell API occurs.
+	 *
+	 * @todo Create a wp-cron job that re-attempts the deletion after a certain
+	 *       amount of time, if the deletion fails on first try.
+	 *
+	 * @param int $user_id The user's ID and Askell customer reference.
+	 *
+	 * @return bool True on success. False on failure.
+	 */
+	public function delete_customer_on_user_delete( int $user_id ) {
+		$user = get_user_by( 'ID', $user_id );
+
+		if ( false === $user ) {
+			return false;
+		}
+
+		if ( false === in_array( self::USER_ROLE, $user->roles, true ) ) {
+			return false;
+		}
+
+		$deletion = $this->delete_customer_in_askell_by_user_id( $user_id );
+		if ( false === $deletion ) {
+			error_log( "Unable to delete user $user_id via the Askell API" );
+		}
+
+		return $deletion;
+	}
+
+	/**
+	 * Delete user from the Askell API based on user ID
+	 *
+	 * This does not perform any checks on the user.
+	 *
+	 * @param int $user_id The user's ID and Askell customer reference.
+	 *
+	 * @return bool True on success. False on failure.
+	 */
+	private function delete_customer_in_askell_by_user_id( int $user_id ) {
+		$private_key = get_option( 'askell_api_secret' );
+
+		if ( false === $private_key ) {
+			return false;
+		}
+
+		$api_response = wp_remote_request(
+			"https://askell.is/api/customers/{$user_id}/",
+			array(
+				'method'  => 'DELETE',
+				'headers' => array(
+					'accept'        => 'application/json',
+					'Authorization' => "Api-Key {$private_key}",
+				),
+			)
+		);
+
+		if ( 204 !== $api_response['response']['code'] ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Push user information to the Aksell customer endpoint
+	 *
+	 * This is our wp_update_user hook handler.
+	 *
+	 * @param int $user_id The ID of the user to push information for.
+	 *
+	 * @return boolean True on success. False on failure.
+	 */
+	public function push_customer_on_user_update( int $user_id ) {
+		$user = get_user_by( 'ID', $user_id );
+
+		// Prevent an infinite loop from happening if the update was requested
+		// by a web hook. Web hooks always use the Hook-HMAC HTTP header so they
+		// can be identified that way.
+		if ( isset( $_SERVER['HTTP_HOOK_HMAC'] ) ) {
+			return false;
+		}
+
+		return $this->push_customer( $user );
+	}
+
+	/**
+	 * Validate HMAC header
+	 *
+	 * This is used as the permission callback for webhook requests.
+	 *
+	 * @param WP_REST_Request $request The WordPress REST request.
+	 *
+	 * @return bool|WP_Error True if the HMAC header matches the body's checksum
+	 *                       and webhook secret. WP_Error on error.
+	 */
+	public function check_hmac( WP_REST_Request $request ) {
+		$request_body = json_decode( $request->get_body() );
+
+		if ( false === isset( $request_body->event ) ) {
+			return new WP_Error(
+				'invalid_request_body',
+				'Invalid Request Body: Event attribute missing',
+				array( 'status' => 400 )
+			);
+		}
+
+		$event      = $request_body->event;
+		$event_type = $this->webhook_event_type( $event );
+		$secret     = $this->webhook_event_type_secret( $event_type );
+
+		if ( false === $secret ) {
+			return new WP_Error(
+				'unsupported_webhook_event',
+				"Unsupported webhook event: $event",
+				array( 'status' => 400 )
+			);
+		}
+
+		$raw_body    = $request->get_body();
+		$hmac_header = $request->get_header( 'Hook-HMAC' );
+
+		if ( null === $hmac_header ) {
+			return new WP_Error(
+				'hmac_header_missing',
+				'HMAC HTTP header missing',
+				array( 'status' => 400 )
+			);
+		}
+
+		$hmac = base64_encode(
+			hash_hmac( 'sha512', $raw_body, $secret, true )
+		);
+
+		return ( $hmac === $hmac_header );
+	}
+
+	/**
+	 * The webhooks post handler for subscription.* events
+	 *
+	 * This one is very rudamentary, as it currently does not use data from the
+	 * request body. Instead, it sends a request to the Askell API each time to
+	 * fetch the user's subscriptions.
+	 *
+	 * @todo Read the information from the request body and use that instead of
+	 *       sending a separate request to the API.
+	 *
+	 * @param WP_REST_Request $request The WordPress REST request.
+	 *
+	 * @return WP_REST_Response|WP_Error WP_REST_Response on success or if the
+	 *                                   webhook is not supported. WP_Error on
+	 *                                   failure.
+	 */
+	public function webhooks_subscription_post( WP_REST_Request $request ) {
+		$request_body = json_decode( $request->get_body() );
+
+		$user = get_user_by( 'ID', $request_body->data->customer_reference );
+
+		if ( ( false === $user ) || ( false === $user->exists() ) ) {
+			return new WP_Error(
+				'user_not_found',
+				'User Not Found',
+				array( 'status' => 404 )
+			);
+		}
+
+		if ( false === in_array( self::USER_ROLE, $user->roles, true ) ) {
+			return new WP_Error(
+				'invalid_user_role',
+				'Invalid User Role, must be ' . self::USER_ROLE,
+				array( 'status' => 400 )
+			);
+		}
+
+		if ( false === $this->save_customer_subscriptions_to_user( $user ) ) {
+			return new WP_Error(
+				'subscriptions_not_updated',
+				"Subscriptions not updated for user $user->ID",
+				array( 'status' => 304 )
+			);
+		}
+
+		return new WP_REST_Response(
+			"Subscriptions updated for user $user->ID",
+			200
+		);
+	}
+
+	/**
+	 * Route customer.* webhook request
+	 *
+	 * Routes a customer.* webhook request to the appropriate function. If the
+	 * webhook is not supported, the endpoint responds with 'Webhook event not
+	 * supported', but a 200 status to prevent the responses from clogging our
+	 * error logs.
+	 *
+	 * @param WP_REST_Request $request The WordPress REST request.
+	 *
+	 * @return WP_REST_Response|WP_Error WP_REST_Response on success or if the
+	 *                                   webhook is not supported. WP_Error on
+	 *                                   failure.
+	 */
+	public function webhooks_customer_post( WP_REST_Request $request ) {
+		$request_body = json_decode( $request->get_body() );
+
+		switch ( $request_body->event ) {
+			case 'customer.changed':
+				return $this->webhooks_customer_changed_post( $request );
+		}
+
+		return new WP_REST_Response( 'Webhook event not supported yet', 200 );
+	}
+
+	/**
+	 * Handle a customer.changed webhook request
+	 *
+	 * @param WP_REST_Request $request The WordPress REST request.
+	 *
+	 * @return WP_REST_Response|WP_Error WP_REST_Response on success or if the
+	 *                                   webhook is not supported. WP_Error on
+	 *                                   failure.
+	 */
+	public function webhooks_customer_changed_post( WP_REST_Request $request ) {
+		$request_body = json_decode( $request->get_body() );
+
+		if (
+			false === isset(
+				$request_body->data->customer_reference,
+				$request_body->data->first_name,
+				$request_body->data->last_name,
+				$request_body->data->email
+			)
+		) {
+			return new WP_Error(
+				'invalid_request_body',
+				'Invalid Request Body',
+				array( 'status' => 400 )
+			);
+		}
+
+		$user = get_user_by( 'ID', $request_body->data->customer_reference );
+
+		if ( ( false === $user ) || ( false === $user->exists() ) ) {
+			return new WP_Error(
+				'user_not_found',
+				'User Not Found',
+				array( 'status' => 404 )
+			);
+		}
+
+		if ( false === in_array( self::USER_ROLE, $user->roles, true ) ) {
+			return new WP_Error(
+				'invalid_user_role',
+				'Invalid User Role, must be ' . self::USER_ROLE,
+				array( 'status' => 400 )
+			);
+		}
+
+		$user->first_name   = $request_body->data->first_name;
+		$user->last_name    = $request_body->data->last_name;
+		$user->user_email   = $request_body->data->email;
+		$user->display_name = "{$user->first_name} {$user->last_name}";
+
+		$update_user = wp_update_user( $user );
+
+		if ( false === is_int( $update_user ) ) {
+			return new WP_Error(
+				'user_not_udated',
+				'User Not Updated',
+				array( 'status' => 304 )
+			);
+		}
+
+		return new WP_REST_Response( "User $user->ID updated", 200 );
 	}
 
 	/**
@@ -275,6 +595,20 @@ class AskellRegistration {
 			update_option(
 				'askell_reference',
 				$request_body['reference']
+			);
+		}
+
+		if ( array_key_exists( 'customer_webhook_secret', $request_body ) ) {
+			update_option(
+				'askell_customer_webhook_secret',
+				$request_body['customer_webhook_secret']
+			);
+		}
+
+		if ( array_key_exists( 'subscription_webhook_secret', $request_body ) ) {
+			update_option(
+				'askell_subscription_webhook_secret',
+				$request_body['subscription_webhook_secret']
 			);
 		}
 
@@ -727,6 +1061,7 @@ class AskellRegistration {
 				'body'    => $request_body,
 				'headers' => array(
 					'accept'        => 'application/json',
+					'Content-Type'  => 'application/json',
 					'Authorization' => "Api-Key {$private_key}",
 				),
 			)
@@ -1083,5 +1418,34 @@ class AskellRegistration {
 			self::format_currency( $currency, $amount ),
 			self::format_interval( $interval, $interval_count ),
 		);
+	}
+
+
+	/**
+	 * Get the event type from the `event` attribute in a webhook request
+	 *
+	 * @param string $event The full event indicator, such as
+	 *                      `subscription.changed`.
+	 *
+	 * @return string The event type, such as `subscription`.
+	 */
+	private function webhook_event_type( string $event ) {
+		return explode( '.', $event )[0];
+	}
+
+	/**
+	 * Get the wehook secret for an event type
+	 *
+	 * @param string $event_type The event type, such as `subscription`.
+	 *
+	 * @return string|bool The webhook secret on success. False if it has not
+	 *                     been set.
+	 */
+	private function webhook_event_type_secret( string $event_type ) {
+		if ( false === in_array( $event_type, $this::WEBHOOK_TYPES, true ) ) {
+			return false;
+		}
+
+		return get_option( "askell_{$event_type}_webhook_secret" );
 	}
 }

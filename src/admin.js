@@ -47,9 +47,11 @@ class AskellUI {
 		const formDataObject = {
 			api_key: formData.get('api_key'),
 			api_secret: formData.get('api_secret'),
-			reference: formData.get('reference'),
-			enable_address_country: Boolean(
-				formData.get('enable_address_country')
+			customer_webhook_secret: formData.get(
+				'customer_webhook_secret'
+			),
+			subscription_webhook_secret: formData.get(
+				'subscription_webhook_secret'
 			),
 			enable_css: Boolean(formData.get('enable_css')),
 		};
