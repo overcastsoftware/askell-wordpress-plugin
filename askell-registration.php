@@ -4,7 +4,7 @@
  * Plugin URI:        https://askell.is/
  * Description:       Sign up for recurring subscriptions directly from WordPress using Askell
  * Requires at least: 6.1
- * Requires PHP:      7.0
+ * Requires PHP:      8.0
  * Version:           0.1.0
  * Author:            Overcast Software
  * License:           GPL-3.0-or-later
