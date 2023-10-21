@@ -201,26 +201,50 @@ class AskellRegistration {
 	 *
 	 * @param WP_REST_Request $request The WordPress REST request.
 	 *
-	 * @return bool True if the HMAC header matches the body's checksum and
-	 *              webhook secret. False if it doesn't.
+	 * @return bool|WP_Error True if the HMAC header matches the body's checksum
+	 *                       and webhook secret. WP_Error on error.
 	 */
 	public function check_hmac( WP_REST_Request $request ) {
-		$webhook_secret = get_option( 'askell_customer_webhook_secret' );
+		$request_body = json_decode( $request->get_body() );
 
-		if ( false === $webhook_secret ) {
-			return false;
+		if ( false === defined( $request_body->event ) ) {
+			return new WP_Error(
+				'invalid_request_body',
+				'Invalid Request Body: Event attribute missing',
+				array( 'status' => 400 )
+			);
+		}
+		$event = $request_body->event;
+
+		if ( true === str_starts_with( $event, 'customer.' ) ) {
+			$secret = get_option(
+				'askell_customer_webhook_secret'
+			);
+		} elseif ( true === str_starts_with( $event, 'subscription.' ) ) {
+			$secret = get_option(
+				'askell_subscription_webhook_secret'
+			);
+		} else {
+			return new WP_Error(
+				'unsupported_webhook_event',
+				"Unsupported webhook event: $event",
+				array( 'status' => 400 )
+			);
 		}
 
 		$raw_body    = $request->get_body();
 		$hmac_header = $request->get_header( 'Hook-HMAC' );
 
+		if ( null === $hmac_header ) {
+			return new WP_Error(
+				'hmac_header_missing',
+				'HMAC HTTP header missing',
+				array( 'status' => 400 )
+			);
+		}
+
 		$hmac = base64_encode(
-			hash_hmac(
-				'sha512',
-				$raw_body,
-				$webhook_secret,
-				true
-			)
+			hash_hmac( 'sha512', $raw_body, $secret, true )
 		);
 
 		return ( $hmac === $hmac_header );
