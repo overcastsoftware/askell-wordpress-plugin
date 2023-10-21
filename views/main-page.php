@@ -134,12 +134,20 @@ $askell_user_query = new WP_User_Query( $askell_user_query_arguments );
 							<?php _e( 'Customer Webhook URL', 'askell-registration' ); ?>
 						</th>
 						<td>
-							<?php echo get_rest_url( null, '/webhooks/customer' ); ?>
+							<?php echo get_rest_url( null, $askell_registration::REST_NAMESPACE . '/webhooks/customer' ); ?>
 						</td>
 					</tr>
 					<tr>
 						<th scope="row">
-							<?php _e( 'Customer Webhook Secret', 'askell-registration' ); ?>
+							<?php _e( 'Subscription Webhook URL', 'askell-registration' ); ?>
+						</th>
+						<td>
+							<?php echo get_rest_url( null, $askell_registration::REST_NAMESPACE . '/webhooks/subscription' ); ?>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
+							<?php _e( 'Customer HMAC Secret', 'askell-registration' ); ?>
 						</th>
 						<td>
 							<input
@@ -150,58 +158,17 @@ $askell_user_query = new WP_User_Query( $askell_user_query_arguments );
 							/>
 						</td>
 					</tr>
-				</tbody>
-			</table>
-		</section>
-
-		<section class="section">
-			<div class="setion-header">
-				<h3><?php _e('Form Fields and References', 'askell-registration'); ?></h3>
-				<hr />
-			</div>
-
-			<table class="form-table">
-				<tbody>
 					<tr>
 						<th scope="row">
-							<?php _e('Customer Reference', 'askell-registration'); ?>
+							<?php _e( 'Subscription HMAC Secret', 'askell-registration' ); ?>
 						</th>
-						<td class="radio-buttons">
-							<label>
+						<td>
 								<input
-									type="radio"
-									name="reference"
-									value="wordpress_id"
-									<?php echo (get_option('askell_reference', 'wordpress_id') === 'wordpress_id') ? 'checked' : '' ?>
-								>
-								<?php _e('WordPress User ID', 'askell-registration'); ?>
-							</label>
-							<label>
-								<input
-									type="radio"
-									name="reference"
-									value="kennitala"
-									<?php echo (get_option('askell_reference', 'wordpress_id') === 'kennitala') ? 'checked' : '' ?>
-								>
-								<?php _e('Icelandic Personal ID Number (Kennitala)', 'askell-registration'); ?>
-							</label>
-							<p><?php _e("This is the user attribute this WordPress site and Askell use for referring to each subscriber's records.", 'askell-registration'); ?></p>
-							<p><?php _e('Note that this should be set <strong>before the first registrations arrive</strong>, as changing this may affect the synchronisation between Askell and your website, resulting in discrepancies.', 'askell-registration'); ?></p>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row">
-							<?php _e('Addresses', 'askell-registration'); ?>
-						</th>
-						<td class="checkboxes">
-							<label>
-								<input
-									type="checkbox"
-									name="enable_address_country"
-									<?php echo get_option('askell_shipping_address_enabled', false) ? 'checked' : '' ?>
-								>
-								<?php _e('Enable Country Selector in Addresses', 'askell-registration') ?>
-							</label>
+								class="regular-text"
+								type="text"
+								name="subscription_webhook_secret"
+								value="<?php echo get_option( 'askell_subscription_webhook_secret', '' ) ?>"
+							/>
 						</td>
 					</tr>
 				</tbody>
