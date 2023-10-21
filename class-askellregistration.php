@@ -263,6 +263,22 @@ class AskellRegistration {
 		return ( $hmac === $hmac_header );
 	}
 
+	/**
+	 * The webhooks post handler for subscription.* events
+	 *
+	 * This one is very rudamentary, as it currently does not use data from the
+	 * request body. Instead, it sends a request to the Askell API each time to
+	 * fetch the user's subscriptions.
+	 *
+	 * @todo Read the information from the request body and use that instead of
+	 *       sending a separate request to the API.
+	 *
+	 * @param WP_REST_Request $request The WordPress REST request.
+	 *
+	 * @return WP_REST_Response|WP_Error WP_REST_Response on success or if the
+	 *                                   webhook is not supported. WP_Error on
+	 *                                   failure.
+	 */
 	public function webhooks_subscription_post( WP_REST_Request $request ) {
 		$request_body = json_decode( $request->get_body() );
 
@@ -1334,10 +1350,27 @@ class AskellRegistration {
 		);
 	}
 
+
+	/**
+	 * Get the event type from the `event` attribute in a webhook request
+	 *
+	 * @param string $event The full event indicator, such as
+	 *                      `subscription.changed`.
+	 *
+	 * @return string The event type, such as `subscription`.
+	 */
 	private function webhook_event_type( string $event ) {
 		return explode( '.', $event )[0];
 	}
 
+	/**
+	 * Get the wehook secret for an event type
+	 *
+	 * @param string $event_type The event type, such as `subscription`.
+	 *
+	 * @return string|bool The webhook secret on success. False if it has not
+	 *                     been set.
+	 */
 	private function webhook_event_type_secret( string $event_type ) {
 		if ( false === in_array( $event_type, $this::WEBHOOK_TYPES, true ) ) {
 			return false;
