@@ -87,6 +87,15 @@ class AskellRegistration {
 		);
 	}
 
+	/**
+	 * Remove the WP logo and home/dashboard link form the admin bar
+	 * if the current user is a subscriber
+	 *
+	 * This replaces the "home" link with our own simplified version that does
+	 * not have any subitems.
+	 *
+	 * @see https://developer.wordpress.org/reference/hooks/wp_before_admin_bar_render/
+	 */
 	public function remove_wp_logo_from_admin_bar() {
 		$user       = wp_get_current_user();
 		$user_roles = $user->roles;
@@ -105,6 +114,18 @@ class AskellRegistration {
 		}
 	}
 
+	/**
+	 * Redirect subscribers to the home url on login
+	 *
+	 * @see https://developer.wordpress.org/reference/hooks/login_redirect/.
+	 *
+	 * @param string           $redirect_to The redirect destination URL.
+	 * @param string           $requested_redirect_to The requested redirect
+	 *                                                destination URL passed as
+	 *                                                a parameter.
+	 * @param WP_User|WP_Error $user WP_User object if login was successful,
+	 *                               WP_Error object otherwise.
+	 */
 	public function redirect_subscribers_on_login(
 		string $redirect_to,
 		string $requested_redirect_to,
@@ -122,6 +143,17 @@ class AskellRegistration {
 		return $requested_redirect_to;
 	}
 
+	/**
+	 * Filter the profile URL for subsriber to make it point to the Askell
+	 * "my profile" view instead of the built-in user profile
+	 *
+	 * @see https://developer.wordpress.org/reference/hooks/edit_profile_url/
+	 *
+	 * @param string $url The original profile URL.
+	 * @param int    $user_id The user's ID.
+	 *
+	 * @return string The url to the 'my-profile' view from Askell.
+	 */
 	public function filter_profile_url( string $url, int $user_id ) {
 		$user       = get_user_by( 'ID', $user_id );
 		$user_roles = $user->roles;
@@ -998,6 +1030,9 @@ class AskellRegistration {
 		require __DIR__ . '/views/subscribers-admin.php';
 	}
 
+	/**
+	 * Render the "my profile" admin page for subscribers
+	 */
 	public function render_profile_editor() {
 		require __DIR__ . '/views/profile-editor.php';
 	}
