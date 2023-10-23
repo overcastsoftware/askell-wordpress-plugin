@@ -910,6 +910,8 @@ class AskellRegistration {
 			$user->user_email = $request_body['email'];
 		}
 
+		$user->display_name = "{$user->first_name} {$user->last_name}";
+
 		if ( false === is_int( wp_update_user( $user ) ) ) {
 			return new WP_Error(
 				'could_not_update_user',
