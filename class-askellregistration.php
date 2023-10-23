@@ -64,6 +64,47 @@ class AskellRegistration {
 			'delete_user',
 			array( $this, 'delete_customer_on_user_delete' )
 		);
+
+		add_filter(
+			'login_redirect',
+			array( $this, 'redirect_subscribers_on_login' ),
+			10,
+			3
+		);
+
+		add_filter(
+			'edit_profile_url',
+			array( $this, 'filter_profile_url' ),
+			10,
+			2
+		);
+	}
+
+	public function redirect_subscribers_on_login(
+		string $redirect_to,
+		string $requested_redirect_to,
+		WP_User|WP_Error $user
+	) {
+		if ( true == is_a( $user, 'WP_Error') ) {
+			return false;
+		}
+
+		$user_roles = $user->roles;
+
+		if ( true === in_array( self::USER_ROLE, $user_roles, true ) ) {
+			return home_url();
+		}
+		return $redirect_to;
+	}
+
+	public function filter_profile_url( string $url, int $user_id ) {
+		$user       = get_user_by( 'ID', $user_id );
+		$user_roles = $user->roles;
+
+		if ( true === in_array( self::USER_ROLE, $user_roles, true ) ) {
+			return admin_url( 'admin.php?page=askell-registration-my-profile' );
+		}
+		return $url;
 	}
 
 	/**
@@ -864,6 +905,9 @@ class AskellRegistration {
 
 	/**
 	 * Add the menu page item to the wp-admin sidebar
+	 *
+	 * This also removes the "Users" option from the sidebar if the logged-in
+	 * user is a subscriber.
 	 */
 	public function add_menu_page() {
 		add_menu_page(
@@ -884,6 +928,22 @@ class AskellRegistration {
 			'askell-registration-subscribers',
 			array( $this, 'render_subscribers_admin_page' ),
 		);
+
+		$current_user_roles = wp_get_current_user()->roles;
+
+		if ( true === in_array( self::USER_ROLE, $current_user_roles, true ) ) {
+			add_menu_page(
+				__( 'My Profile', 'askell-registration' ),
+				__( 'My Profile', 'askell-registration' ),
+				'read',
+				'askell-registration-my-profile',
+				array( $this, 'render_profile_editor' ),
+				'dashicons-admin-users',
+				92
+			);
+
+			remove_menu_page( 'profile.php' );
+		}
 	}
 
 	/**
@@ -910,6 +970,10 @@ class AskellRegistration {
 		}
 
 		require __DIR__ . '/views/subscribers-admin.php';
+	}
+
+	public function render_profile_editor() {
+		require __DIR__ . '/views/profile-editor.php';
 	}
 
 	/**
