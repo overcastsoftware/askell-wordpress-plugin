@@ -967,6 +967,7 @@ class AskellRegistration {
 				92
 			);
 
+			remove_menu_page( 'index.php' );
 			remove_menu_page( 'profile.php' );
 		}
 	}
