@@ -110,8 +110,8 @@ class AskellRegistration {
 		string $requested_redirect_to,
 		WP_User|WP_Error $user
 	) {
-		if ( true == is_a( $user, 'WP_Error') ) {
-			return false;
+		if ( true === is_a( $user, 'WP_Error' ) ) {
+			return $requested_redirect_to;
 		}
 
 		$user_roles = $user->roles;
@@ -119,7 +119,7 @@ class AskellRegistration {
 		if ( true === in_array( self::USER_ROLE, $user_roles, true ) ) {
 			return home_url();
 		}
-		return $redirect_to;
+		return $requested_redirect_to;
 	}
 
 	public function filter_profile_url( string $url, int $user_id ) {
