@@ -102,6 +102,14 @@ class AskellRegistration {
 
 		if ( true === in_array( self::USER_ROLE, $user_roles, true ) ) {
 			global $wp_admin_bar;
+
+			$wp_admin_bar->add_node(
+				array(
+					'id'    => 'my-account',
+					'title' => $user->display_name,
+				)
+			);
+
 			$wp_admin_bar->remove_menu( 'wp-logo' );
 			$wp_admin_bar->remove_menu( 'site-name' );
 			$wp_admin_bar->add_menu(
