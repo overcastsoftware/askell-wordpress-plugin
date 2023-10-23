@@ -867,7 +867,7 @@ class AskellRegistration {
 	 */
 	public function add_menu_page() {
 		add_menu_page(
-			__( 'Askell', 'askell-registration' ),
+			__( 'Askell Settings', 'askell-registration' ),
 			__( 'Askell', 'askell-registration' ),
 			'manage_options',
 			'askell-registration',
@@ -875,19 +875,41 @@ class AskellRegistration {
 			self::ADMIN_ICON,
 			91
 		);
+
+		add_submenu_page(
+			'askell-registration',
+			__( 'Subscribers', 'askell-registration' ),
+			__( 'Subscribers', 'askell-registration' ),
+			'manage_options',
+			'askell-registration-subscribers',
+			array( $this, 'render_subscribers_admin_page' ),
+		);
 	}
 
 	/**
-	 * Render the admin page
+	 * Render the settings admin page
 	 *
-	 * This reads in the 'main-page' view file.
+	 * This reads in the 'amin.php' view file.
 	 */
 	public function render_admin_page() {
 		if ( false === current_user_can( 'manage_options' ) ) {
 			return false;
 		}
 
-		require __DIR__ . '/views/main-page.php';
+		require __DIR__ . '/views/admin.php';
+	}
+
+	/**
+	 * Render the subscribers admin page
+	 *
+	 * This reads in the 'subscribers-admin.php' view file.
+	 */
+	public function render_subscribers_admin_page() {
+		if ( false === current_user_can( 'manage_options' ) ) {
+			return false;
+		}
+
+		require __DIR__ . '/views/subscribers-admin.php';
 	}
 
 	/**
@@ -1420,6 +1442,26 @@ class AskellRegistration {
 		);
 	}
 
+	/**
+	 * Get a comma-separated list of the subscription plans assigned to a user
+	 *
+	 * @param WP_User $user The WP_User object representing the user.
+	 *
+	 * @return string A comma-separated string on success, empty string if no
+	 *                subscriptions are found.
+	 */
+	public function plan_names_for_user( WP_User $user ) {
+		if ( true === empty( $user->askell_subscriptions ) ) {
+			return '';
+		}
+
+		$plan_names = array();
+		foreach ( $user->askell_subscriptions as $s ) {
+			$plan_names[] = $this->get_plan_by_id( $s['plan_id'] )['name'];
+		}
+
+		return implode( ',', $plan_names );
+	}
 
 	/**
 	 * Get the event type from the `event` attribute in a webhook request
