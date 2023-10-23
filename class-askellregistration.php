@@ -769,6 +769,13 @@ class AskellRegistration {
 		return true;
 	}
 
+	/**
+	 * Handle the WP REST DELETE request for a subscriber user
+	 *
+	 * @param WP_REST_Request $request The WordPress REST request.
+	 *
+	 * @return WP_Error|bool True on success, WP_Error on failure.
+	 */
 	public function user_account_rest_delete( WP_REST_Request $request ) {
 		require ABSPATH . 'wp-admin/includes/user.php';
 
@@ -799,6 +806,13 @@ class AskellRegistration {
 		return true;
 	}
 
+	/**
+	 * Handle the WP REST POST request to set a new password
+	 *
+	 * @param WP_REST_Request $request The WordPress REST request.
+	 *
+	 * @return WP_Error|bool True on success, WP_Error on failure.
+	 */
 	public function user_password_rest_post( WP_REST_Request $request ) {
 		$user         = wp_get_current_user();
 		$request_body = (array) json_decode( $request->get_body() );
@@ -851,6 +865,13 @@ class AskellRegistration {
 		return true;
 	}
 
+	/**
+	 * Handle the WP REST POST request to update subsriber's user information
+	 *
+	 * @param WP_REST_Request $request The WordPress REST request.
+	 *
+	 * @return WP_Error|bool True on success, WP_Error on failure.
+	 */
 	public function user_info_rest_post( WP_REST_Request $request ) {
 		$user         = wp_get_current_user();
 		$request_body = (array) json_decode( $request->get_body() );
