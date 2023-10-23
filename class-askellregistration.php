@@ -109,6 +109,12 @@ class AskellRegistration {
 					'id'    => 'askell-home-link',
 					'title' => get_bloginfo( 'name' ),
 					'href'  => home_url(),
+					'meta'  => array(
+						'title' => __(
+							'Go to the home page',
+							'askell-registration'
+						),
+					),
 				)
 			);
 		}
