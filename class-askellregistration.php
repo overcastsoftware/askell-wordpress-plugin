@@ -65,6 +65,13 @@ class AskellRegistration {
 			array( $this, 'delete_customer_on_user_delete' )
 		);
 
+		add_action(
+			'wp_before_admin_bar_render',
+			array( $this, 'remove_wp_logo_from_admin_bar' ),
+			10,
+			0
+		);
+
 		add_filter(
 			'login_redirect',
 			array( $this, 'redirect_subscribers_on_login' ),
@@ -78,6 +85,24 @@ class AskellRegistration {
 			10,
 			2
 		);
+	}
+
+	public function remove_wp_logo_from_admin_bar() {
+		$user       = wp_get_current_user();
+		$user_roles = $user->roles;
+
+		if ( true === in_array( self::USER_ROLE, $user_roles, true ) ) {
+			global $wp_admin_bar;
+			$wp_admin_bar->remove_menu( 'wp-logo' );
+			$wp_admin_bar->remove_menu( 'site-name' );
+			$wp_admin_bar->add_menu(
+				array(
+					'id'    => 'askell-home-link',
+					'title' => get_bloginfo( 'name' ),
+					'href'  => home_url(),
+				)
+			);
+		}
 	}
 
 	public function redirect_subscribers_on_login(
