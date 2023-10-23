@@ -16,7 +16,7 @@ $subscriptions       = $user->askell_subscriptions;
 		<?php esc_html_e( 'My Profile', 'askell-registration' ); ?>
 	</h1>
 
-	<form action="#" class="type-form" id="askell-profile-form">
+	<form action="#" class="type-form" id="askell-profile-personal-information-form">
 		<section class="section">
 			<div class="setion-header">
 				<h3><?php esc_html_e( 'Personal Information', 'askell-registration' ); ?></h3>
@@ -33,7 +33,7 @@ $subscriptions       = $user->askell_subscriptions;
 							<input
 								class="regular-text"
 								type="text"
-								name="api_key"
+								name="first_name"
 								value="<?php echo esc_attr( $user->first_name ); ?>"
 							/>
 						</td>
@@ -46,7 +46,7 @@ $subscriptions       = $user->askell_subscriptions;
 							<input
 								class="regular-text"
 								type="text"
-								name="api_key"
+								name="last_name"
 								value="<?php echo esc_attr( $user->last_name ); ?>"
 							/>
 						</td>
@@ -59,14 +59,41 @@ $subscriptions       = $user->askell_subscriptions;
 							<input
 								class="regular-text"
 								type="email"
-								name="api_key"
+								name="email"
 								value="<?php echo esc_attr( $user->user_email ); ?>"
 							/>
 						</td>
 					</tr>
 				</tbody>
+				<tfoot>
+					<tr>
+						<th
+							id="askell-profile-personal-information-form-error-display"
+							class="error-display"
+							colspan="2"
+						>
+						</th>
+					</tr>
+				</tfoot>
 			</table>
+			<p class="submit">
+				<img
+					id="askell-profile-user-info-loader"
+					class="hidden"
+					src="<?php echo esc_url( get_admin_url() . 'images/wpspin_light-2x.gif' ); ?>"
+					width="24"
+					height="24"
+				/>
+				<input
+					id="askell-profile-user-info-submit"
+					type="submit"
+					value="<?php esc_attr_e( 'Save', 'askell-registration' ); ?>"
+					class="button button-primary"
+				/>
+			</p>
 		</section>
+	</form>
+	<form action="#" class="type-form" id="askell-profile-password-form">
 		<section class="section">
 			<div class="setion-header">
 				<h3><?php esc_html_e( 'Login information', 'askell-registration' ); ?></h3>
@@ -79,7 +106,7 @@ $subscriptions       = $user->askell_subscriptions;
 						<th scope="row">
 						<?php esc_html_e( 'Username', 'askell-registration' ); ?>
 						</th>
-						<td><?php echo esc_html( $user->user_login ) ?></td>
+						<td><?php echo esc_html( $user->user_login ); ?></td>
 					</tr>
 					<tr>
 						<th scope="row">
@@ -101,14 +128,40 @@ $subscriptions       = $user->askell_subscriptions;
 							<input
 								class="regular-text"
 								type="password"
-								name="password_repeat"
+								name="password_confirm"
 							/>
 						</td>
 					</tr>
 				</tbody>
+				<tfoot>
+					<tr>
+						<th
+							id="askell-profile-password-form-error-display"
+							class="error-display"
+							colspan="2"
+						>
+						</th>
+					</tr>
+				</tfoot>
 			</table>
-			<p>Your username cannot be changed.</p>
+			<p class="submit">
+				<img
+					id="askell-profile-password-loader"
+					class="hidden"
+					src="<?php echo esc_url( get_admin_url() . 'images/wpspin_light-2x.gif' ); ?>"
+					width="24"
+					height="24"
+				/>
+				<input
+					id="askell-profile-password-submit"
+					class="button button-primary"
+					type="submit"
+					value="<?php esc_attr_e( 'Update Password', 'askell-registration' ); ?>"
+				/>
+			</p>
 		</section>
+	</form>
+	<div class="type-form">
 		<section class="section">
 			<div class="setion-header">
 				<h3>
@@ -184,9 +237,20 @@ $subscriptions       = $user->askell_subscriptions;
 					<p>Deletes your account from this site. This also deletes your payment information from the subscription system.</p>
 				</div>
 				<div class="danger-zone-button-container">
-					<button class="button">Delete My Account</button>
+					<label>
+						<input type="checkbox" id="delete-account-confirm-checkbox">
+						Confirm deletion
+					</label>
+					<button
+						id="delete-account-button"
+						class="button"
+						disabled
+					>
+						Delete My Account
+					</button>
 				</div>
 			</div>
+			<p id="danger-zone-error-display" class="error-display"></p>
 		</section>
-	</form>
+	</div>
 </div>

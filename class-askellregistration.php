@@ -267,6 +267,48 @@ class AskellRegistration {
 		);
 		register_rest_route(
 			self::REST_NAMESPACE,
+			'/my_user_info',
+			array(
+				'methods'             => 'POST',
+				'permission_callback' => function () {
+					return current_user_can( 'read' );
+				},
+				'callback'            => array(
+					$this,
+					'user_info_rest_post',
+				),
+			)
+		);
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/my_password',
+			array(
+				'methods'             => 'POST',
+				'permission_callback' => function () {
+					return current_user_can( 'read' );
+				},
+				'callback'            => array(
+					$this,
+					'user_password_rest_post',
+				),
+			)
+		);
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/my_account',
+			array(
+				'methods'             => 'DELETE',
+				'permission_callback' => function () {
+					return current_user_can( 'read' );
+				},
+				'callback'            => array(
+					$this,
+					'user_account_rest_delete',
+				),
+			)
+		);
+		register_rest_route(
+			self::REST_NAMESPACE,
 			'/webhooks/customer',
 			array(
 				'methods'             => 'POST',
@@ -713,6 +755,136 @@ class AskellRegistration {
 			update_option(
 				'askell_subscription_webhook_secret',
 				$request_body['subscription_webhook_secret']
+			);
+		}
+
+		return true;
+	}
+
+	public function user_account_rest_delete( WP_REST_Request $request ) {
+		require ABSPATH . 'wp-admin/includes/user.php';
+
+		$user = wp_get_current_user();
+
+		if ( 0 === $user->ID ) {
+			return new WP_Error(
+				'no_user_logged_in',
+				'No user logged in'
+			);
+		}
+
+		if ( false === in_array( self::USER_ROLE, $user->roles, true ) ) {
+			return new WP_Error(
+				'user_not_a_subscriber',
+				'The user is not a subscriber',
+				array( 'status' => 400 )
+			);
+		}
+
+		if ( false === wp_delete_user( $user->ID ) ) {
+			return new WP_Error(
+				'user_not_deleted',
+				'The user was not deleted'
+			);
+		}
+
+		return true;
+	}
+
+	public function user_password_rest_post( WP_REST_Request $request ) {
+		$user         = wp_get_current_user();
+		$request_body = (array) json_decode( $request->get_body() );
+
+		if ( 0 === $user->ID ) {
+			return new WP_Error(
+				'no_user_logged_in',
+				'No user logged in'
+			);
+		}
+
+		if ( false === in_array( self::USER_ROLE, $user->roles, true ) ) {
+			return new WP_Error(
+				'user_not_a_subscriber',
+				'The user is not a subscriber',
+				array( 'status' => 400 )
+			);
+		}
+
+		if ( false === array_key_exists( 'password', $request_body ) ) {
+			return new WP_Error(
+				'password_not_set',
+				'Password not set'
+			);
+		}
+
+		if ( false === array_key_exists( 'password_confirm', $request_body ) ) {
+			return new WP_Error(
+				'password_confirm_not_set',
+				'Password confirmation not set'
+			);
+		}
+
+		if ( 8 > strlen( $request_body['password'] ) ) {
+			return new WP_Error(
+				'password_too_short',
+				'The password is too short'
+			);
+		}
+
+		if ( $request_body['password'] !== $request_body['password_confirm'] ) {
+			return new WP_Error(
+				'passwords_dont_match',
+				'The passwords do not match'
+			);
+		}
+
+		wp_set_password( $request_body['password'], $user->ID );
+
+		return true;
+	}
+
+	public function user_info_rest_post( WP_REST_Request $request ) {
+		$user         = wp_get_current_user();
+		$request_body = (array) json_decode( $request->get_body() );
+
+		if ( 0 === $user->ID ) {
+			return new WP_Error(
+				'no_user_logged_in',
+				'No user logged in'
+			);
+		}
+
+		if ( false === in_array( self::USER_ROLE, $user->roles, true ) ) {
+			return new WP_Error(
+				'user_not_a_subscriber',
+				'The user is not a subscriber',
+				array( 'status' => 400 )
+			);
+		}
+
+		if ( array_key_exists( 'first_name', $request_body ) ) {
+			$user->first_name = $request_body['first_name'];
+		}
+
+		if ( array_key_exists( 'last_name', $request_body ) ) {
+			$user->last_name = $request_body['last_name'];
+		}
+
+		if ( array_key_exists( 'email', $request_body ) ) {
+			if ( false === is_email( $request_body['email'] ) ) {
+				return new WP_Error(
+					'invalid_email_address',
+					'Invalid email address',
+					array( 'status' => 400 )
+				);
+			}
+			$user->user_email = $request_body['email'];
+		}
+
+		if ( false === is_int( wp_update_user( $user ) ) ) {
+			return new WP_Error(
+				'could_not_update_user',
+				'Could not update user'
 			);
 		}
 

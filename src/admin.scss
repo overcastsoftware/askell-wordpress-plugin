@@ -9,7 +9,13 @@ body.wp-admin.toplevel_page_askell-registration, body.wp-admin.askell_page_askel
 		}
 	}
 
-	#askell-registration-settings, #askell-profile-form {
+	.type-form {
+
+		.error-display {
+			font-weight: 700;
+			color: #720707;
+			text-align: right;
+		}
 
 		.section {
 			background-color: #fff;
@@ -76,6 +82,7 @@ body.wp-admin.toplevel_page_askell-registration, body.wp-admin.askell_page_askel
 			justify-content: center;
 
 			button {
+				margin-top: 0.75em;
 				background: #b12222;
 				border-color: #971010;
 				color: #fff;
