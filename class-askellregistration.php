@@ -64,6 +64,118 @@ class AskellRegistration {
 			'delete_user',
 			array( $this, 'delete_customer_on_user_delete' )
 		);
+
+		add_action(
+			'wp_before_admin_bar_render',
+			array( $this, 'remove_wp_logo_from_admin_bar' ),
+			10,
+			0
+		);
+
+		add_filter(
+			'login_redirect',
+			array( $this, 'redirect_subscribers_on_login' ),
+			10,
+			3
+		);
+
+		add_filter(
+			'edit_profile_url',
+			array( $this, 'filter_profile_url' ),
+			10,
+			2
+		);
+	}
+
+	/**
+	 * Remove the WP logo and home/dashboard link form the admin bar
+	 * if the current user is a subscriber
+	 *
+	 * This replaces the "home" link with our own simplified version that does
+	 * not have any subitems.
+	 *
+	 * @see https://developer.wordpress.org/reference/hooks/wp_before_admin_bar_render/
+	 */
+	public function remove_wp_logo_from_admin_bar() {
+		$user       = wp_get_current_user();
+		$user_roles = $user->roles;
+
+		if ( true === in_array( self::USER_ROLE, $user_roles, true ) ) {
+			global $wp_admin_bar;
+
+			$wp_admin_bar->add_node(
+				array(
+					'id'    => 'my-account',
+					'title' => $user->display_name,
+				)
+			);
+
+			$wp_admin_bar->remove_menu( 'wp-logo' );
+			$wp_admin_bar->remove_menu( 'site-name' );
+			$wp_admin_bar->add_menu(
+				array(
+					'id'    => 'askell-home-link',
+					'title' => get_bloginfo( 'name' ),
+					'href'  => home_url(),
+					'meta'  => array(
+						'title' => __(
+							'Go to the home page',
+							'askell-registration'
+						),
+					),
+				)
+			);
+		}
+	}
+
+	/**
+	 * Redirect subscribers to the home url on login
+	 *
+	 * @see https://developer.wordpress.org/reference/hooks/login_redirect/.
+	 *
+	 * @param string           $redirect_to The redirect destination URL.
+	 * @param string           $requested_redirect_to The requested redirect
+	 *                                                destination URL passed as
+	 *                                                a parameter.
+	 * @param WP_User|WP_Error $user WP_User object if login was successful,
+	 *                               WP_Error object otherwise.
+	 */
+	public function redirect_subscribers_on_login(
+		string $redirect_to,
+		string $requested_redirect_to,
+		WP_User|WP_Error $user
+	) {
+		if ( true === is_a( $user, 'WP_Error' ) ) {
+			return $requested_redirect_to;
+		}
+
+		$user_roles = $user->roles;
+
+		if ( true === in_array( self::USER_ROLE, $user_roles, true ) ) {
+			return home_url();
+		}
+		return $requested_redirect_to;
+	}
+
+	/**
+	 * Filter the profile URL for subsriber to make it point to the Askell
+	 * "my profile" view instead of the built-in user profile
+	 *
+	 * @see https://developer.wordpress.org/reference/hooks/edit_profile_url/
+	 *
+	 * @param string $url The original profile URL.
+	 * @param int    $user_id The user's ID.
+	 *
+	 * @return string The url to the 'my-profile' view from Askell.
+	 */
+	public function filter_profile_url( string $url, int $user_id ) {
+		$user       = get_user_by( 'ID', $user_id );
+		$user_roles = $user->roles;
+
+		if ( true === in_array( self::USER_ROLE, $user_roles, true ) ) {
+			return admin_url( 'admin.php?page=askell-registration-my-profile' );
+		}
+		return $url;
 	}
 
 	/**
@@ -158,6 +270,48 @@ class AskellRegistration {
 				'callback'            => array(
 					$this,
 					'settings_rest_post',
+				),
+			)
+		);
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/my_user_info',
+			array(
+				'methods'             => 'POST',
+				'permission_callback' => function () {
+					return current_user_can( 'read' );
+				},
+				'callback'            => array(
+					$this,
+					'user_info_rest_post',
+				),
+			)
+		);
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/my_password',
+			array(
+				'methods'             => 'POST',
+				'permission_callback' => function () {
+					return current_user_can( 'read' );
+				},
+				'callback'            => array(
+					$this,
+					'user_password_rest_post',
+				),
+			)
+		);
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/my_account',
+			array(
+				'methods'             => 'DELETE',
+				'permission_callback' => function () {
+					return current_user_can( 'read' );
+				},
+				'callback'            => array(
+					$this,
+					'user_account_rest_delete',
 				),
 			)
 		);
@@ -616,6 +770,157 @@ class AskellRegistration {
 	}
 
 	/**
+	 * Handle the WP REST DELETE request for a subscriber user
+	 *
+	 * @param WP_REST_Request $request The WordPress REST request.
+	 *
+	 * @return WP_Error|bool True on success, WP_Error on failure.
+	 */
+	public function user_account_rest_delete( WP_REST_Request $request ) {
+		require ABSPATH . 'wp-admin/includes/user.php';
+
+		$user = wp_get_current_user();
+
+		if ( 0 === $user->ID ) {
+			return new WP_Error(
+				'no_user_logged_in',
+				'No user logged in'
+			);
+		}
+
+		if ( false === in_array( self::USER_ROLE, $user->roles, true ) ) {
+			return new WP_Error(
+				'user_not_a_subscriber',
+				'The user is not a subscriber',
+				array( 'status' => 400 )
+			);
+		}
+
+		if ( false === wp_delete_user( $user->ID ) ) {
+			return new WP_Error(
+				'user_not_deleted',
+				'The user was not deleted'
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Handle the WP REST POST request to set a new password
+	 *
+	 * @param WP_REST_Request $request The WordPress REST request.
+	 *
+	 * @return WP_Error|bool True on success, WP_Error on failure.
+	 */
+	public function user_password_rest_post( WP_REST_Request $request ) {
+		$user         = wp_get_current_user();
+		$request_body = (array) json_decode( $request->get_body() );
+
+		if ( 0 === $user->ID ) {
+			return new WP_Error(
+				'no_user_logged_in',
+				'No user logged in'
+			);
+		}
+
+		if ( false === in_array( self::USER_ROLE, $user->roles, true ) ) {
+			return new WP_Error(
+				'user_not_a_subscriber',
+				'The user is not a subscriber',
+				array( 'status' => 400 )
+			);
+		}
+
+		if ( false === array_key_exists( 'password', $request_body ) ) {
+			return new WP_Error(
+				'password_not_set',
+				'Password not set'
+			);
+		}
+
+		if ( false === array_key_exists( 'password_confirm', $request_body ) ) {
+			return new WP_Error(
+				'password_confirm_not_set',
+				'Password confirmation not set'
+			);
+		}
+
+		if ( 8 > strlen( $request_body['password'] ) ) {
+			return new WP_Error(
+				'password_too_short',
+				'The password is too short'
+			);
+		}
+
+		if ( $request_body['password'] !== $request_body['password_confirm'] ) {
+			return new WP_Error(
+				'passwords_dont_match',
+				'The passwords do not match'
+			);
+		}
+
+		wp_set_password( $request_body['password'], $user->ID );
+
+		return true;
+	}
+
+	/**
+	 * Handle the WP REST POST request to update subsriber's user information
+	 *
+	 * @param WP_REST_Request $request The WordPress REST request.
+	 *
+	 * @return WP_Error|bool True on success, WP_Error on failure.
+	 */
+	public function user_info_rest_post( WP_REST_Request $request ) {
+		$user         = wp_get_current_user();
+		$request_body = (array) json_decode( $request->get_body() );
+
+		if ( 0 === $user->ID ) {
+			return new WP_Error(
+				'no_user_logged_in',
+				'No user logged in'
+			);
+		}
+
+		if ( false === in_array( self::USER_ROLE, $user->roles, true ) ) {
+			return new WP_Error(
+				'user_not_a_subscriber',
+				'The user is not a subscriber',
+				array( 'status' => 400 )
+			);
+		}
+
+		if ( array_key_exists( 'first_name', $request_body ) ) {
+			$user->first_name = $request_body['first_name'];
+		}
+
+		if ( array_key_exists( 'last_name', $request_body ) ) {
+			$user->last_name = $request_body['last_name'];
+		}
+
+		if ( array_key_exists( 'email', $request_body ) ) {
+			if ( false === is_email( $request_body['email'] ) ) {
+				return new WP_Error(
+					'invalid_email_address',
+					'Invalid email address',
+					array( 'status' => 400 )
+				);
+			}
+			$user->user_email = $request_body['email'];
+		}
+
+		if ( false === is_int( wp_update_user( $user ) ) ) {
+			return new WP_Error(
+				'could_not_update_user',
+				'Could not update user'
+			);
+		}
+
+		return true;
+	}
+
+	/**
 	 * The HTTP POST request handler for registering a new user
 	 *
 	 * As a part of the registration process a registration token is assigned to
@@ -864,6 +1169,9 @@ class AskellRegistration {
 
 	/**
 	 * Add the menu page item to the wp-admin sidebar
+	 *
+	 * This also removes the "Users" option from the sidebar if the logged-in
+	 * user is a subscriber.
 	 */
 	public function add_menu_page() {
 		add_menu_page(
@@ -884,6 +1192,23 @@ class AskellRegistration {
 			'askell-registration-subscribers',
 			array( $this, 'render_subscribers_admin_page' ),
 		);
+
+		$current_user_roles = wp_get_current_user()->roles;
+
+		if ( true === in_array( self::USER_ROLE, $current_user_roles, true ) ) {
+			add_menu_page(
+				__( 'My Profile', 'askell-registration' ),
+				__( 'My Profile', 'askell-registration' ),
+				'read',
+				'askell-registration-my-profile',
+				array( $this, 'render_profile_editor' ),
+				'dashicons-admin-users',
+				92
+			);
+
+			remove_menu_page( 'index.php' );
+			remove_menu_page( 'profile.php' );
+		}
 	}
 
 	/**
@@ -910,6 +1235,13 @@ class AskellRegistration {
 		}
 
 		require __DIR__ . '/views/subscribers-admin.php';
+	}
+
+	/**
+	 * Render the "my profile" admin page for subscribers
+	 */
+	public function render_profile_editor() {
+		require __DIR__ . '/views/profile-editor.php';
 	}
 
 	/**

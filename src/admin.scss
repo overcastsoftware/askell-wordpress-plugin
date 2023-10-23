@@ -1,4 +1,4 @@
-body.wp-admin.toplevel_page_askell-registration, body.wp-admin.askell_page_askell-registration-subscribers {
+body.wp-admin.toplevel_page_askell-registration, body.wp-admin.askell_page_askell-registration-subscribers, body.wp-admin.toplevel_page_askell-registration-my-profile {
 
 	#wpbody-content {
 
@@ -9,7 +9,13 @@ body.wp-admin.toplevel_page_askell-registration, body.wp-admin.askell_page_askel
 		}
 	}
 
-	#askell-registration-settings {
+	.type-form {
+
+		.error-display {
+			font-weight: 700;
+			color: #720707;
+			text-align: right;
+		}
 
 		.section {
 			background-color: #fff;
@@ -43,6 +49,98 @@ body.wp-admin.toplevel_page_askell-registration, body.wp-admin.askell_page_askel
 
 		p.submit > img {
 			margin-right: 1rem;
+		}
+	}
+
+	.danger-zone-section {
+		background-color: #ffeded !important;
+		border: 1px solid #f8a4a4 !important;
+
+		hr {
+			border-top-color: #fdcbcb;
+			border-bottom-color: #f7bebe;
+		}
+	}
+
+	.danger-zone-subsection {
+		display: flex;
+
+		.danger-zone-subsection-description {
+			margin-right: 4em;
+
+			h4 {
+				margin: 0;
+			}
+
+			p {
+				margin: 0.5em 0;
+			}
+		}
+		.danger-zone-button-container {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+
+			button {
+				margin-top: 0.75em;
+				background: #b12222;
+				border-color: #971010;
+				color: #fff;
+				text-decoration: none;
+				text-shadow: none;
+			}
+
+			button:hover, button:focus, button:active {
+				background: #971010;
+				border-color: #720707;
+				color: #fff;
+			}
+		}
+	}
+
+	.subscription-list {
+		display: flex;
+		justify-content: space-between;
+
+		.plan-name {
+			margin: 0.5em 0;
+		}
+		li {
+			margin-bottom: 0;
+		}
+		.trial-ends {
+			margin: 0.5em 0;
+		}
+
+		.subscription-list-button-container {
+			display: flex;
+			flex-direction: column;
+			justify-content: flex-start;
+		}
+
+		.pill {
+			display: inline-block;
+			color: #fff;
+			border: 1px solid #04381e;
+			background-color: #117a46;
+			border-radius: 3px;
+			padding: 0.1em 0.33em;
+			margin-left: 0.25em;
+		}
+
+		.pill-green {
+			border: 1px solid #04381e;
+			background-color: #117a46;
+		}
+
+		.pill-red {
+			border: 1px solid #720707;
+			background-color: #971010;
+		}
+
+		.pill-grey {
+			border: 1px solid #333;
+			background-color: #666;
 		}
 	}
 }
