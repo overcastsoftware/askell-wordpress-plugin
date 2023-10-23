@@ -186,12 +186,12 @@ $subscriptions       = $user->askell_subscriptions;
 						<li class="subscription-info">
 							<strong class="plan-name"><?php echo esc_html( $plan['name'] ); ?></strong>
 							<?php if ( true === $subscription['active'] ) : ?>
-							<span class="pill pill-green">Active</span>
+							<span class="pill pill-green"><?php echo esc_html_e( 'Active', 'askell-registration' ); ?></span>
 							<?php else : ?>
-							<span class="pill pill-red">Inactive</span>
+							<span class="pill pill-red"><?php echo esc_html_e( 'Inactive', 'askell-registration' ); ?></span>
 							<?php endif ?>
 							<?php if ( true === $subscription['is_on_trial'] ) : ?>
-							<span class="pill pill-grey">Trial</span>
+							<span class="pill pill-grey"><?php echo esc_html_e( 'Trial', 'askell-registration' ); ?></span>
 							<?php endif ?>
 							<ul>
 								<li class="description"><?php echo esc_html( $plan['description'] ); ?></li>
@@ -233,20 +233,27 @@ $subscriptions       = $user->askell_subscriptions;
 			</div>
 			<div class="danger-zone-subsection">
 				<div class="danger-zone-subsection-description">
-					<h4>Delete Account</h4>
-					<p>Deletes your account from this site. This also deletes your payment information from the subscription system.</p>
+					<h4><?php echo esc_html_e( 'Delete Account', 'askell-registration' ); ?></h4>
+					<p>
+						<?php
+						echo esc_html_e(
+							'Deletes your account from this site. This also deletes your payment information from the subscription system.',
+							'askell-registration'
+						);
+						?>
+					</p>
 				</div>
 				<div class="danger-zone-button-container">
 					<label>
 						<input type="checkbox" id="delete-account-confirm-checkbox">
-						Confirm deletion
+						<?php echo esc_html_e( 'Confirm deletion', 'askell-registration' ); ?>
 					</label>
 					<button
 						id="delete-account-button"
 						class="button"
 						disabled
 					>
-						Delete My Account
+						<?php echo esc_html_e( 'Delete My Account', 'askell-registration' ); ?>
 					</button>
 				</div>
 			</div>
