@@ -1,16 +1,4 @@
 class AskellUI {
-	static usersTab() {
-		return document.querySelector('#askell-nav-tab-users');
-	}
-
-	static settingsTab() {
-		return document.querySelector('#askell-nav-tab-settings');
-	}
-
-	static usersForm() {
-		return document.querySelector('#askell-registration-users');
-	}
-
 	static settingsForm() {
 		return document.querySelector('#askell-registration-settings');
 	}
@@ -23,36 +11,20 @@ class AskellUI {
 		);
 	}
 
-	static settingsTabClickEvent(event) {
-		event.preventDefault();
-		AskellUI.usersForm().classList.add('hidden');
-		AskellUI.settingsForm().classList.remove('hidden');
-		AskellUI.usersTab().classList.remove('nav-tab-active');
-		AskellUI.settingsTab().classList.add('nav-tab-active');
-	}
-
-	static usersTabClickEvent(event) {
-		event.preventDefault();
-		AskellUI.usersForm().classList.remove('hidden');
-		AskellUI.settingsForm().classList.add('hidden');
-		AskellUI.usersTab().classList.add('nav-tab-active');
-		AskellUI.settingsTab().classList.remove('nav-tab-active');
-	}
-
 	// This is what happens when the form is submitted
 	static onSettingsFormSubmit(event) {
 		event.preventDefault();
 
 		const formData = new FormData(event.target);
 		const formDataObject = {
-			api_key: formData.get('api_key'),
-			api_secret: formData.get('api_secret'),
+			api_key: formData.get('api_key').trim(),
+			api_secret: formData.get('api_secret').trim(),
 			customer_webhook_secret: formData.get(
 				'customer_webhook_secret'
-			),
+			).trim(),
 			subscription_webhook_secret: formData.get(
 				'subscription_webhook_secret'
-			),
+			).trim(),
 			enable_css: Boolean(formData.get('enable_css')),
 		};
 
@@ -90,16 +62,6 @@ class AskellUI {
 
 window.addEventListener('DOMContentLoaded', () => {
 	if (document.body.classList.contains('toplevel_page_askell-registration')) {
-		AskellUI.settingsTab().addEventListener(
-			'click',
-			AskellUI.settingsTabClickEvent
-		);
-
-		AskellUI.usersTab().addEventListener(
-			'click',
-			AskellUI.usersTabClickEvent
-		);
-
 		AskellUI.settingsForm().addEventListener(
 			'submit',
 			AskellUI.onSettingsFormSubmit
