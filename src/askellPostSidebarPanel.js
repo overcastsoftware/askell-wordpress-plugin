@@ -1,7 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
-import { addQueryArgs } from '@wordpress/url';
-import { useState, useEffect, useReducer } from "react";
-import { CheckboxControl, RadioControl, __experimentalDivider as Divider } from '@wordpress/components';
+import { useState, useEffect } from "react";
+import { RadioControl } from '@wordpress/components';
 
 const { __ } = wp.i18n;
 const { PluginDocumentSettingPanel } = wp.editPost;
