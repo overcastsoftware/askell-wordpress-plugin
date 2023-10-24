@@ -7,13 +7,13 @@
 	"homepage": "https://askell.is/",
 	"main": "build/index.js",
 	"scripts": {
-		"build": "wp-scripts build ./src/admin.js ./src/index.js ./src/frontend.js ./src/admin.scss ./src/style.scss ./src/askellRegistration.js",
+		"build": "wp-scripts build ./src/admin.js ./src/index.js ./src/frontend.js ./src/admin.scss ./src/style.scss ./src/askellRegistration.js ./src/editor-sidebar.js",
 		"format": "wp-scripts format",
 		"lint:css": "wp-scripts lint-style ./src/admin.scss ./src/style.scss ./src/editor.scss --fix",
 		"lint:js": "wp-scripts lint-js ./src --fix",
 		"packages-update": "wp-scripts packages-update",
 		"plugin-zip": "wp-scripts plugin-zip",
-		"start": "wp-scripts start ./src/admin.js ./src/index.js ./src/frontend.js ./src/admin.js ./src/admin.scss ./src/style.scss ./src/askellRegistration.js"
+		"start": "wp-scripts start ./src/admin.js ./src/index.js ./src/frontend.js ./src/admin.js ./src/admin.scss ./src/style.scss ./src/askellRegistration.js ./src/editor-sidebar.js"
 	},
 	"devDependencies": {
 		"@babel/cli": "*",

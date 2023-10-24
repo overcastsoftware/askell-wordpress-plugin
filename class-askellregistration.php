@@ -46,14 +46,15 @@ class AskellRegistration {
 	 */
 	public function __construct() {
 		add_action( 'init', array( $this, 'block_init' ) );
+		add_action( 'init', array( $this, 'schedule_sync_cron' ) );
+		add_action( 'init', array( $this, 'load_textdomain' ) );
+
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 
 		add_action( 'admin_menu', array( $this, 'add_menu_page' ) );
 		add_action( 'admin_init', array( $this, 'enqueue_admin_script' ) );
 
 		add_action( 'askell_sync_cron', array( $this, 'save_plans' ) );
-		add_action( 'init', array( $this, 'schedule_sync_cron' ) );
-		add_action( 'init', array( $this, 'load_textdomain' ) );
 
 		add_action(
 			'wp_update_user',
@@ -85,6 +86,71 @@ class AskellRegistration {
 			10,
 			2
 		);
+
+		add_action( 'init', array( $this, 'register_post_meta' ) );
+		add_action(
+			'enqueue_block_editor_assets',
+			array( $this, 'enqueue_editor_sidebar_script' )
+		);
+	}
+
+	/**
+	 * Enqueue the JS required for our editor sidebar
+	 */
+	public function enqueue_editor_sidebar_script() {
+		wp_enqueue_script(
+			'askell-registration-editor-sidebar',
+			plugins_url( self::PLUGIN_PATH . '/build/editor-sidebar.js' ),
+			array(
+				'wp-edit-post',
+				'wp-element',
+				'wp-components',
+				'wp-plugins',
+				'wp-data',
+			),
+			self::ASSETS_VERSION,
+			false
+		);
+	}
+
+	/**
+	 * Register required post meta
+	 *
+	 * Registers the askell_plan_ids and askell_visibility post meta attributes.
+	 */
+	public function register_post_meta() {
+		register_meta(
+			'post',
+			'askell_plan_ids',
+			array(
+				'type'          => 'string',
+				'description'   => 'A comma separated string of active Askell plan IDs that the user needs to have in their active subscriptions',
+				'single'        => true,
+				'default'       => '',
+				'auth_callback' => array( $this, 'post_meta_auth_check' ),
+				'show_in_rest'  => true,
+			)
+		);
+
+		register_meta(
+			'post',
+			'askell_visibility',
+			array(
+				'type'          => 'string',
+				'description'   => 'The post visibility for askell; may be public, subscribers and specific_plans',
+				'single'        => true,
+				'default'       => 'public',
+				'auth_callback' => array( $this, 'post_meta_auth_check' ),
+				'show_in_rest'  => true,
+			)
+		);
+	}
+
+	/**
+	 * Check if the current user is an editor or higher
+	 */
+	public function post_meta_auth_check() {
+		return current_user_can( 'edit_posts' );
 	}
 
 	/**
@@ -226,6 +292,15 @@ class AskellRegistration {
 	 * Register the WP REST routes used by the plugin
 	 */
 	public function register_rest_routes() {
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/plans',
+			array(
+				'methods'             => 'GET',
+				'permission_callback' => '__return_true',
+				'callback'            => array( $this, 'plans_rest_get' ),
+			)
+		);
 		register_rest_route(
 			self::REST_NAMESPACE,
 			'/customer',
@@ -434,6 +509,17 @@ class AskellRegistration {
 		}
 
 		return $this->push_customer( $user );
+	}
+
+	/**
+	 * The WP REST GET handler for plans
+	 *
+	 * @param WP_REST_Request $request The WordPress REST request.
+	 *
+	 * @return array An array of all plans.
+	 */
+	public function plans_rest_get( WP_REST_Request $request ) {
+		return $this->plans();
 	}
 
 	/**

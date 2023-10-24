@@ -246,34 +246,36 @@ class AskellUI {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-	if (document.body.classList.contains('toplevel_page_askell-registration')) {
-		AskellUI.settingsForm().addEventListener(
-			'submit',
-			AskellUI.onSettingsFormSubmit
-		);
-	}
+	if (document.body) {
+		if (document.body.classList.contains('toplevel_page_askell-registration')) {
+			AskellUI.settingsForm().addEventListener(
+				'submit',
+				AskellUI.onSettingsFormSubmit
+			);
+		}
 
-	if (document.body.classList.contains(
-		'toplevel_page_askell-registration-my-profile'
-	)) {
-		AskellUI.profilePersonalInformationForm().addEventListener(
-			'submit',
-			AskellUI.onProfilePersonalInformationFormSubmit
-		);
+		if (document.body.classList.contains(
+			'toplevel_page_askell-registration-my-profile'
+		)) {
+			AskellUI.profilePersonalInformationForm().addEventListener(
+				'submit',
+				AskellUI.onProfilePersonalInformationFormSubmit
+			);
 
-		AskellUI.profilePasswordForm().addEventListener(
-			'submit',
-			AskellUI.onProfilePasswordFormSubmit
-		);
+			AskellUI.profilePasswordForm().addEventListener(
+				'submit',
+				AskellUI.onProfilePasswordFormSubmit
+			);
 
-		AskellUI.profileDeleteAccountCheckbox().addEventListener(
-			'change',
-			AskellUI.onProfileDeleteAccountCheckboxToggle
-		);
+			AskellUI.profileDeleteAccountCheckbox().addEventListener(
+				'change',
+				AskellUI.onProfileDeleteAccountCheckboxToggle
+			);
 
-		AskellUI.profileDeleteAccountButton().addEventListener(
-			'click',
-			AskellUI.onProfileDeleteAccountButtonClick
-		);
+			AskellUI.profileDeleteAccountButton().addEventListener(
+				'click',
+				AskellUI.onProfileDeleteAccountButtonClick
+			);
+		}
 	}
 });
