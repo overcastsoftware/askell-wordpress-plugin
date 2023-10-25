@@ -1141,6 +1141,20 @@ class AskellRegistration {
 			);
 		}
 
+		if ( array_key_exists( 'register_url', $request_body ) ) {
+			update_option(
+				'askell_register_url',
+				$request_body['register_url']
+			);
+		}
+
+		if ( array_key_exists( 'tos_url', $request_body ) ) {
+			update_option(
+				'askell_tos_url',
+				$request_body['tos_url']
+			);
+		}
+
 		return true;
 	}
 
