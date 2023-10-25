@@ -1,4 +1,6 @@
-body.wp-admin.toplevel_page_askell-registration, body.wp-admin.askell_page_askell-registration-subscribers, body.wp-admin.toplevel_page_askell-registration-my-profile {
+body.wp-admin.toplevel_page_askell-registration,
+body.wp-admin.askell_page_askell-registration-subscribers,
+body.wp-admin.toplevel_page_askell-registration-my-profile {
 
 	#wpbody-content {
 
@@ -76,6 +78,7 @@ body.wp-admin.toplevel_page_askell-registration, body.wp-admin.askell_page_askel
 				margin: 0.5em 0;
 			}
 		}
+
 		.danger-zone-button-container {
 			display: flex;
 			flex-direction: column;
@@ -90,7 +93,9 @@ body.wp-admin.toplevel_page_askell-registration, body.wp-admin.askell_page_askel
 				text-shadow: none;
 			}
 
-			button:hover, button:focus, button:active {
+			button:hover,
+			button:focus,
+			button:active {
 				background: #971010;
 				border-color: #720707;
 				color: #fff;
@@ -105,9 +110,11 @@ body.wp-admin.toplevel_page_askell-registration, body.wp-admin.askell_page_askel
 		.plan-name {
 			margin: 0.5em 0;
 		}
+
 		li {
 			margin-bottom: 0;
 		}
+
 		.trial-ends {
 			margin: 0.5em 0;
 		}

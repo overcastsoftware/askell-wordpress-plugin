@@ -19,12 +19,12 @@ class AskellUI {
 		const formDataObject = {
 			api_key: formData.get('api_key').trim(),
 			api_secret: formData.get('api_secret').trim(),
-			customer_webhook_secret: formData.get(
-				'customer_webhook_secret'
-			).trim(),
-			subscription_webhook_secret: formData.get(
-				'subscription_webhook_secret'
-			).trim(),
+			customer_webhook_secret: formData
+				.get('customer_webhook_secret')
+				.trim(),
+			subscription_webhook_secret: formData
+				.get('subscription_webhook_secret')
+				.trim(),
 			enable_css: Boolean(formData.get('enable_css')),
 		};
 
@@ -66,21 +66,17 @@ class AskellUI {
 	}
 
 	static profilePersonalInformationLoader() {
-		return document.querySelector(
-			'#askell-profile-user-info-loader'
-		);
+		return document.querySelector('#askell-profile-user-info-loader');
 	}
 
 	static profilePersonalInformationSubmit() {
-		return document.querySelector(
-			'#askell-profile-user-info-submit'
-		)
+		return document.querySelector('#askell-profile-user-info-submit');
 	}
 
 	static profilePersonalInformationErrorDisplay() {
 		return document.querySelector(
 			'#askell-profile-personal-information-form-error-display'
-		)
+		);
 	}
 
 	static onProfilePersonalInformationFormSubmit(event) {
@@ -140,13 +136,13 @@ class AskellUI {
 	}
 
 	static profilePasswordSubmit() {
-		return document.querySelector('#askell-profile-password-submit')
+		return document.querySelector('#askell-profile-password-submit');
 	}
 
 	static profilePasswordErrorDisplay() {
 		return document.querySelector(
 			'#askell-profile-password-form-error-display'
-		)
+		);
 	}
 
 	static onProfilePasswordFormSubmit(event) {
@@ -230,7 +226,7 @@ class AskellUI {
 				headers: {
 					'Content-Type': 'application/json;charset=UTF-8',
 					'X-WP-Nonce': wpApiSettings.nonce,
-				}
+				},
 			}
 		);
 
@@ -247,16 +243,22 @@ class AskellUI {
 
 window.addEventListener('DOMContentLoaded', () => {
 	if (document.body) {
-		if (document.body.classList.contains('toplevel_page_askell-registration')) {
+		if (
+			document.body.classList.contains(
+				'toplevel_page_askell-registration'
+			)
+		) {
 			AskellUI.settingsForm().addEventListener(
 				'submit',
 				AskellUI.onSettingsFormSubmit
 			);
 		}
 
-		if (document.body.classList.contains(
-			'toplevel_page_askell-registration-my-profile'
-		)) {
+		if (
+			document.body.classList.contains(
+				'toplevel_page_askell-registration-my-profile'
+			)
+		) {
 			AskellUI.profilePersonalInformationForm().addEventListener(
 				'submit',
 				AskellUI.onProfilePersonalInformationFormSubmit
