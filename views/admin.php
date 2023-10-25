@@ -195,8 +195,8 @@ $askell_registration = new AskellRegistration();
 							<input
 								class="regular-text"
 								type="text"
-								name="api_secret"
-								value="<?php echo esc_attr( get_option( 'askell_terms_url', '' ) ); ?>"
+								name="tos_url"
+								value="<?php echo esc_attr( get_option( 'askell_tos_url', '' ) ); ?>"
 							/>
 							<p class="description">This is the URL to where you keep your terms and conditions to be accepted during the registration process.</p>
 						</td>
