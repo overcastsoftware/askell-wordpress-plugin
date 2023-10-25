@@ -165,12 +165,75 @@ $askell_registration = new AskellRegistration();
 
 		<section class="section">
 			<div class="setion-header">
+				<h3><?php esc_html_e( 'URLs', 'askell-registration' ); ?></h3>
+				<hr />
+			</div>
+
+			<table class="form-table">
+				<tbody>
+					<tr>
+						<th scope="row">
+						<?php esc_html_e( 'URL for Registration Form', 'askell-registration' ); ?>
+						</th>
+						<td>
+							<input
+								class="regular-text"
+								type="text"
+								name="register_url"
+								value="<?php echo esc_attr( get_option( 'askell_register_url', '' ) ); ?>"
+							/>
+							<p class="description">
+								This is the url to the page where you have added the Askell Registration block. If unset, the ‘Register’ button on the paywall is disabled.
+							</p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
+							<?php esc_html_e( 'URL for Terms and Conditions', 'askell-registration' ); ?>
+						</th>
+						<td>
+							<input
+								class="regular-text"
+								type="text"
+								name="api_secret"
+								value="<?php echo esc_attr( get_option( 'askell_terms_url', '' ) ); ?>"
+							/>
+							<p class="description">This is the URL to where you keep your terms and conditions to be accepted during the registration process.</p>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</section>
+
+		<section class="section">
+			<div class="setion-header">
 				<h3><?php esc_html_e( 'Presentation', 'askell-registration' ); ?></h3>
 				<hr />
 			</div>
 
 			<table class="form-table">
 				<tbody>
+					<tr>
+						<th scope="row">
+							<?php esc_html_e( 'Paywall Heading', 'askell-registration' ); ?>
+						</th>
+						<td>
+							<input
+								class="regular-text"
+								type="text"
+								name="paywall_heading"
+								value="<?php echo esc_attr( get_option( 'askell_paywall_heading', $askell_registration->default_paywall_heading ) ); ?>"
+							/>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
+							<?php esc_html_e( 'Paywall Text Body', 'askell-registration' ); ?>
+						</th>
+						<td>
+							<textarea class="regular-text" name="paywall_text_body" rows="5"><?php echo esc_attr( get_option( 'askell_paywall_text_body', $askell_registration->default_paywall_text_body ) ); ?></textarea>
+						</td>
+					</tr>
 					<tr>
 						<th scope="row">
 							<?php esc_html_e( 'Styling and Design', 'askell-registration' ); ?>
@@ -184,7 +247,7 @@ $askell_registration = new AskellRegistration();
 								>
 								<?php esc_html_e( 'Enable built-in stylesheet', 'askell-registration' ); ?>
 							</label>
-							<p>
+							<p class="description">
 								<?php
 								esc_html_e(
 									'Disable this to remove the additional CSS styles provided by Askell from the registration block. It may be useful for those who need to have full control of how their website is displayed.',

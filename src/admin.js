@@ -25,6 +25,8 @@ class AskellUI {
 			subscription_webhook_secret: formData.get(
 				'subscription_webhook_secret'
 			).trim(),
+			paywall_heading: formData.get('paywall_heading').trim(),
+			paywall_text_body: formData.get( 'paywall_text_body' ).trim(),
 			enable_css: Boolean(formData.get('enable_css')),
 		};
 
