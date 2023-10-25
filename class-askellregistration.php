@@ -18,6 +18,7 @@ class AskellRegistration {
 	const REST_NAMESPACE = 'askell/v1';
 	const USER_ROLE      = 'subscriber';
 	const WEBHOOK_TYPES  = array( 'customer', 'subscription' );
+	const POST_TYPES     = array( 'page', 'post' );
 	const PLUGIN_PATH    = 'askell-registration';
 	const ASSETS_VERSION = '0.1.0';
 
@@ -42,9 +43,33 @@ class AskellRegistration {
 		. 'C0wLjA3LDAuMSAtMC4xNzUsMC4xIC0wLjI0LDAgeiIgLz4KPC9zdmc+Cg==';
 
 	/**
+	 * The default value for the paywall heading
+	 *
+	 * @var $default_paywall_heading The heading text.
+	 */
+	public $default_paywall_heading;
+
+	/**
+	 * The default value for the paywall text body
+	 *
+	 * @var $default_paywall_text_body The body text.
+	 */
+	public $default_paywall_text_body;
+
+	/**
 	 * The class constructor
 	 */
 	public function __construct() {
+		$this->default_paywall_heading = __(
+			'Register or log in to see more',
+			'askell-registration'
+		);
+
+		$this->default_paywall_text_body = __(
+			'Registered subscribers can get access to this content. You can register to create an account or log in if you already have an account.',
+			'askell-registration'
+		);
+
 		add_action( 'init', array( $this, 'block_init' ) );
 		add_action( 'init', array( $this, 'schedule_sync_cron' ) );
 		add_action( 'init', array( $this, 'load_textdomain' ) );
@@ -92,6 +117,270 @@ class AskellRegistration {
 			'enqueue_block_editor_assets',
 			array( $this, 'enqueue_editor_sidebar_script' )
 		);
+
+		add_action( 'loop_start', array( $this, 'add_paywall_filter' ) );
+		add_action( 'loop_end', array( $this, 'remove_paywall_filter' ) );
+
+		add_action(
+			'save_post',
+			array( $this, 'set_register_url_on_post_save' ),
+			-1,
+			2
+		);
+	}
+
+	/**
+	 * Add the filter that enables the paywall for posts
+	 *
+	 * This is run on the `loop_start` hook.
+	 *
+	 * @param WP_Query $query The post query.
+	 */
+	public function add_paywall_filter( WP_Query $query ) {
+		if ( $query->is_singular ) {
+			add_filter(
+				'the_content',
+				array( $this, 'filter_post_content' ),
+				-100
+			);
+		}
+	}
+
+	/**
+	 * Remove the filter that enables the paywall for posts
+	 *
+	 * This is run on the `loop_end` hook.
+	 *
+	 * @param WP_Query $query The post query.
+	 */
+	public function remove_paywall_filter( WP_Query $query ) {
+		if (
+			has_filter(
+				'the_content',
+				array( $this, 'filter_post_content' )
+			)
+		) {
+			remove_filter(
+				'the_content',
+				array( $this, 'filter_post_content' )
+			);
+		}
+	}
+
+	/**
+	 * Render the paywall if the user does not have access to the post or output
+	 * the content unmodified if the current user has access
+	 *
+	 * This uses the global $post variable to figure out the post attibutes.
+	 *
+	 * @param string $content The post content.
+	 *
+	 * @return string The content if access is granted, the paywall and excerpt
+	 *                if not.
+	 */
+	public function filter_post_content( string $content ) {
+		global $post;
+		$user = wp_get_current_user();
+
+		if ( true === $this->user_has_access_to_post( $user, $post ) ) {
+			return $content;
+		}
+
+		return $this->paywall( $post, $content );
+	}
+
+	/**
+	 * Render the paywall and post excerpt
+	 *
+	 * @todo This is a whole mess of Gutenberg code and may need to be moved to
+	 *       the views directory.
+	 *
+	 * @param WP_Post $post The post.
+	 * @param string  $content The post content.
+	 *
+	 * @return string The paywall content.
+	 */
+	public function paywall( WP_Post $post, string $content ) {
+		$post_plan_ids = $this->post_plan_ids_array( $post );
+		$login_url     = wp_login_url( get_permalink( $post ), true );
+		$register_url  = get_option( 'askell_register_url', '' );
+
+		if ( '' === $post->post_excerpt ) {
+			$excerpt_text = wp_trim_words( $content );
+		} else {
+			$excerpt_text = $post->post_excerpt;
+		}
+
+		$excerpt = "<!-- wp:paragraph -->\n<p>" .
+			wp_trim_words( $excerpt_text ) .
+			"</p>\n<!-- /wp:paragraph -->";
+
+		$nag = '<!-- wp:group {"className":"askell-register-or-log-in","layout":{"type":"flex","orientation":"vertical"}} -->' .
+			'<div class="wp-block-group askell-register-or-log-in"><!-- wp:heading -->' .
+			'<h2 class="wp-block-heading">' .
+			esc_html( get_option( 'askell_paywall_heading', $this->default_paywall_heading ) ) .
+			'</h2>' .
+			'<!-- /wp:heading -->' .
+			'<!-- wp:paragraph -->' .
+			'<p>' .
+			esc_html( get_option( 'askell_paywall_text_body', $this->default_paywall_text_body ) ) .
+			'</p>' .
+			'<!-- /wp:paragraph -->';
+
+		if ( 'specific_plans' === $post->askell_visibility ) {
+			if ( 1 < count( $post_plan_ids ) ) {
+				$nag .= '<!-- wp:paragraph --><p>' .
+					__( 'This content is only available to subscribers with the following plans:', 'askell-registration' ) .
+					'</p><!-- /wp:paragraph -->';
+
+				$nag .= '<!-- wp:list --><ul>';
+
+				foreach ( $post_plan_ids as $post_plan_id ) {
+					$plan = $this->get_plan_by_id( $post_plan_id );
+					$nag .= '<!-- wp:list-item --><li>' . $plan['name'] . '</li><!-- /wp:list-item -->';
+				}
+
+				$nag .= '</ul><!-- /wp:list -->';
+			} else {
+				$plan = $this->get_plan_by_id( $post_plan_ids[0] );
+				$nag .= '<!-- wp:paragraph --><p>' .
+				sprintf(
+					/* Translators: The %s stands for a single subscription plan name. */
+					__( 'This content is only available to subscribers with the ‘%s’ plan.', 'askell-registration' ),
+					$plan['name']
+				) .
+				'</p><!-- /wp:paragraph -->';
+			}
+		}
+
+		$nag .= '<!-- wp:group {"layout":{"type":"flex","flexWrap":"nowrap"}} -->' .
+			'<div class="wp-block-group">';
+
+		if ( '' !== $register_url ) {
+			$nag .= '<!-- wp:buttons -->' .
+				'<div class="wp-block-buttons"><!-- wp:button {"className":"askell-register-link"} -->' .
+				'<div class="wp-block-button askell-register-link">' .
+				'<a class="wp-block-button__link wp-element-button" href="' . $register_url . '">' .
+				__( 'Register', 'askell-registration' ) .
+				'</a>' .
+				'</div>' .
+				'<!-- /wp:button --></div>' .
+				'<!-- /wp:buttons -->';
+		}
+
+		$nag .= '<!-- wp:paragraph -->' .
+		'<p><a href="' . esc_url( $login_url ) . '">' .
+		__( 'Log in', 'askell-registration' ) .
+		'</a></p>' .
+		'<!-- /wp:paragraph --></div>' .
+		'<!-- /wp:group --></div>' .
+		'<!-- /wp:group -->';
+
+		$blocks = parse_blocks( $excerpt . $nag );
+
+		return render_block( $blocks[0] ) . render_block( $blocks[1] );
+	}
+
+	/**
+	 * Check if a user has access to a post
+	 *
+	 * @param WP_User $user The user.
+	 * @param WP_Post $post The post.
+	 *
+	 * @return bool True if the user has access, false if not.
+	 */
+	public function user_has_access_to_post( WP_User $user, WP_Post $post ) {
+		// Enable access of the post is publicly visible.
+		if ( 'public' === $post->askell_visibility ) {
+			return true;
+		}
+
+		// If the user is able to edit posts, they should be able to see them.
+		if ( true === $user->has_cap( 'edit_posts' ) ) {
+			return true;
+		}
+
+		// Reject if the user is logged out.
+		if ( 0 === $user->ID ) {
+			return false;
+		}
+
+		$user_subscriptions = get_user_meta( $user->ID, 'askell_subscriptions', true );
+
+		if ( '' === $user_subscriptions ) {
+			$user_subscriptions = array();
+		}
+
+		// Check if the user has an active subscription if the post is visible
+		// to all subscribers.
+		if ( 'subscribers' === $post->askell_visibility ) {
+			foreach ( $user_subscriptions as $subscription ) {
+				if ( true === $subscription['active'] ) {
+					return true;
+				}
+			}
+		}
+
+		// Loop through the user's subscriptions and find an active subscription
+		// that corresponds with the required plans for the post if it is
+		// labelled as specific_plans.
+		if ( 'specific_plans' === $post->askell_visibility ) {
+			foreach ( $user_subscriptions as $subscription ) {
+				if (
+					( true === $subscription['active'] ) &&
+					( true === in_array(
+						$subscription['plan_id'],
+						$this->post_plan_ids_array( $post ),
+						true
+					) )
+				) {
+					return true;
+				}
+			}
+		}
+
+		// Reject if no conditions are met.
+		return false;
+	}
+
+	/**
+	 * Get the subscription plan IDs for a post as an array of integers
+	 *
+	 * @param WP_Post $post The post.
+	 *
+	 * @return array
+	 */
+	public function post_plan_ids_array( WP_Post $post ) {
+		$plan_ids = explode( ',', $post->askell_plan_ids );
+
+		foreach ( $plan_ids as $k => $plan_id ) {
+			$plan_ids[ $k ] = (int) $plan_id;
+		}
+
+		return $plan_ids;
+	}
+
+	/**
+	 * Set the URL for the registration page/post if it has not been set yet
+	 *
+	 * This hooks into `save_post` and sets the `askell_register_url` if the
+	 * page or post has the askell registration block and it has not been set.
+	 *
+	 * @param int     $post_id The post ID (unused).
+	 * @param WP_Post $post The post.
+	 */
+	public function set_register_url_on_post_save( int $post_id, WP_Post $post ) {
+		if (
+			(
+				true === has_block(
+					'askell-registration/askell-registration',
+					$post
+				)
+			) &&
+			( 'publish' === $post->post_status )
+		) {
+			add_option( 'askell_register_url', get_permalink( $post ) );
+		}
 	}
 
 	/**
@@ -817,24 +1106,10 @@ class AskellRegistration {
 			);
 		}
 
-		if ( array_key_exists( 'enable_address_country', $request_body ) ) {
-			update_option(
-				'askell_enable_address_country',
-				$request_body['enable_address_country']
-			);
-		}
-
 		if ( array_key_exists( 'enable_css', $request_body ) ) {
 			update_option(
 				'askell_enable_css',
 				$request_body['enable_css']
-			);
-		}
-
-		if ( array_key_exists( 'reference', $request_body ) ) {
-			update_option(
-				'askell_reference',
-				$request_body['reference']
 			);
 		}
 
@@ -849,6 +1124,20 @@ class AskellRegistration {
 			update_option(
 				'askell_subscription_webhook_secret',
 				$request_body['subscription_webhook_secret']
+			);
+		}
+
+		if ( array_key_exists( 'paywall_heading', $request_body ) ) {
+			update_option(
+				'askell_paywall_heading',
+				$request_body['paywall_heading']
+			);
+		}
+
+		if ( array_key_exists( 'paywall_text_body', $request_body ) ) {
+			update_option(
+				'askell_paywall_text_body',
+				$request_body['paywall_text_body']
 			);
 		}
 
