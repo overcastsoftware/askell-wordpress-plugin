@@ -7,10 +7,9 @@ Requires PHP:      8.1
 Stable tag:        0.1.0
 License:           GPL-3.0-or-later
 License URI:       https://www.gnu.org/licenses/gpl-3.0.html
+Let your users sign up and pay for for recurring subscriptions directly from your WordPress site using Askell by Overcast Software.
 
-Let your users sign up and pay for for recurring subscriptions directly from your WordPress site using [Askell by Overcast Software](https://askell.is/).
-
-Posts and pages can be restricted to certain subscription tiers using toggle switches in the Block Editor's sidebar.
+With Askell for WordPress, posts and pages can be restricted to certain subscription tiers using toggle switches in the Block Editor's sidebar.
 
 This plugin adds an interactive block to your WordPress installation that you can use on in the Block Editor, Gutenberg and WordPress FSE enabled WordPress site that facilitates receiving payment information directly from your website, using Askell by Overcast Software.
 
@@ -20,6 +19,14 @@ Askell supports the following card payment processors:
 
 * SaltPay (Teya) Credit Card Payments
 * Rapyd (formerly Valitor Pay)
+
+== Installation ==
+
+In order to use the plugin, you need to obtain API keys as well as customer and subscription HMAC secrets from Askell.
+
+Enter the API keys and HMAC secrets into the appropriate fields in the Askell section in your wp-admin.
+
+In order to enable registrations, you need to add the Askell Registration block to a page or post on your site. This enables the "Register" button in the paywall.
 
 == Frequently Asked Questions ==
 
