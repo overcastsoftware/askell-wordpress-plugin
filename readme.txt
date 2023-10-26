@@ -23,6 +23,14 @@ Askell supports the following card payment processors:
 
 == Frequently Asked Questions ==
 
+= Which post types are supported? =
+
+The plugin officially supports adding a paywall to WordPress posts and pages only.
+
+= The block or paywall look messy in on my site, what can I do about it? =
+
+We have tested the plugin with various popular themes and value any feedback in that regard. However, if there are inconsistencies or things related to Askell don't look right on your site or in your theme, we recommend modifying your child theme's stylesheet to add the required changes.
+
 = Is the plugin secure? =
 
 The plugin displays a credit card form directly in a WordPress block. The payment information is transferred over a secure TLS connection to the Askell JSON API from the user's browser and from there to your payment processor, without involving your WordPress database.
