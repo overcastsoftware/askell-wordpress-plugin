@@ -183,7 +183,12 @@ $askell_registration = new AskellRegistration();
 								value="<?php echo esc_attr( get_option( 'askell_register_url', '' ) ); ?>"
 							/>
 							<p class="description">
-								This is the url to the page where you have added the Askell Registration block. If unset, the ‘Register’ button on the paywall is disabled.
+								<?php
+								echo esc_html(
+									'This is the url to the page where you have added the Askell Registration block. If unset, the ‘Register’ button on the paywall is disabled.',
+									'askell-registration'
+								);
+								?>
 							</p>
 						</td>
 					</tr>
@@ -198,7 +203,14 @@ $askell_registration = new AskellRegistration();
 								name="tos_url"
 								value="<?php echo esc_attr( get_option( 'askell_tos_url', '' ) ); ?>"
 							/>
-							<p class="description">This is the URL to where you keep your terms and conditions to be accepted during the registration process.</p>
+							<p class="description">
+								<?php
+								echo esc_html(
+									'This is the URL to where you keep your terms and conditions to be accepted during the registration process.',
+									'askell-registration'
+								)
+								?>
+							</p>
 						</td>
 					</tr>
 				</tbody>

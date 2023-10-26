@@ -45,16 +45,16 @@ class AskellRegistration {
 	/**
 	 * The default value for the paywall heading
 	 *
-	 * @var $default_paywall_heading The heading text.
+	 * @var string $default_paywall_heading The heading text.
 	 */
-	public $default_paywall_heading;
+	public string $default_paywall_heading;
 
 	/**
 	 * The default value for the paywall text body
 	 *
-	 * @var $default_paywall_text_body The body text.
+	 * @var string $default_paywall_text_body The body text.
 	 */
-	public $default_paywall_text_body;
+	public string $default_paywall_text_body;
 
 	/**
 	 * The class constructor
@@ -215,29 +215,46 @@ class AskellRegistration {
 			wp_trim_words( $excerpt_text ) .
 			"</p>\n<!-- /wp:paragraph -->";
 
-		$nag = '<!-- wp:group {"className":"askell-register-or-log-in","layout":{"type":"flex","orientation":"vertical"}} -->' .
-			'<div class="wp-block-group askell-register-or-log-in"><!-- wp:heading -->' .
+		$nag = '<!-- wp:group {"className":"askell-register-or-log-in",' .
+			'"layout":{"type":"flex","orientation":"vertical"}} -->' .
+			'<div class="wp-block-group askell-register-or-log-in">' .
+			'<!-- wp:heading -->' .
 			'<h2 class="wp-block-heading">' .
-			esc_html( get_option( 'askell_paywall_heading', $this->default_paywall_heading ) ) .
+			esc_html(
+				get_option(
+					'askell_paywall_heading',
+					$this->default_paywall_heading
+				)
+			) .
 			'</h2>' .
 			'<!-- /wp:heading -->' .
 			'<!-- wp:paragraph -->' .
 			'<p>' .
-			esc_html( get_option( 'askell_paywall_text_body', $this->default_paywall_text_body ) ) .
+			esc_html(
+				get_option(
+					'askell_paywall_text_body',
+					$this->default_paywall_text_body
+				)
+			) .
 			'</p>' .
 			'<!-- /wp:paragraph -->';
 
 		if ( 'specific_plans' === $post->askell_visibility ) {
 			if ( 1 < count( $post_plan_ids ) ) {
 				$nag .= '<!-- wp:paragraph --><p>' .
-					__( 'This content is only available to subscribers with the following plans:', 'askell-registration' ) .
+					__(
+						'This content is only available to subscribers with the following plans:',
+						'askell-registration'
+					) .
 					'</p><!-- /wp:paragraph -->';
 
 				$nag .= '<!-- wp:list --><ul>';
 
 				foreach ( $post_plan_ids as $post_plan_id ) {
 					$plan = $this->get_plan_by_id( $post_plan_id );
-					$nag .= '<!-- wp:list-item --><li>' . $plan['name'] . '</li><!-- /wp:list-item -->';
+					$nag .= '<!-- wp:list-item --><li>' .
+						$plan['name'] .
+						'</li><!-- /wp:list-item -->';
 				}
 
 				$nag .= '</ul><!-- /wp:list -->';
@@ -246,21 +263,28 @@ class AskellRegistration {
 				$nag .= '<!-- wp:paragraph --><p>' .
 				sprintf(
 					/* Translators: The %s stands for a single subscription plan name. */
-					__( 'This content is only available to subscribers with the ‘%s’ plan.', 'askell-registration' ),
+					__(
+						'This content is only available to subscribers with the ‘%s’ plan.',
+						'askell-registration'
+					),
 					$plan['name']
 				) .
 				'</p><!-- /wp:paragraph -->';
 			}
 		}
 
-		$nag .= '<!-- wp:group {"layout":{"type":"flex","flexWrap":"nowrap"}} -->' .
+		$nag .= '<!-- wp:group ' .
+			'{"layout":{"type":"flex","flexWrap":"nowrap"}} -->' .
 			'<div class="wp-block-group">';
 
 		if ( '' !== $register_url ) {
 			$nag .= '<!-- wp:buttons -->' .
-				'<div class="wp-block-buttons"><!-- wp:button {"className":"askell-register-link"} -->' .
+				'<div class="wp-block-buttons">' .
+				'<!-- wp:button {"className":"askell-register-link"} -->' .
 				'<div class="wp-block-button askell-register-link">' .
-				'<a class="wp-block-button__link wp-element-button" href="' . $register_url . '">' .
+				'<a class="wp-block-button__link wp-element-button" href="' .
+				$register_url .
+				'">' .
 				__( 'Register', 'askell-registration' ) .
 				'</a>' .
 				'</div>' .
