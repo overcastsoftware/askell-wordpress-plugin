@@ -1245,6 +1245,8 @@ class AskellRegistration {
 			);
 		}
 
+		$this->save_plans();
+
 		return true;
 	}
 
