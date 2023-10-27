@@ -7,10 +7,11 @@
  * Requires PHP:      8.0
  * Version:           0.1.0
  * Author:            Overcast Software
+ * Author URI:        https://www.overcast.is/
  * License:           GPL-3.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain:       askell-registration
- * Domain Path:       askell
+ * Domain Path:       /languages
  *
  * @package           askell-registration
  */
