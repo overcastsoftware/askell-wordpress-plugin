@@ -52,8 +52,9 @@ $askell_user_query   = new WP_User_Query(
 					<th scope="row"><?php esc_html_e( 'Name', 'askell-registration' ); ?></th>
 					<th scope="row"><?php esc_html_e( 'Username', 'askell-registration' ); ?></th>
 					<th scope="row"><?php esc_html_e( 'Email Address', 'askell-registration' ); ?></th>
-					<th scope="row"><?php esc_html_e( 'Plans', 'askell-registration' ); ?></th>
+					<th scope="row"><?php esc_html_e( 'Active Plans', 'askell-registration' ); ?></th>
 					<th scope="row"><?php esc_html_e( 'Sign-Up Date', 'askell-registration' ); ?></th>
+					<th scope="row" class="actions"><?php esc_html_e( 'Actions', 'askell-registration' ); ?></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -61,9 +62,18 @@ $askell_user_query   = new WP_User_Query(
 				<tr>
 					<th scope="col" class="column-title column-primary">
 						<strong>
+							<?php if ( '' === $u->askell_customer_id ) : ?>
 							<a href="<?php echo esc_url( get_admin_url() . "user-edit.php?user_id={$u->ID}" ); ?>">
 								<?php echo esc_attr( $u->display_name ); ?>
 							</a>
+							<?php else : ?>
+							<a
+								href="https://askell.is/dashboard/customers/<?php echo esc_attr( $u->askell_customer_id ); ?>/"
+								target="_blank"
+							>
+								<?php echo esc_attr( $u->display_name ); ?>
+							</a>
+							<?php endif ?>
 						</strong>
 					</th>
 					<td><?php echo esc_html( $u->user_login ); ?></td>
@@ -74,6 +84,23 @@ $askell_user_query   = new WP_User_Query(
 					</td>
 
 					<td><?php echo esc_html( $u->user_registered ); ?></td>
+					<td>
+						<a
+							class="button"
+							href="<?php echo esc_url( get_admin_url() . "user-edit.php?user_id={$u->ID}" ); ?>"
+						>
+							<?php echo esc_html_e( 'Manage in WP', 'askell-registration' ); ?>
+						</a>
+						<?php if ( '' !== $u->askell_customer_id ) : ?>
+						<a
+							class="button"
+							href="https://askell.is/dashboard/customers/<?php echo esc_attr( $u->askell_customer_id ); ?>/"
+							target="_blank"
+						>
+							<?php echo esc_html_e( 'Manage in Askell', 'askell-registration' ); ?>
+						</a>
+						<?php endif ?>
+					</td>
 				</tr>
 				<?php endforeach; ?>
 			</tbody>
