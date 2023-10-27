@@ -93,9 +93,6 @@ class AskellUI {
 			email: formData.get('email').trim(),
 		};
 
-		console.log(formData);
-		console.log(formDataObject);
-
 		AskellUI.profilePersonalInformationLoader().classList.remove('hidden');
 		AskellUI.profilePersonalInformationSubmit().disabled = true;
 
@@ -203,10 +200,8 @@ class AskellUI {
 
 	static onProfileDeleteAccountCheckboxToggle(event) {
 		if (event.target.checked) {
-			console.log('checked!');
 			AskellUI.profileDeleteAccountButton().disabled = false;
 		} else {
-			console.log('unchecked!');
 			AskellUI.profileDeleteAccountButton().disabled = true;
 		}
 	}
@@ -241,6 +236,96 @@ class AskellUI {
 			window.location.reload();
 		} else {
 			errorDisplay.innerText = responseData.message;
+		}
+	}
+
+	static profileCancelSubscriptionButtons() {
+		return document.querySelectorAll('.cancel-subscription-button');
+	}
+
+	static profileReactivateSubscriptionButtons() {
+		return document.querySelectorAll('.reactivate-subscription-button');
+	}
+
+	static onProfileCancelSubscriptionButtonsClick(event) {
+		const button = event.target;
+		const subscriptionId = button.dataset.subscriptionId;
+		const loader = document.querySelector(
+			".askell-profile-subs-loader[data-subscription-id='" +
+				subscriptionId +
+				"']"
+		);
+		AskellUI.disableAllButtons();
+		loader.classList.remove('hidden');
+		AskellUI.postProfileCancelSubscriptionPost(subscriptionId);
+	}
+
+	static onProfileReactivateSubscriptionButtonsClick(event) {
+		const button = event.target;
+		const subscriptionId = button.dataset.subscriptionId;
+		const loader = document.querySelector(
+			".askell-profile-subs-loader[data-subscription-id='" +
+				subscriptionId +
+				"']"
+		);
+		AskellUI.disableAllButtons();
+		loader.classList.remove('hidden');
+		AskellUI.postProfileActivateSubscriptionPost(subscriptionId);
+	}
+
+	static allButtons() {
+		document.querySelectorAll("input[type='submit'], button");
+	}
+
+	static disableAllButtons() {
+		document
+			.querySelectorAll('#wpbody-content input, #wpbody-content button')
+			.forEach(function (node) {
+				node.disabled = true;
+			});
+	}
+
+	static async postProfileCancelSubscriptionPost(subscriptionId) {
+		const response = await fetch(
+			wpApiSettings.root +
+				'askell/v1/my_subscriptions/' +
+				subscriptionId +
+				'/cancel',
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json;charset=UTF-8',
+					'X-WP-Nonce': wpApiSettings.nonce,
+				},
+			}
+		);
+
+		const responseData = await response.json();
+
+		if (response.ok) {
+			window.location.reload();
+		}
+	}
+
+	static async postProfileActivateSubscriptionPost(subscriptionId) {
+		const response = await fetch(
+			wpApiSettings.root +
+				'askell/v1/my_subscriptions/' +
+				subscriptionId +
+				'/activate',
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json;charset=UTF-8',
+					'X-WP-Nonce': wpApiSettings.nonce,
+				},
+			}
+		);
+
+		const responseData = await response.json();
+
+		if (response.ok) {
+			window.location.reload();
 		}
 	}
 }
@@ -281,6 +366,24 @@ window.addEventListener('DOMContentLoaded', () => {
 			AskellUI.profileDeleteAccountButton().addEventListener(
 				'click',
 				AskellUI.onProfileDeleteAccountButtonClick
+			);
+
+			AskellUI.profileCancelSubscriptionButtons().forEach(
+				function (currentValue) {
+					currentValue.addEventListener(
+						'click',
+						AskellUI.onProfileCancelSubscriptionButtonsClick
+					);
+				}
+			);
+
+			AskellUI.profileReactivateSubscriptionButtons().forEach(
+				function (node) {
+					node.addEventListener(
+						'click',
+						AskellUI.onProfileReactivateSubscriptionButtonsClick
+					);
+				}
 			);
 		}
 	}
