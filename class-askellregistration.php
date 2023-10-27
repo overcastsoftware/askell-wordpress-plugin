@@ -1342,7 +1342,10 @@ class AskellRegistration {
 			$plan_id,
 			$plan['reference']
 		) ) {
-			return false;
+			return new WP_Error(
+				'cant_assign_plan_to_user_in_askell',
+				'Unable to subscribe you to this plan, try reloading the page and try again'
+			);
 		}
 
 		return true;
