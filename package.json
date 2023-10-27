@@ -27,6 +27,7 @@
 	"files": [
 		"readme.txt",
 		"askell-registration.php",
+		"class-askellregistration.php",
 		"views",
 		"build",
 		"assets",
