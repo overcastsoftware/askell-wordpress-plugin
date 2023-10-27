@@ -60,6 +60,19 @@ $askell_registration = new AskellRegistration();
 	</div>
 	<?php endif ?>
 
+	<?php if ( true === empty( get_option( 'askell_register_url', '' ) ) ) : ?>
+	<div class="notice notice-warning">
+		<p>
+			<?php
+			esc_html_e(
+				'The Askell Registration block has not been added to any page or post yet. Please add the block somewhere or set the URL manually below.',
+				'askell-registration'
+			);
+			?>
+		</p>
+	</div>
+	<?php endif ?>
+
 	<h1>
 		<?php esc_html_e( 'Askell for WordPress', 'askell-registration' ); ?>
 	</h1>
