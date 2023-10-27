@@ -783,13 +783,11 @@ class AskellRegistration {
 		);
 	}
 
-	public function doppelganger_rest_get( WP_REST_Request $request ) {
-		$user_id = $request['id'];
-		wp_set_current_user( $user_id );
-
-		return admin_url( 'admin.php?page=askell-registration-my-profile' );
-	}
-
+	/**
+	 * Check if the current user is logged in
+	 *
+	 * @return bool True if the user is logged in, false on failure.
+	 */
 	public function check_user_is_logged_in() {
 		$current_user = wp_get_current_user();
 
@@ -1246,6 +1244,13 @@ class AskellRegistration {
 		return true;
 	}
 
+	/**
+	 * The WP REST handler for cancelling a subscription
+	 *
+	 * @param WP_REST_Request $request The WP REST request.
+	 *
+	 * @return WP_Error|bool true on success, WP_Error on failure.
+	 */
 	public function user_subscription_cancel_rest_post(
 		WP_REST_Request $request
 	) {
@@ -1265,6 +1270,13 @@ class AskellRegistration {
 		return true;
 	}
 
+	/**
+	 * The WP REST handler for (re)activating a subscription
+	 *
+	 * @param WP_REST_Request $request The WP REST request.
+	 *
+	 * @return WP_Error|bool true on success, WP_Error on failure.
+	 */
 	public function user_subscription_activate_rest_post(
 		WP_REST_Request $request
 	) {
@@ -1284,6 +1296,13 @@ class AskellRegistration {
 		return true;
 	}
 
+	/**
+	 * The WP REST handler for adding a subscription plan to a user
+	 *
+	 * @param WP_REST_Request $request The WP REST request.
+	 *
+	 * @return WP_Error|bool true on success, WP_Error on failure.
+	 */
 	public function user_subscription_add_rest_post(
 		WP_REST_Request $request
 	) {
@@ -1311,6 +1330,15 @@ class AskellRegistration {
 		return true;
 	}
 
+	/**
+	 * Check if a user has a certain subscription plan ID assigned
+	 *
+	 * @param WP_User $user The user.
+	 * @param int     $plan_id The plan ID from the $user->askell_subscriptions
+	 *                         property.
+	 *
+	 * @return bool True if the user has the plan, false if not.
+	 */
 	public function user_has_subscription_plan(
 		WP_User $user,
 		int $plan_id
@@ -1323,6 +1351,15 @@ class AskellRegistration {
 		return false;
 	}
 
+	/**
+	 * Check if a user has a certain subscription ID assigned
+	 *
+	 * @param WP_User $user The user.
+	 * @param int     $subscription_id The subscription ID from the
+	 *                $user->askell_subscriptions property.
+	 *
+	 * @return boolean True if the user has the subscription, false if not.
+	 */
 	public function user_has_subscription(
 		WP_User $user,
 		int $subscription_id
@@ -1335,6 +1372,12 @@ class AskellRegistration {
 		return false;
 	}
 
+	/**
+	 * Cancel a subscription in askell
+	 *
+	 * @param int $subscription_id The subscription ID from the
+	 *            $user->askell_subscriptions property.
+	 */
 	public function cancel_subscription_in_askell( int $subscription_id ) {
 		$private_key = get_option( 'askell_api_secret' );
 
@@ -1361,6 +1404,16 @@ class AskellRegistration {
 		return true;
 	}
 
+	/**
+	 * Reactivate a subscription in Askell
+	 *
+	 * This only works if the current payment period has not lapsed.
+	 *
+	 * @param int $subscription_id The subscription ID from the
+	 *            $user->askell_subscriptions property.
+	 *
+	 * @return bool True on success, false on failure.
+	 */
 	public function activate_subscription_in_askell( int $subscription_id ) {
 		$private_key = get_option( 'askell_api_secret' );
 
@@ -1387,6 +1440,15 @@ class AskellRegistration {
 		return true;
 	}
 
+	/**
+	 * Sign a user to a subscription plan in Askell
+	 *
+	 * @param WP_User $user The user.
+	 * @param int     $plan_id The ID for the plan.
+	 * @param string  $plan_reference The reference for the plan.
+	 *
+	 * @return bool True on success, false on failure.
+	 */
 	public function add_subscription_to_user_in_askell(
 		WP_User $user,
 		int $plan_id,
@@ -1982,6 +2044,11 @@ class AskellRegistration {
 		);
 	}
 
+	/**
+	 * Get an array of pubic plan IDs
+	 *
+	 * @return array An array of IDs.
+	 */
 	public function get_public_plan_ids() {
 		$plan_ids = array();
 
@@ -1992,6 +2059,13 @@ class AskellRegistration {
 		return $plan_ids;
 	}
 
+	/**
+	 * Get the plan IDs for a user's subscriptions
+	 *
+	 * @param WP_User $user The user.
+	 *
+	 * @return array An array of IDs.
+	 */
 	public function user_subscription_plan_ids( WP_User $user ) {
 		$plan_ids = array();
 
@@ -2002,6 +2076,13 @@ class AskellRegistration {
 		return $plan_ids;
 	}
 
+	/**
+	 * Get an array of the IDs for public plans that are open to a user
+	 *
+	 * @param WP_User $user The user.
+	 *
+	 * @return array An array of IDs.
+	 */
 	public function public_plan_ids_available_to_user( WP_User $user ) {
 		return array_diff(
 			$this->get_public_plan_ids(),
