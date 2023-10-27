@@ -393,8 +393,12 @@ class AskellRegistration {
 	 * @param int     $post_id The post ID (unused).
 	 * @param WP_Post $post The post.
 	 */
-	public function set_register_url_on_post_save( int $post_id, WP_Post $post ) {
+	public function set_register_url_on_post_save(
+		int $post_id,
+		WP_Post $post
+	) {
 		if (
+			( '' === get_option( 'askell_register_url', '' ) ) &&
 			(
 				true === has_block(
 					'askell-registration/askell-registration',
@@ -403,7 +407,7 @@ class AskellRegistration {
 			) &&
 			( 'publish' === $post->post_status )
 		) {
-			add_option( 'askell_register_url', get_permalink( $post ) );
+			update_option( 'askell_register_url', get_permalink( $post ) );
 		}
 	}
 
