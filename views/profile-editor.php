@@ -274,13 +274,13 @@ $available_plan_ids  = $askell_registration->public_plan_ids_available_to_user(
 						</div>
 						<div class="subscription-list-button-container">
 							<button
-								class="button button-scary add-subscription-button"
+								class="button add-plan-button"
 								data-plan-id="<?php echo esc_attr( $plan['id'] ); ?>"
 							>
 								<?php esc_html_e( 'Subscribe', 'askell-subscription' ); ?>
 							</button>
 							<img
-								class="hidden askell-profile-subs-loader"
+								class="hidden askell-profile-plans-loader"
 								src="<?php echo esc_url( get_admin_url() . 'images/wpspin_light-2x.gif' ); ?>"
 								width="24"
 								height="24"

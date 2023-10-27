@@ -328,6 +328,43 @@ class AskellUI {
 			window.location.reload();
 		}
 	}
+
+	static profileAddPlanButtons() {
+		return document.querySelectorAll('button.add-plan-button');
+	}
+
+	static onProfileAddPlanButtonClick(event) {
+		const planId = event.target.dataset.planId;
+		const loader = document.querySelector(
+			".askell-profile-plans-loader[data-plan-id='" + planId + "']"
+		);
+
+		AskellUI.disableAllButtons();
+		loader.classList.remove('hidden');
+		AskellUI.postProfilePlanAddPost(planId);
+	}
+
+	static async postProfilePlanAddPost(planId) {
+		const response = await fetch(
+			wpApiSettings.root +
+				'askell/v1/my_subscriptions/' +
+				planId +
+				'/add',
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json;charset=UTF-8',
+					'X-WP-Nonce': wpApiSettings.nonce,
+				},
+			}
+		);
+
+		const responseData = await response.json();
+
+		if (response.ok) {
+			window.location.reload();
+		}
+	}
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -383,6 +420,15 @@ window.addEventListener('DOMContentLoaded', () => {
 						'click',
 						AskellUI.onProfileReactivateSubscriptionButtonsClick
 					);
+				}
+			);
+
+			AskellUI.profileAddPlanButtons().forEach(
+				function (node) {
+					node.addEventListener(
+						'click',
+						AskellUI.onProfileAddPlanButtonClick
+					)
 				}
 			);
 		}
