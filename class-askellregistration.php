@@ -880,6 +880,10 @@ class AskellRegistration {
 	public function push_customer_on_user_update( int $user_id ) {
 		$user = get_user_by( 'ID', $user_id );
 
+		if ( false === in_array( $this::USER_ROLE, $user->roles, true ) ) {
+			return false;
+		}
+
 		// Prevent an infinite loop from happening if the update was requested
 		// by a web hook. Web hooks always use the Hook-HMAC HTTP header so they
 		// can be identified that way.
