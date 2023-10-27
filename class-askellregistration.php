@@ -2174,12 +2174,14 @@ class AskellRegistration {
 		$api_key        = get_option( 'askell_api_key', '' );
 		$reference      = get_option( 'askell_reference', 'wordpress_id' );
 		$styles_enabled = get_option( 'askell_styles_enabled', true );
+		$tos_url        = get_option( 'askell_tos_url', '' );
 		$plans          = $this->get_public_plans();
 
 		return array(
 			'api_key'        => $api_key,
 			'reference'      => $reference,
 			'styles_enabled' => $styles_enabled,
+			'tos_url'        => $tos_url,
 			'plans'          => $plans,
 		);
 	}

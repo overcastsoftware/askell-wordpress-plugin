@@ -37,6 +37,7 @@ class AskellRegistration extends React.Component {
 			checkPaymentTokenIntervalID: null,
 			registrationToken: null,
 			paymentErrorMessage: null,
+			tosUrl: '',
 		};
 		this.createUser = this.createUser.bind(this);
 
@@ -87,6 +88,7 @@ class AskellRegistration extends React.Component {
 			APIKey: result.api_key,
 			reference: result.reference,
 			stylesEnabled: result.styles_enabled,
+			tosUrl: result.tos_url,
 			plans: result.plans,
 		});
 
@@ -744,7 +746,7 @@ class AskellRegistration extends React.Component {
 							htmlFor={this.state.blockId + '-terms-checkbox'}
 							className="inline"
 						>
-							<a href="#">
+							<a href={ this.state.tosUrl } target='_blank'>
 								{__(
 									'I accept the terms of service',
 									'askell-registration'
