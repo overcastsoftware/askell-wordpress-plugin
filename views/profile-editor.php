@@ -185,12 +185,17 @@ $available_plan_ids  = $askell_registration->public_plan_ids_available_to_user(
 						<?php
 						foreach ( $subscriptions as $subscription ) :
 							$plan = $askell_registration->get_plan_by_id( $subscription['plan_id'] );
+							if ( false === $plan ) {
+								continue;
+							}
 							?>
 						<div class="subscription">
 							<div class="subscription-info">
 								<strong class="plan-name"><?php echo esc_html( $plan['name'] ); ?></strong>
-								<?php if ( true === $subscription['active'] ) : ?>
+								<?php if ( ( true === $subscription['active'] ) && ( null !== $subscription['start_date'] ) ) : ?>
 								<span class="pill pill-green"><?php echo esc_html_e( 'Active', 'askell-registration' ); ?></span>
+								<?php elseif ( ( true === $subscription['active'] ) && ( null !== $subscription['start_date'] ) ) : ?>
+								<span class="pill pill-grey"><?php echo esc_html_e( 'Pending', 'askell-registration' ); ?></span>
 								<?php else : ?>
 								<span class="pill pill-red"><?php echo esc_html_e( 'Inactive', 'askell-registration' ); ?></span>
 								<?php endif ?>
@@ -207,16 +212,18 @@ $available_plan_ids  = $askell_registration->public_plan_ids_available_to_user(
 									</li>
 									<?php else : ?>
 									<?php endif ?>
+									<?php if ( $subscription['start_date'] ) : ?>
 									<li class="start-date">
 										<strong><?php echo esc_html_e( 'Start Date:', 'askell-registration' ); ?></strong>
 										<?php echo esc_html( date_i18n( get_option( 'date_format' ), strtotime( $subscription['start_date'] ) ) ); ?>
 									</li>
+									<?php endif ?>
 									<li>
 										<a
 											href="https://askell.is/change_subscription/<?php echo esc_attr( $subscription['token'] ); ?>/"
 											target="_blank"
 										>
-											Manage Payment
+											<?php echo esc_html_e( 'Manage Payment', 'askell-registration' ); ?>
 										</a>
 									</li>
 								</ul>
@@ -255,7 +262,9 @@ $available_plan_ids  = $askell_registration->public_plan_ids_available_to_user(
 		<?php if ( 0 < count( $available_plan_ids ) ) : ?>
 		<section class="section">
 			<div class="setion-header">
-				<h3>Additional Subscription Plans</h3>
+				<h3>
+					<?php echo esc_html_e( 'Additional Subscription Plans', 'askell_registration' ); ?>
+				</h3>
 				<hr />
 			</div>
 			<div class="subscriptions-subsection">
