@@ -1258,11 +1258,17 @@ class AskellRegistration {
 		$user   = wp_get_current_user();
 
 		if ( false === $this->user_has_subscription( $user, $sub_id ) ) {
-			return false;
+			return new WP_Error(
+				'user_not_signed_up',
+				'You are not signed up for this plan'
+			);
 		}
 
 		if ( false === $this->cancel_subscription_in_askell( $sub_id ) ) {
-			return false;
+			return new WP_Error(
+				'cant_cancel_plan_in_askell',
+				'Unable to cancel the plan, please try reloading the page and try again'
+			);
 		}
 
 		sleep( 5 );
@@ -1284,11 +1290,17 @@ class AskellRegistration {
 		$user   = wp_get_current_user();
 
 		if ( false === $this->user_has_subscription( $user, $sub_id ) ) {
-			return false;
+			return new WP_Error(
+				'user_not_signed_up',
+				'You are not signed up for this plan'
+			);
 		}
 
 		if ( false === $this->activate_subscription_in_askell( $sub_id ) ) {
-			return false;
+			return new WP_Error(
+				'cant_cancel_plan_in_askell',
+				'Unable to activate the plan, please try reloading the page and try again'
+			);
 		}
 
 		sleep( 5 );
@@ -1310,13 +1322,19 @@ class AskellRegistration {
 		$user    = wp_get_current_user();
 
 		if ( true === $this->user_has_subscription_plan( $user, $plan_id ) ) {
-			return false;
+			return new WP_Error(
+				'user_already_has_subscription_plan',
+				'You already subscribe to this plan'
+			);
 		}
 
 		$plan = $this->get_plan_by_id( $plan_id );
 
 		if ( false === $plan ) {
-			return false;
+			return new WP_Error(
+				'plan_not_found',
+				'Unable to find the plan, try freloading the page, try reloading the page and try again'
+			);
 		}
 
 		if ( false === $this->add_subscription_to_user_in_askell(
