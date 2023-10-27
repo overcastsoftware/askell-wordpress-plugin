@@ -103,12 +103,18 @@ body.wp-admin.toplevel_page_askell-registration-my-profile {
 		}
 	}
 
-	.subscription-list {
+	.subscription {
 		display: flex;
+		margin: 1em 0;
+		flex-direction: row;
 		justify-content: space-between;
 
 		.plan-name {
 			margin: 0.5em 0;
+		}
+
+		ul {
+			margin-top: 0;
 		}
 
 		li {
@@ -122,7 +128,12 @@ body.wp-admin.toplevel_page_askell-registration-my-profile {
 		.subscription-list-button-container {
 			display: flex;
 			flex-direction: column;
-			justify-content: flex-start;
+			align-items: flex-end;
+			margin-left: 2em;
+
+			.askell-profile-subs-loader, .askell-profile-plans-loader {
+				margin-top: 0.5em;
+			}
 		}
 
 		.pill {
@@ -148,6 +159,12 @@ body.wp-admin.toplevel_page_askell-registration-my-profile {
 		.pill-grey {
 			border: 1px solid #333;
 			background-color: #666;
+		}
+	}
+
+	#askell-registration-users {
+		.actions {
+			width: 24em;
 		}
 	}
 }

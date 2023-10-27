@@ -666,9 +666,10 @@ class AskellRegistration {
 			'/my_user_info',
 			array(
 				'methods'             => 'POST',
-				'permission_callback' => function () {
-					return current_user_can( 'read' );
-				},
+				'permission_callback' => array(
+					$this,
+					'check_user_is_logged_in',
+				),
 				'callback'            => array(
 					$this,
 					'user_info_rest_post',
@@ -680,9 +681,10 @@ class AskellRegistration {
 			'/my_password',
 			array(
 				'methods'             => 'POST',
-				'permission_callback' => function () {
-					return current_user_can( 'read' );
-				},
+				'permission_callback' => array(
+					$this,
+					'check_user_is_logged_in',
+				),
 				'callback'            => array(
 					$this,
 					'user_password_rest_post',
@@ -700,6 +702,51 @@ class AskellRegistration {
 				'callback'            => array(
 					$this,
 					'user_account_rest_delete',
+				),
+			)
+		);
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/my_subscriptions/(?P<id>\d+)/cancel',
+			array(
+				'methods'             => 'POST',
+				'permission_callback' => array(
+					$this,
+					'check_user_is_logged_in',
+				),
+				'callback'            => array(
+					$this,
+					'user_subscription_cancel_rest_post',
+				),
+			)
+		);
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/my_subscriptions/(?P<id>\d+)/activate',
+			array(
+				'methods'             => 'POST',
+				'permission_callback' => array(
+					$this,
+					'check_user_is_logged_in',
+				),
+				'callback'            => array(
+					$this,
+					'user_subscription_activate_rest_post',
+				),
+			)
+		);
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/my_subscriptions/(?P<id>\d+)/add',
+			array(
+				'methods'             => 'POST',
+				'permission_callback' => array(
+					$this,
+					'check_user_is_logged_in',
+				),
+				'callback'            => array(
+					$this,
+					'user_subscription_add_rest_post',
 				),
 			)
 		);
@@ -734,6 +781,21 @@ class AskellRegistration {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Check if the current user is logged in
+	 *
+	 * @return bool True if the user is logged in, false on failure.
+	 */
+	public function check_user_is_logged_in() {
+		$current_user = wp_get_current_user();
+
+		if ( 0 === $current_user->ID ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -1183,6 +1245,268 @@ class AskellRegistration {
 	}
 
 	/**
+	 * The WP REST handler for cancelling a subscription
+	 *
+	 * @param WP_REST_Request $request The WP REST request.
+	 *
+	 * @return WP_Error|bool true on success, WP_Error on failure.
+	 */
+	public function user_subscription_cancel_rest_post(
+		WP_REST_Request $request
+	) {
+		$sub_id = $request['id'];
+		$user   = wp_get_current_user();
+
+		if ( false === $this->user_has_subscription( $user, $sub_id ) ) {
+			return new WP_Error(
+				'user_not_signed_up',
+				'You are not signed up for this plan'
+			);
+		}
+
+		if ( false === $this->cancel_subscription_in_askell( $sub_id ) ) {
+			return new WP_Error(
+				'cant_cancel_plan_in_askell',
+				'Unable to cancel the plan, please try reloading the page and try again'
+			);
+		}
+
+		sleep( 5 );
+
+		return true;
+	}
+
+	/**
+	 * The WP REST handler for (re)activating a subscription
+	 *
+	 * @param WP_REST_Request $request The WP REST request.
+	 *
+	 * @return WP_Error|bool true on success, WP_Error on failure.
+	 */
+	public function user_subscription_activate_rest_post(
+		WP_REST_Request $request
+	) {
+		$sub_id = $request['id'];
+		$user   = wp_get_current_user();
+
+		if ( false === $this->user_has_subscription( $user, $sub_id ) ) {
+			return new WP_Error(
+				'user_not_signed_up',
+				'You are not signed up for this plan'
+			);
+		}
+
+		if ( false === $this->activate_subscription_in_askell( $sub_id ) ) {
+			return new WP_Error(
+				'cant_cancel_plan_in_askell',
+				'Unable to activate the plan, please try reloading the page and try again'
+			);
+		}
+
+		sleep( 5 );
+
+		return true;
+	}
+
+	/**
+	 * The WP REST handler for adding a subscription plan to a user
+	 *
+	 * @param WP_REST_Request $request The WP REST request.
+	 *
+	 * @return WP_Error|bool true on success, WP_Error on failure.
+	 */
+	public function user_subscription_add_rest_post(
+		WP_REST_Request $request
+	) {
+		$plan_id = $request['id'];
+		$user    = wp_get_current_user();
+
+		if ( true === $this->user_has_subscription_plan( $user, $plan_id ) ) {
+			return new WP_Error(
+				'user_already_has_subscription_plan',
+				'You already subscribe to this plan'
+			);
+		}
+
+		$plan = $this->get_plan_by_id( $plan_id );
+
+		if ( false === $plan ) {
+			return new WP_Error(
+				'plan_not_found',
+				'Unable to find the plan, try freloading the page, try reloading the page and try again'
+			);
+		}
+
+		if ( false === $this->add_subscription_to_user_in_askell(
+			$user,
+			$plan_id,
+			$plan['reference']
+		) ) {
+			return new WP_Error(
+				'cant_assign_plan_to_user_in_askell',
+				'Unable to subscribe you to this plan, try reloading the page and try again'
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Check if a user has a certain subscription plan ID assigned
+	 *
+	 * @param WP_User $user The user.
+	 * @param int     $plan_id The plan ID from the $user->askell_subscriptions
+	 *                         property.
+	 *
+	 * @return bool True if the user has the plan, false if not.
+	 */
+	public function user_has_subscription_plan(
+		WP_User $user,
+		int $plan_id
+	) {
+		foreach ( $user->askell_subscriptions as $subscription ) {
+			if ( $subscription['plan_id'] === $plan_id ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Check if a user has a certain subscription ID assigned
+	 *
+	 * @param WP_User $user The user.
+	 * @param int     $subscription_id The subscription ID from the
+	 *                $user->askell_subscriptions property.
+	 *
+	 * @return boolean True if the user has the subscription, false if not.
+	 */
+	public function user_has_subscription(
+		WP_User $user,
+		int $subscription_id
+	) {
+		foreach ( $user->askell_subscriptions as $subscription ) {
+			if ( $subscription['id'] === $subscription_id ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Cancel a subscription in askell
+	 *
+	 * @param int $subscription_id The subscription ID from the
+	 *            $user->askell_subscriptions property.
+	 */
+	public function cancel_subscription_in_askell( int $subscription_id ) {
+		$private_key = get_option( 'askell_api_secret' );
+
+		if ( false === $private_key ) {
+			return false;
+		}
+
+		$api_response = wp_remote_request(
+			"https://askell.is/api/subscriptions/{$subscription_id}/cancel/",
+			array(
+				'method'  => 'POST',
+				'headers' => array(
+					'Content-Type'  => 'application/json',
+					'accept'        => 'application/json',
+					'Authorization' => "Api-Key {$private_key}",
+				),
+			)
+		);
+
+		if ( 200 !== $api_response['response']['code'] ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Reactivate a subscription in Askell
+	 *
+	 * This only works if the current payment period has not lapsed.
+	 *
+	 * @param int $subscription_id The subscription ID from the
+	 *            $user->askell_subscriptions property.
+	 *
+	 * @return bool True on success, false on failure.
+	 */
+	public function activate_subscription_in_askell( int $subscription_id ) {
+		$private_key = get_option( 'askell_api_secret' );
+
+		if ( false === $private_key ) {
+			return false;
+		}
+
+		$api_response = wp_remote_request(
+			"https://askell.is/api/subscriptions/{$subscription_id}/activate/",
+			array(
+				'method'  => 'POST',
+				'headers' => array(
+					'Content-Type'  => 'application/json',
+					'accept'        => 'application/json',
+					'Authorization' => "Api-Key {$private_key}",
+				),
+			)
+		);
+
+		if ( 200 !== $api_response['response']['code'] ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Sign a user to a subscription plan in Askell
+	 *
+	 * @param WP_User $user The user.
+	 * @param int     $plan_id The ID for the plan.
+	 * @param string  $plan_reference The reference for the plan.
+	 *
+	 * @return bool True on success, false on failure.
+	 */
+	public function add_subscription_to_user_in_askell(
+		WP_User $user,
+		int $plan_id,
+		string $plan_reference
+	) {
+		$private_key = get_option( 'askell_api_secret' );
+
+		if ( false === $private_key ) {
+			return false;
+		}
+
+		$request_body = array(
+			'plan'      => $plan_id,
+			'reference' => $plan_reference,
+		);
+
+		$api_response = wp_remote_request(
+			"https://askell.is/api/customers/{$user->ID}/subscriptions/add/",
+			array(
+				'method'  => 'POST',
+				'headers' => array(
+					'Content-Type'  => 'application/json',
+					'accept'        => 'application/json',
+					'Authorization' => "Api-Key {$private_key}",
+				),
+				'body'    => wp_json_encode( $request_body ),
+			)
+		);
+
+		if ( 201 !== $api_response['response']['code'] ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Handle the WP REST DELETE request for a subscriber user
 	 *
 	 * @param WP_REST_Request $request The WordPress REST request.
@@ -1405,11 +1729,18 @@ class AskellRegistration {
 
 		$user = get_user_by( 'id', $new_user_id );
 
-		$this->register_user_in_askell( $user );
+		$askell_user_id = $this->register_user_in_askell( $user );
+
+		if ( false === $askell_user_id ) {
+			return false;
+		}
+
+		update_user_meta( $new_user_id, 'askell_customer_id', $askell_user_id );
 
 		return array(
 			'ID'                 => $user->data->ID,
 			'registration_token' => $registration_token,
+			'askell_id'          => $askell_user_id,
 		);
 	}
 
@@ -1472,11 +1803,13 @@ class AskellRegistration {
 			)
 		);
 
+		$user = json_decode( $api_response['body'], true );
+
 		if ( 201 !== $api_response['response']['code'] ) {
 			return false;
 		}
 
-		return true;
+		return $user['id'];
 	}
 
 	/**
@@ -1733,6 +2066,52 @@ class AskellRegistration {
 	}
 
 	/**
+	 * Get an array of pubic plan IDs
+	 *
+	 * @return array An array of IDs.
+	 */
+	public function get_public_plan_ids() {
+		$plan_ids = array();
+
+		foreach ( $this->get_public_plans() as $plan ) {
+			$plan_ids[] = $plan['id'];
+		}
+
+		return $plan_ids;
+	}
+
+	/**
+	 * Get the plan IDs for a user's subscriptions
+	 *
+	 * @param WP_User $user The user.
+	 *
+	 * @return array An array of IDs.
+	 */
+	public function user_subscription_plan_ids( WP_User $user ) {
+		$plan_ids = array();
+
+		foreach ( $user->askell_subscriptions as $subscription ) {
+			$plan_ids[] = $subscription['plan_id'];
+		}
+
+		return $plan_ids;
+	}
+
+	/**
+	 * Get an array of the IDs for public plans that are open to a user
+	 *
+	 * @param WP_User $user The user.
+	 *
+	 * @return array An array of IDs.
+	 */
+	public function public_plan_ids_available_to_user( WP_User $user ) {
+		return array_diff(
+			$this->get_public_plan_ids(),
+			$this->user_subscription_plan_ids( $user )
+		);
+	}
+
+	/**
 	 * Get a single plan by reference
 	 *
 	 * @param string $reference The reference code for the plan.
@@ -1865,7 +2244,14 @@ class AskellRegistration {
 		$user->last_name  = $customer['last_name'];
 		$user->user_email = $customer['email'];
 
-		return wp_update_user( $customer );
+		update_metadata(
+			'user',
+			$user->ID,
+			'askell_customer_id',
+			$customer['askell_id']
+		);
+
+		return wp_update_user( $user );
 	}
 
 	/**
@@ -1906,6 +2292,7 @@ class AskellRegistration {
 			'first_name' => $user['first_name'],
 			'last_name'  => $user['last_name'],
 			'email'      => $user['email'],
+			'askell_id'  => $user['id'],
 		);
 	}
 
@@ -1969,14 +2356,15 @@ class AskellRegistration {
 		$subscriptions = array();
 		foreach ( $askell_subscriptions as $s ) {
 			$subscriptions[] = array(
-				'id'          => $s['id'],
-				'plan_id'     => $s['plan']['id'],
-				'trial_end'   => $s['trial_end'],
-				'start_date'  => $s['start_date'],
-				'ended_at'    => $s['ended_at'],
-				'active'      => $s['active'],
-				'is_on_trial' => $s['is_on_trial'],
-				'token'       => $s['token'],
+				'id'           => $s['id'],
+				'plan_id'      => $s['plan']['id'],
+				'trial_end'    => $s['trial_end'],
+				'start_date'   => $s['start_date'],
+				'ended_at'     => $s['ended_at'],
+				'active_until' => $s['ended_at'],
+				'active'       => $s['active'],
+				'is_on_trial'  => $s['is_on_trial'],
+				'token'        => $s['token'],
 			);
 		}
 
@@ -2204,7 +2592,9 @@ class AskellRegistration {
 
 		$plan_names = array();
 		foreach ( $user->askell_subscriptions as $s ) {
-			$plan_names[] = $this->get_plan_by_id( $s['plan_id'] )['name'];
+			if ( true === $s['active'] ) {
+				$plan_names[] = $this->get_plan_by_id( $s['plan_id'] )['name'];
+			}
 		}
 
 		return implode( ',', $plan_names );

@@ -8,6 +8,9 @@
 $askell_registration = new AskellRegistration();
 $user                = wp_get_current_user();
 $subscriptions       = $user->askell_subscriptions;
+$available_plan_ids  = $askell_registration->public_plan_ids_available_to_user(
+	$user
+);
 ?>
 
 <div class="wrap">
@@ -168,8 +171,8 @@ $subscriptions       = $user->askell_subscriptions;
 					<?php
 					echo esc_html(
 						_n(
-							'Subscription',
-							'Subscriptions',
+							'My Subscription',
+							'My Subscriptions',
 							count( $subscriptions ),
 							'askell-registration'
 						)
@@ -178,52 +181,127 @@ $subscriptions       = $user->askell_subscriptions;
 				</h3>
 				<hr />
 				<div class="subscriptions-subsection">
-					<ul class="subscription-list">
+					<div class="subscription-list">
 						<?php
 						foreach ( $subscriptions as $subscription ) :
 							$plan = $askell_registration->get_plan_by_id( $subscription['plan_id'] );
+							if ( false === $plan ) {
+								continue;
+							}
 							?>
-						<li class="subscription-info">
+						<div class="subscription">
+							<div class="subscription-info">
+								<strong class="plan-name"><?php echo esc_html( $plan['name'] ); ?></strong>
+								<?php if ( ( true === $subscription['active'] ) && ( null !== $subscription['start_date'] ) ) : ?>
+								<span class="pill pill-green"><?php echo esc_html_e( 'Active', 'askell-registration' ); ?></span>
+								<?php elseif ( ( true === $subscription['active'] ) && ( null !== $subscription['start_date'] ) ) : ?>
+								<span class="pill pill-grey"><?php echo esc_html_e( 'Pending', 'askell-registration' ); ?></span>
+								<?php else : ?>
+								<span class="pill pill-red"><?php echo esc_html_e( 'Inactive', 'askell-registration' ); ?></span>
+								<?php endif ?>
+								<?php if ( true === $subscription['is_on_trial'] ) : ?>
+								<span class="pill pill-grey"><?php echo esc_html_e( 'Trial', 'askell-registration' ); ?></span>
+								<?php endif ?>
+								<ul>
+									<li class="description"><?php echo esc_html( $plan['description'] ); ?></li>
+									<li class="price-tag"><?php echo esc_html( $plan['price_tag'] ); ?></li>
+									<?php if ( $subscription['is_on_trial'] ) : ?>
+									<li class="trial-ends">
+										<strong><?php echo esc_html_e( 'Trial Ends:', 'askell-registration' ); ?></strong>
+										<?php echo esc_html( date_i18n( get_option( 'date_format' ), strtotime( $subscription['trial_end'] ) ) ); ?>
+									</li>
+									<?php else : ?>
+									<?php endif ?>
+									<?php if ( $subscription['start_date'] ) : ?>
+									<li class="start-date">
+										<strong><?php echo esc_html_e( 'Start Date:', 'askell-registration' ); ?></strong>
+										<?php echo esc_html( date_i18n( get_option( 'date_format' ), strtotime( $subscription['start_date'] ) ) ); ?>
+									</li>
+									<?php endif ?>
+									<li>
+										<a
+											href="https://askell.is/change_subscription/<?php echo esc_attr( $subscription['token'] ); ?>/"
+											target="_blank"
+										>
+											<?php echo esc_html_e( 'Manage Payment', 'askell-registration' ); ?>
+										</a>
+									</li>
+								</ul>
+							</div>
+							<div class="subscription-list-button-container">
+								<?php if ( true === $subscription['active'] ) : ?>
+								<button
+									class="button button-scary cancel-subscription-button"
+									data-subscription-id="<?php echo esc_attr( $subscription['id'] ); ?>"
+								>
+									<?php esc_html_e( 'Cancel Subscription', 'askell-subscription' ); ?>
+								</button>
+								<?php elseif ( null === $subscription['ended_at'] ) : ?>
+								<button
+									class="button reactivate-subscription-button"
+									data-subscription-id="<?php echo esc_attr( $subscription['id'] ); ?>"
+								>
+									<?php esc_html_e( 'Reactivate Subscription', 'askell-subscription' ); ?>
+								</button>
+								<?php endif ?>
+								<img
+									class="hidden askell-profile-subs-loader"
+									src="<?php echo esc_url( get_admin_url() . 'images/wpspin_light-2x.gif' ); ?>"
+									width="24"
+									height="24"
+									data-subscription-id="<?php echo esc_attr( $subscription['id'] ); ?>"
+								/>
+							</div>
+						</div>
+						<?php endforeach ?>
+					</div>
+				</div>
+			</div>
+		</section>
+		<div class="type-form">
+		<?php if ( 0 < count( $available_plan_ids ) ) : ?>
+		<section class="section">
+			<div class="setion-header">
+				<h3>
+					<?php echo esc_html_e( 'Additional Subscription Plans', 'askell_registration' ); ?>
+				</h3>
+				<hr />
+			</div>
+			<div class="subscriptions-subsection">
+				<div class="subscription-list available-subscriptions">
+					<?php
+					foreach ( $available_plan_ids as $plan_id ) :
+						$plan = $askell_registration->get_plan_by_id( $plan_id );
+						?>
+					<div class="subscription">
+						<div class="subscription-info">
 							<strong class="plan-name"><?php echo esc_html( $plan['name'] ); ?></strong>
-							<?php if ( true === $subscription['active'] ) : ?>
-							<span class="pill pill-green"><?php echo esc_html_e( 'Active', 'askell-registration' ); ?></span>
-							<?php else : ?>
-							<span class="pill pill-red"><?php echo esc_html_e( 'Inactive', 'askell-registration' ); ?></span>
-							<?php endif ?>
-							<?php if ( true === $subscription['is_on_trial'] ) : ?>
-							<span class="pill pill-grey"><?php echo esc_html_e( 'Trial', 'askell-registration' ); ?></span>
-							<?php endif ?>
 							<ul>
 								<li class="description"><?php echo esc_html( $plan['description'] ); ?></li>
 								<li class="price-tag"><?php echo esc_html( $plan['price_tag'] ); ?></li>
-								<li class="trial-ends">
-									<strong><?php echo esc_html_e( 'Trial Ends:', 'askell-registration' ); ?></strong>
-									<?php echo esc_html( date_i18n( get_option( 'date_format' ), strtotime( $subscription['trial_end'] ) ) ); ?>
-								</li>
 							</ul>
-						</li>
-						<div class="subscription-list-button-container">
-							<a
-								href="https://askell.is/change_subscription/<?php echo esc_attr( $subscription['token'] ); ?>/"
-								target="_blank"
-								class="button button-primary"
-							>
-								<?php esc_html_e( 'Edit', 'askell-subscription' ); ?>
-							</a>
 						</div>
-						<?php endforeach ?>
-					</ul>
+						<div class="subscription-list-button-container">
+							<button
+								class="button add-plan-button"
+								data-plan-id="<?php echo esc_attr( $plan['id'] ); ?>"
+							>
+								<?php esc_html_e( 'Subscribe', 'askell-subscription' ); ?>
+							</button>
+							<img
+								class="hidden askell-profile-plans-loader"
+								src="<?php echo esc_url( get_admin_url() . 'images/wpspin_light-2x.gif' ); ?>"
+								width="24"
+								height="24"
+								data-plan-id="<?php echo esc_attr( $plan['id'] ); ?>"
+							/>
+						</div>
+					</div>
+					<?php endforeach ?>
 				</div>
-				<p>
-					<?php
-					esc_html_e(
-						'By clicking ‘Edit’ above, you will be taken to Askell, which is a secure external service used for managing your subscription and payment options on this website.',
-						'askell-subscription'
-					);
-					?>
-				</p>
 			</div>
 		</section>
+		<?php endif ?>
 		<section class="section danger-zone-section">
 			<div class="setion-header">
 				<h3>
@@ -250,7 +328,7 @@ $subscriptions       = $user->askell_subscriptions;
 					</label>
 					<button
 						id="delete-account-button"
-						class="button"
+						class="button button-scary"
 						disabled
 					>
 						<?php echo esc_html_e( 'Delete My Account', 'askell-registration' ); ?>
