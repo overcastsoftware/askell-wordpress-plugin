@@ -47,6 +47,19 @@ $askell_registration = new AskellRegistration();
 	</div>
 	<?php endif ?>
 
+	<?php if ( 1 === get_option( 'users_can_register', false ) ) : ?>
+	<div class="notice notice-error">
+		<p>
+			<?php
+			esc_html_e(
+				'Your General WordPress Settings have the option ‘anyone can register’ enabled. This enables external users to bypass the Askell registration block and can cause errors and inconsitencies between Askell and your WordPress site',
+				'askell-registration'
+			);
+			?>
+		</p>
+	</div>
+	<?php endif ?>
+
 	<h1>
 		<?php esc_html_e( 'Askell for WordPress', 'askell-registration' ); ?>
 	</h1>
