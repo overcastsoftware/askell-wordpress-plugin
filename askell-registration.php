@@ -19,8 +19,8 @@
 /**
  * Include the main class
  */
-require_once 'class-askellregistration.php';
-$askell_registration = new AskellRegistration();
+require_once 'classes/class-main.php';
+$askell = new Askell\Main();
 
 /**
  * Register the deactivation hook for the plugin.

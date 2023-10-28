@@ -5,7 +5,7 @@
  * @package askell-registration
  */
 
-$askell_registration = new AskellRegistration();
+$askell_registration = new Askell\Main();
 $askell_user_query   = new WP_User_Query(
 	array(
 		'role'    => 'subscriber',

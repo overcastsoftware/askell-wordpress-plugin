@@ -9,12 +9,23 @@
  * @package askell-registration
  */
 
+namespace Askell;
+
+use WP_Query;
+use WP_User_Query;
+use WP_User;
+use WP_Post;
+use WP_Error;
+use WP_REST_Request;
+use WP_REST_Response;
+use MessageFormatter;
+
 /**
  * The main AskellRegistration class
  *
  * @package askell-registration
  */
-class AskellRegistration {
+class Main {
 	const REST_NAMESPACE = 'askell/v1';
 	const USER_ROLE      = 'subscriber';
 	const WEBHOOK_TYPES  = array( 'customer', 'subscription' );
@@ -601,7 +612,7 @@ class AskellRegistration {
 	 */
 	public function block_init() {
 		register_block_type(
-			__DIR__ . '/build'
+			__DIR__ . '/../build'
 		);
 	}
 
