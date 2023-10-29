@@ -1096,7 +1096,7 @@ class Main {
 			return false;
 		}
 
-		require __DIR__ . '/views/subscribers-admin.php';
+		require __DIR__ . '/../views/subscribers-admin.php';
 	}
 
 	/**
