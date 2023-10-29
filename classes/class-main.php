@@ -1103,7 +1103,7 @@ class Main {
 	 * Render the "my profile" admin page for subscribers
 	 */
 	public function render_profile_editor() {
-		require __DIR__ . '/views/profile-editor.php';
+		require __DIR__ . '/../views/profile-editor.php';
 	}
 
 	/**
