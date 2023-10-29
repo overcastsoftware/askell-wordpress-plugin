@@ -1691,7 +1691,7 @@ class Main {
 		foreach ( $user->askell_subscriptions as $s ) {
 			if ( true === $s['active'] ) {
 				$plan = $this->get_plan_by_id( $s['plan_id'] );
-				if ( false != $plan ) {
+				if ( false !== $plan ) {
 					$plan_names[] = $plan['name'];
 				}
 			}
