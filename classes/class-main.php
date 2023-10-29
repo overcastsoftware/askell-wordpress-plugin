@@ -1083,7 +1083,7 @@ class Main {
 			return false;
 		}
 
-		require __DIR__ . '/views/admin.php';
+		require __DIR__ . '/../views/admin.php';
 	}
 
 	/**
