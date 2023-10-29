@@ -156,10 +156,8 @@ class Main {
 	 * Remove the filter that enables the paywall for posts
 	 *
 	 * This is run on the `loop_end` hook.
-	 *
-	 * @param WP_Query $query The post query.
 	 */
-	public function remove_paywall_filter( WP_Query $query ) {
+	public function remove_paywall_filter() {
 		if (
 			has_filter(
 				'the_content',
