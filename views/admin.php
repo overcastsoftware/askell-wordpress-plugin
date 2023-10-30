@@ -5,7 +5,7 @@
  * @package askell-registration
  */
 
-$askell_registration = new AskellRegistration();
+global $askell;
 
 ?>
 
@@ -138,7 +138,7 @@ $askell_registration = new AskellRegistration();
 							<?php esc_html_e( 'Customer Webhook URL', 'askell-registration' ); ?>
 						</th>
 						<td>
-							<?php echo esc_url( get_rest_url( null, $askell_registration::REST_NAMESPACE . '/webhooks/customer' ) ); ?>
+							<?php echo esc_url( get_rest_url( null, $askell::REST_NAMESPACE . '/webhooks/customer' ) ); ?>
 						</td>
 					</tr>
 					<tr>
@@ -146,7 +146,7 @@ $askell_registration = new AskellRegistration();
 							<?php esc_html_e( 'Subscription Webhook URL', 'askell-registration' ); ?>
 						</th>
 						<td>
-							<?php echo esc_url( get_rest_url( null, $askell_registration::REST_NAMESPACE . '/webhooks/subscription' ) ); ?>
+							<?php echo esc_url( get_rest_url( null, $askell::REST_NAMESPACE . '/webhooks/subscription' ) ); ?>
 						</td>
 					</tr>
 					<tr>
@@ -260,7 +260,7 @@ $askell_registration = new AskellRegistration();
 								class="regular-text"
 								type="text"
 								name="paywall_heading"
-								value="<?php echo esc_attr( get_option( 'askell_paywall_heading', $askell_registration->default_paywall_heading ) ); ?>"
+								value="<?php echo esc_attr( get_option( 'askell_paywall_heading', $askell->default_paywall_heading ) ); ?>"
 							/>
 						</td>
 					</tr>
@@ -269,7 +269,7 @@ $askell_registration = new AskellRegistration();
 							<?php esc_html_e( 'Paywall Text Body', 'askell-registration' ); ?>
 						</th>
 						<td>
-							<textarea class="regular-text" name="paywall_text_body" rows="5"><?php echo esc_attr( get_option( 'askell_paywall_text_body', $askell_registration->default_paywall_text_body ) ); ?></textarea>
+							<textarea class="regular-text" name="paywall_text_body" rows="5"><?php echo esc_attr( get_option( 'askell_paywall_text_body', $askell->default_paywall_text_body ) ); ?></textarea>
 						</td>
 					</tr>
 					<tr>

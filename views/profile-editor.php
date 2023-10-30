@@ -5,12 +5,11 @@
  * @package askell-registration
  */
 
-$askell_registration = new AskellRegistration();
-$user                = wp_get_current_user();
-$subscriptions       = $user->askell_subscriptions;
-$available_plan_ids  = $askell_registration->public_plan_ids_available_to_user(
-	$user
-);
+global $askell;
+
+$user               = wp_get_current_user();
+$subscriptions      = $user->askell_subscriptions;
+$available_plan_ids = $askell->public_plan_ids_available_to_user( $user );
 ?>
 
 <div class="wrap">
@@ -184,7 +183,7 @@ $available_plan_ids  = $askell_registration->public_plan_ids_available_to_user(
 					<div class="subscription-list">
 						<?php
 						foreach ( $subscriptions as $subscription ) :
-							$plan = $askell_registration->get_plan_by_id( $subscription['plan_id'] );
+							$plan = $askell->get_plan_by_id( $subscription['plan_id'] );
 							if ( false === $plan ) {
 								continue;
 							}
@@ -271,7 +270,7 @@ $available_plan_ids  = $askell_registration->public_plan_ids_available_to_user(
 				<div class="subscription-list available-subscriptions">
 					<?php
 					foreach ( $available_plan_ids as $plan_id ) :
-						$plan = $askell_registration->get_plan_by_id( $plan_id );
+						$plan = $askell->get_plan_by_id( $plan_id );
 						?>
 					<div class="subscription">
 						<div class="subscription-info">
