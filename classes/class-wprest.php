@@ -936,7 +936,7 @@ class WpRest {
 	 *
 	 * @return bool True if the user is logged in, false if not.
 	 */
-	private function check_user_is_logged_in() {
+	public function check_user_is_logged_in() {
 		$current_user = wp_get_current_user();
 
 		if ( 0 === $current_user->ID ) {
