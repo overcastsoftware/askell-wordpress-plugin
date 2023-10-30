@@ -258,6 +258,7 @@ class WpRest {
 	 */
 	public function customer_rest_post( WP_REST_Request $request ) {
 		global $askell;
+		global $askell_askellapi;
 
 		$request_body = (array) json_decode( $request->get_body() );
 
@@ -317,7 +318,7 @@ class WpRest {
 
 		$user = get_user_by( 'id', $new_user_id );
 
-		$askell_user_id = $askell->register_user_in_askell( $user );
+		$askell_user_id = $askell_askellapi->register_user_in_askell( $user );
 
 		if ( false === $askell_user_id ) {
 			return false;
@@ -346,6 +347,7 @@ class WpRest {
 	 */
 	public function customer_payment_method_post( WP_REST_Request $request ) {
 		global $askell;
+		global $askell_askellapi;
 
 		$request_body = (array) json_decode( $request->get_body() );
 
@@ -377,7 +379,7 @@ class WpRest {
 
 		// Create a payment method for the user in the Askell API.
 		if (
-			false === $askell->assign_payment_method_to_user_in_askell(
+			false === $askell_askellapi->assign_payment_method_to_user_in_askell(
 				$user,
 				$payment_token
 			)
@@ -392,7 +394,7 @@ class WpRest {
 
 		// Assign the subscription to the user in Askell.
 		if (
-			false === $askell->assign_subscription_to_user_in_askell(
+			false === $askell_askellapi->assign_subscription_to_user_in_askell(
 				$user,
 				$plan_id
 			)
@@ -768,6 +770,7 @@ class WpRest {
 		WP_REST_Request $request
 	) {
 		global $askell;
+		global $askell_askellapi;
 
 		$sub_id = $request['id'];
 		$user   = wp_get_current_user();
@@ -779,7 +782,7 @@ class WpRest {
 			);
 		}
 
-		if ( false === $askell->cancel_subscription_in_askell( $sub_id ) ) {
+		if ( false === $askell_askellapi->cancel_subscription_in_askell( $sub_id ) ) {
 			return new WP_Error(
 				'cant_cancel_plan_in_askell',
 				'Unable to cancel the plan, please try reloading the page and try again'
@@ -802,6 +805,7 @@ class WpRest {
 		WP_REST_Request $request
 	) {
 		global $askell;
+		global $askell_askellapi;
 
 		$sub_id = $request['id'];
 		$user   = wp_get_current_user();
@@ -813,7 +817,7 @@ class WpRest {
 			);
 		}
 
-		if ( false === $askell->activate_subscription_in_askell( $sub_id ) ) {
+		if ( false === $askell_askellapi->activate_subscription_in_askell( $sub_id ) ) {
 			return new WP_Error(
 				'cant_cancel_plan_in_askell',
 				'Unable to activate the plan, please try reloading the page and try again'
@@ -836,6 +840,7 @@ class WpRest {
 		WP_REST_Request $request
 	) {
 		global $askell;
+		global $askell_askellapi;
 
 		$plan_id = $request['id'];
 		$user    = wp_get_current_user();
@@ -856,7 +861,7 @@ class WpRest {
 			);
 		}
 
-		if ( false === $askell->add_subscription_to_user_in_askell(
+		if ( false === $askell_askellapi->add_subscription_to_user_in_askell(
 			$user,
 			$plan_id,
 			$plan['reference']

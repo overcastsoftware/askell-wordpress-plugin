@@ -25,6 +25,9 @@ $askell = new Askell\Main();
 require_once 'classes/class-wprest.php';
 $askell_wprest = new Askell\WpRest();
 
+require_once 'classes/class-askellapi.php';
+$askell_askellapi = new Askell\AskellApi();
+
 /**
  * Register the deactivation hook for the plugin.
  */
