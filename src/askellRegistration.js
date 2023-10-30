@@ -341,7 +341,7 @@ class AskellRegistration extends React.Component {
 
 	onChangeUsername(event) {
 		const sanitisedUsername = event.target.value.replace(
-			/([^a-z|0-9])/g,
+			/([^a-z|A-Z|0-9|._-])/,
 			''
 		);
 		this.setState({ username: sanitisedUsername });
