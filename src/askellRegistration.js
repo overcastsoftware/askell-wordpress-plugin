@@ -319,7 +319,9 @@ class AskellRegistration extends React.Component {
 
 	onClickPlansNextStep(event) {
 		event.preventDefault();
+		if ( this.state.currentStep === 'plans' ) {
 		this.setState({ currentStep: 'user-info' });
+		}
 	}
 
 	onChangeFirstName(event) {
