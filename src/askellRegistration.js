@@ -67,6 +67,8 @@ class AskellRegistration extends React.Component {
 		this.assignPaymentMethod = this.assignPaymentMethod.bind(this);
 		this.setPaymentError = this.setPaymentError.bind(this);
 		this.clearPaymentError = this.clearPaymentError.bind(this);
+
+		this.checkPaymentToken = this.checkPaymentToken.bind(this);
 	}
 
 	componentDidMount() {
@@ -128,8 +130,6 @@ class AskellRegistration extends React.Component {
 				registrationToken: responseData.registration_token,
 				currentStep: 'cc-info',
 				disableConfirmButton: false,
-				// Take the password out of the state context as it ha been sent
-				password: '',
 			});
 		} else {
 			this.setState({
@@ -319,7 +319,9 @@ class AskellRegistration extends React.Component {
 
 	onClickPlansNextStep(event) {
 		event.preventDefault();
+		if ( this.state.currentStep === 'plans' ) {
 		this.setState({ currentStep: 'user-info' });
+		}
 	}
 
 	onChangeFirstName(event) {
@@ -339,7 +341,7 @@ class AskellRegistration extends React.Component {
 
 	onChangeUsername(event) {
 		const sanitisedUsername = event.target.value.replace(
-			/([^a-z|0-9])/g,
+			/([^a-z|A-Z|0-9|._-])/,
 			''
 		);
 		this.setState({ username: sanitisedUsername });
