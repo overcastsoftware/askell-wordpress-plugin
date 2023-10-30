@@ -67,6 +67,8 @@ class AskellRegistration extends React.Component {
 		this.assignPaymentMethod = this.assignPaymentMethod.bind(this);
 		this.setPaymentError = this.setPaymentError.bind(this);
 		this.clearPaymentError = this.clearPaymentError.bind(this);
+
+		this.checkPaymentToken = this.checkPaymentToken.bind(this);
 	}
 
 	componentDidMount() {
