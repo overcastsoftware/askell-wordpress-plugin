@@ -130,8 +130,6 @@ class AskellRegistration extends React.Component {
 				registrationToken: responseData.registration_token,
 				currentStep: 'cc-info',
 				disableConfirmButton: false,
-				// Take the password out of the state context as it ha been sent
-				password: '',
 			});
 		} else {
 			this.setState({
