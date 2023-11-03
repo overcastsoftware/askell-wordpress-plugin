@@ -12,10 +12,6 @@ const AskellPostSidebarPanel = ({ postType, postMeta, setPostMeta }) => {
 	const [plansLoaded, setPlansLoaded] = useState(false);
 	const [plans, setPlans] = useState([]);
 
-	useEffect(() => {
-		setPlansLoaded(false);
-	}, []);
-
 	const loadPlans = () => {
 		apiFetch({ path: '/askell/v1/plans' }).then((fetchedPlans) => {
 			setPlans(fetchedPlans);
