@@ -1,9 +1,22 @@
 <?php
+/**
+ * The Askell API handler class file
+ *
+ * This should only have the AskellApi class in it. If you intend to add a new
+ * class, create a new file for it in the same directory.
+ *
+ * @package askell-registration
+ */
 
 namespace Askell;
 
 use WP_User;
 
+/**
+ * The Askell API hander class
+ *
+ * @package askell-registration
+ */
 class AskellApi {
 	/**
 	 * Register a WordPress user as customer in the Askell API
