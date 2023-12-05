@@ -1,6 +1,7 @@
+import { Component } from 'react';
 import { __ } from '@wordpress/i18n';
 
-class AskellRegistration extends React.Component {
+class AskellRegistration extends Component {
 	constructor(props) {
 		const currentYear = new Date().getFullYear();
 		super(props);
@@ -39,43 +40,13 @@ class AskellRegistration extends React.Component {
 			paymentErrorMessage: null,
 			tosUrl: '',
 		};
-		this.createUser = this.createUser.bind(this);
-
-		this.onChangePlan = this.onChangePlan.bind(this);
-		this.onClickPlansNextStep = this.onClickPlansNextStep.bind(this);
-
-		this.onChangeFirstName = this.onChangeFirstName.bind(this);
-		this.onChangeLastName = this.onChangeLastName.bind(this);
-		this.onChangeEmailAddress = this.onChangeEmailAddress.bind(this);
-		this.onChangeUsername = this.onChangeUsername.bind(this);
-		this.onChangePassword = this.onChangePassword.bind(this);
-		this.onChangeTermsAccepted = this.onChangeTermsAccepted.bind(this);
-		this.onClickUserInfoNextStep = this.onClickUserInfoNextStep.bind(this);
-		this.onClickUserInfoBackButton =
-			this.onClickUserInfoBackButton.bind(this);
-
-		this.onChangeCardHolderName = this.onChangeCardHolderName.bind(this);
-		this.onChangeCardNumber = this.onChangeCardNumber.bind(this);
-		this.onChangeCardExpiryMonth = this.onChangeCardExpiryMonth.bind(this);
-		this.onChangeCardExpiryYear = this.onChangeCardExpiryYear.bind(this);
-		this.onChangeCardSecurityCode =
-			this.onChangeCardSecurityCode.bind(this);
-
-		this.onClickConfirmPayment = this.onClickConfirmPayment.bind(this);
-
-		this.showSuccess = this.showSuccess.bind(this);
-		this.assignPaymentMethod = this.assignPaymentMethod.bind(this);
-		this.setPaymentError = this.setPaymentError.bind(this);
-		this.clearPaymentError = this.clearPaymentError.bind(this);
-
-		this.checkPaymentToken = this.checkPaymentToken.bind(this);
 	}
 
-	componentDidMount() {
+	componentDidMount = () => {
 		this.getFormFields();
-	}
+	};
 
-	async getFormFields() {
+	getFormFields = async () => {
 		const response = await fetch(
 			wpApiSettings.root + 'askell/v1/form_fields',
 			{
@@ -95,9 +66,9 @@ class AskellRegistration extends React.Component {
 		});
 
 		return result;
-	}
+	};
 
-	async createUser() {
+	createUser = async () => {
 		this.setState({ disableNextStepButton: true });
 		const response = await fetch(
 			wpApiSettings.root + 'askell/v1/customer',
@@ -138,14 +109,14 @@ class AskellRegistration extends React.Component {
 				WpErrorMessage: responseData.message,
 			});
 		}
-	}
+	};
 
-	onClickConfirmPayment() {
+	onClickConfirmPayment = () => {
 		this.openPaymentModal();
 		this.createTemporaryPaymentMethod();
-	}
+	};
 
-	openPaymentModal() {
+	openPaymentModal = () => {
 		const paymentWindow = window.open(
 			'',
 			'askell_payment_window',
@@ -153,9 +124,9 @@ class AskellRegistration extends React.Component {
 		);
 
 		window.paymentWindow = paymentWindow;
-	}
+	};
 
-	async createTemporaryPaymentMethod() {
+	createTemporaryPaymentMethod = async () => {
 		this.clearPaymentError();
 		const response = await fetch(
 			'https://askell.is/api/temporarypaymentmethod/',
@@ -196,15 +167,15 @@ class AskellRegistration extends React.Component {
 			this.setPaymentError(responseData.error);
 			window.paymentWindow.close();
 		}
-	}
+	};
 
-	async checkPaymentToken(
+	checkPaymentToken = async (
 		paymentToken,
 		apiKey,
 		registrationToken,
 		planID,
 		parent
-	) {
+	) => {
 		const response = await fetch(
 			'https://askell.is/api/temporarypaymentmethod/' + paymentToken,
 			{
@@ -245,9 +216,15 @@ class AskellRegistration extends React.Component {
 		} else {
 			parent.setPaymentError(responseData.error);
 		}
-	}
+	};
 
-	checkPaymentTokenLoop(token, APIKey, registrationToken, planID, parent) {
+	checkPaymentTokenLoop = (
+		token,
+		APIKey,
+		registrationToken,
+		planID,
+		parent
+	) => {
 		this.setState({ disableConfirmButton: true });
 
 		const intervalID = setInterval(
@@ -260,9 +237,14 @@ class AskellRegistration extends React.Component {
 			parent
 		);
 		window.askellTokenIntervalID = intervalID;
-	}
+	};
 
-	async assignPaymentMethod(paymentToken, registrationToken, planID, parent) {
+	assignPaymentMethod = async (
+		paymentToken,
+		registrationToken,
+		planID,
+		parent
+	) => {
 		const response = await fetch(
 			wpApiSettings.root + 'askell/v1/customer_payment_method',
 			{
@@ -290,72 +272,72 @@ class AskellRegistration extends React.Component {
 				)
 			);
 		}
-	}
+	};
 
-	showSuccess() {
+	showSuccess = () => {
 		this.setState({ currentStep: 'success' });
-	}
+	};
 
-	setPaymentError(errorMessage) {
+	setPaymentError = (errorMessage) => {
 		this.setState({ paymentErrorMessage: errorMessage });
-	}
+	};
 
-	clearPaymentError() {
+	clearPaymentError = () => {
 		this.setState({ paymentErrorMessage: null });
-	}
+	};
 
-	onFormSubmit(event) {
+	onFormSubmit = (event) => {
 		event.preventDefault();
-	}
+	};
 
-	onChangePlan(event) {
+	onChangePlan = (event) => {
 		const plan = this.state.plans.find(
 			({ id }) => id === parseInt(event.target.value)
 		);
 		this.setState({
 			selectedPlan: plan,
 		});
-	}
+	};
 
-	onClickPlansNextStep(event) {
+	onClickPlansNextStep = (event) => {
 		event.preventDefault();
-		if ( this.state.currentStep === 'plans' ) {
-		this.setState({ currentStep: 'user-info' });
+		if (this.state.currentStep === 'plans') {
+			this.setState({ currentStep: 'user-info' });
 		}
-	}
+	};
 
-	onChangeFirstName(event) {
+	onChangeFirstName = (event) => {
 		this.setState({ firstName: event.target.value });
-	}
+	};
 
-	onChangeLastName(event) {
+	onChangeLastName = (event) => {
 		this.setState({ lastName: event.target.value });
-	}
+	};
 
-	onChangeEmailAddress(event) {
+	onChangeEmailAddress = (event) => {
 		this.setState({
 			emailAddress: event.target.value,
 			emailAddressIsValid: event.target.validity.valid,
 		});
-	}
+	};
 
-	onChangeUsername(event) {
+	onChangeUsername = (event) => {
 		const sanitisedUsername = event.target.value.replace(
 			/([^a-z|A-Z|0-9|._-])/,
 			''
 		);
 		this.setState({ username: sanitisedUsername });
-	}
+	};
 
-	onChangePassword(event) {
+	onChangePassword = (event) => {
 		this.setState({ password: event.target.value });
-	}
+	};
 
-	onChangeTermsAccepted(event) {
+	onChangeTermsAccepted = (event) => {
 		this.setState({ termsAccepted: event.target.checked });
-	}
+	};
 
-	onClickUserInfoNextStep(event) {
+	onClickUserInfoNextStep = (event) => {
 		event.preventDefault();
 		this.setState({ userInfoChecked: true });
 
@@ -370,18 +352,18 @@ class AskellRegistration extends React.Component {
 		if (invalidElementCount === 0 && this.state.termsAccepted === true) {
 			this.createUser();
 		}
-	}
+	};
 
-	onClickUserInfoBackButton(event) {
+	onClickUserInfoBackButton = (event) => {
 		event.preventDefault();
 		this.setState({ currentStep: 'plans' });
-	}
+	};
 
-	onChangeCardHolderName(event) {
+	onChangeCardHolderName = (event) => {
 		this.setState({ cardHolderName: event.target.value });
-	}
+	};
 
-	onChangeCardNumber(event) {
+	onChangeCardNumber = (event) => {
 		// Sanitise the card number, removing all non-numeric characters. This
 		// is the value that is then sent to the API.
 		const cleanCardNumber = event.target.value.replace(/[^\d.-]+/g, '');
@@ -403,39 +385,39 @@ class AskellRegistration extends React.Component {
 		});
 
 		this.displayCardIssuer(cleanCardNumber);
-	}
+	};
 
-	onChangeCardExpiryMonth(event) {
+	onChangeCardExpiryMonth = (event) => {
 		this.setState({ cardExpiryMonth: event.target.value });
-	}
+	};
 
-	onChangeCardExpiryYear(event) {
+	onChangeCardExpiryYear = (event) => {
 		this.setState({ cardExpiryYear: event.target.value });
-	}
+	};
 
-	onChangeCardSecurityCode(event) {
+	onChangeCardSecurityCode = (event) => {
 		const cleanCode = event.target.value
 			.replace(/[^\d.-]+/g, '')
 			.slice(0, 4);
 		this.setState({ cardSecurityCode: cleanCode });
-	}
+	};
 
-	cardIsAmericanExpress(cardNumber) {
+	cardIsAmericanExpress = (cardNumber) => {
 		if (cardNumber.startsWith(34) || cardNumber.startsWith(37)) {
 			return true;
 		}
 
 		return false;
-	}
+	};
 
-	cardIsDinersClub(cardNumber) {
+	cardIsDinersClub = (cardNumber) => {
 		if (cardNumber.startsWith(36) || cardNumber.startsWith(54)) {
 			return true;
 		}
 		return false;
-	}
+	};
 
-	cardIsDiscover(cardNumber) {
+	cardIsDiscover = (cardNumber) => {
 		if (cardNumber.startsWith('6011')) {
 			return true;
 		}
@@ -459,9 +441,9 @@ class AskellRegistration extends React.Component {
 		}
 
 		return false;
-	}
+	};
 
-	cardIsMaestro(cardNumber) {
+	cardIsMaestro = (cardNumber) => {
 		const INNs = [
 			6759, 676770, 676774, 5018, 5020, 5038, 5893, 6304, 6759, 6761,
 			6762, 6763,
@@ -477,9 +459,9 @@ class AskellRegistration extends React.Component {
 		}
 
 		return false;
-	}
+	};
 
-	cardIsMasterCard(cardNumber) {
+	cardIsMasterCard = (cardNumber) => {
 		if (
 			parseInt(cardNumber.slice(0, 4) >= 2221) &&
 			parseInt(cardNumber.slice(0, 4) <= 2720)
@@ -495,25 +477,25 @@ class AskellRegistration extends React.Component {
 		}
 
 		return false;
-	}
+	};
 
-	cardIsUnionPay(cardNumber) {
+	cardIsUnionPay = (cardNumber) => {
 		if (cardNumber.startsWith(62)) {
 			return true;
 		}
 
 		return false;
-	}
+	};
 
-	cardIsVisa(cardNumber) {
+	cardIsVisa = (cardNumber) => {
 		if (cardNumber.startsWith(4)) {
 			return true;
 		}
 
 		return false;
-	}
+	};
 
-	displayCardIssuer(cardNumber) {
+	displayCardIssuer = (cardNumber) => {
 		if (this.cardIsAmericanExpress(cardNumber)) {
 			return this.setState({
 				cardIssuer: 'amex',
@@ -560,7 +542,7 @@ class AskellRegistration extends React.Component {
 			cardIssuer: '',
 			cardIssuerName: '',
 		});
-	}
+	};
 
 	render() {
 		return (
@@ -748,7 +730,11 @@ class AskellRegistration extends React.Component {
 							htmlFor={this.state.blockId + '-terms-checkbox'}
 							className="inline"
 						>
-							<a href={ this.state.tosUrl } target='_blank'>
+							<a
+								href={this.state.tosUrl}
+								target="_blank"
+								rel="noreferrer"
+							>
 								{__(
 									'I accept the terms of service',
 									'askell-registration'

@@ -1,3 +1,6 @@
+import { createRoot } from 'react-dom/client';
+import { createElement } from 'react';
+
 // Import our React component
 import AskellRegistration from '../src/askellRegistration.js';
 
@@ -10,9 +13,7 @@ addEventListener('DOMContentLoaded', () => {
 	// Assign a root and create component in every DOM element
 	// matching the query selector.
 	containers.forEach(function (container) {
-		const askellRegistrationRoot = ReactDOM.createRoot(container);
-		askellRegistrationRoot.render(
-			React.createElement(AskellRegistration, null)
-		);
+		const askellRegistrationRoot = createRoot(container);
+		askellRegistrationRoot.render(createElement(AskellRegistration, null));
 	});
 });

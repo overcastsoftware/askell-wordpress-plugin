@@ -131,7 +131,8 @@ body.wp-admin.toplevel_page_askell-registration-my-profile {
 			align-items: flex-end;
 			margin-left: 2em;
 
-			.askell-profile-subs-loader, .askell-profile-plans-loader {
+			.askell-profile-subs-loader,
+			.askell-profile-plans-loader {
 				margin-top: 0.5em;
 			}
 		}
@@ -163,6 +164,7 @@ body.wp-admin.toplevel_page_askell-registration-my-profile {
 	}
 
 	#askell-registration-users {
+
 		.actions {
 			width: 24em;
 		}
