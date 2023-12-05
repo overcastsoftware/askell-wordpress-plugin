@@ -300,8 +300,6 @@ class AskellUI {
 			}
 		);
 
-		const responseData = await response.json();
-
 		if (response.ok) {
 			window.location.reload();
 		}
@@ -321,8 +319,6 @@ class AskellUI {
 				},
 			}
 		);
-
-		const responseData = await response.json();
 
 		if (response.ok) {
 			window.location.reload();
@@ -358,8 +354,6 @@ class AskellUI {
 				},
 			}
 		);
-
-		const responseData = await response.json();
 
 		if (response.ok) {
 			window.location.reload();
@@ -423,14 +417,12 @@ window.addEventListener('DOMContentLoaded', () => {
 				}
 			);
 
-			AskellUI.profileAddPlanButtons().forEach(
-				function (node) {
-					node.addEventListener(
-						'click',
-						AskellUI.onProfileAddPlanButtonClick
-					)
-				}
-			);
+			AskellUI.profileAddPlanButtons().forEach(function (node) {
+				node.addEventListener(
+					'click',
+					AskellUI.onProfileAddPlanButtonClick
+				);
+			});
 		}
 	}
 });
