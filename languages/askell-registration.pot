@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Askell Registration 0.1.0\n"
+"Project-Id-Version: Askell Registration 0.2.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/askell-registration\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2023-09-25T22:33:41+02:00\n"
+"POT-Creation-Date: 2023-12-06T01:16:27+01:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.7.1\n"
 "X-Domain: askell-registration\n"
@@ -30,307 +30,488 @@ msgstr ""
 msgid "Overcast Software"
 msgstr ""
 
-#: askell-registration.php:329
-#: askell-registration.php:330
+#. Author URI of the plugin
+msgid "https://www.overcast.is/"
+msgstr ""
+
+#: classes/class-main.php:71
+msgid "Register or log in to see more"
+msgstr ""
+
+#: classes/class-main.php:76
+msgid "Registered subscribers can get access to this content. You can register to create an account or log in if you already have an account."
+msgstr ""
+
+#: classes/class-main.php:249
+msgid "This content is only available to subscribers with the following plans:"
+msgstr ""
+
+#. Translators: The %s stands for a single subscription plan name.
+#: classes/class-main.php:270
+msgid "This content is only available to subscribers with the ‘%s’ plan."
+msgstr ""
+
+#: classes/class-main.php:292
+msgid "Register"
+msgstr ""
+
+#: classes/class-main.php:301
+msgid "Log in"
+msgstr ""
+
+#: classes/class-main.php:508
+msgid "Go to the home page"
+msgstr ""
+
+#: classes/class-main.php:749
+msgid "Askell Settings"
+msgstr ""
+
+#: classes/class-main.php:750
+#: build/editor-sidebar.js:1
+#: src/askellPostSidebarPanel.js:59
 msgid "Askell"
 msgstr ""
 
-#: askell-registration.php:459
+#: classes/class-main.php:760
+#: classes/class-main.php:761
+#: views/subscribers-admin.php:48
+msgid "Subscribers"
+msgstr ""
+
+#: classes/class-main.php:771
+#: classes/class-main.php:772
+#: views/profile-editor.php:18
+msgid "My Profile"
+msgstr ""
+
+#: classes/class-main.php:1095
 msgid "daily"
 msgstr ""
 
-#: askell-registration.php:461
+#: classes/class-main.php:1097
 msgid "weekly"
 msgstr ""
 
-#: askell-registration.php:463
+#: classes/class-main.php:1099
 msgid "monthly"
 msgstr ""
 
-#: askell-registration.php:465
+#: classes/class-main.php:1101
 msgid "annually"
 msgstr ""
 
-#: askell-registration.php:474
+#. translators: The subscription reviews every %d days
+#: classes/class-main.php:1111
 msgid "every %d days"
 msgstr ""
 
-#: askell-registration.php:479
+#. translators: The subscription renews every %d weeks
+#: classes/class-main.php:1117
 msgid "every %d weeks"
 msgstr ""
 
-#: askell-registration.php:484
+#. translators: The subscription renews every %d months
+#: classes/class-main.php:1123
 msgid "every %d months"
 msgstr ""
 
-#: askell-registration.php:489
+#. translators: The subscription renews every %d years
+#: classes/class-main.php:1129
 msgid "every %d years"
 msgstr ""
 
 #. translators: Indicates a price tag for subscription option with a free trial ($20, monthly (30 day free trial))
-#: askell-registration.php:509
+#: classes/class-main.php:1161
 msgid "%1$s, %2$s (%3$d day free trial)"
 msgstr ""
 
 #. translators: Indicates a price tag for subscription option without a free trial ($20, every 2 weeks)
-#: askell-registration.php:518
+#: classes/class-main.php:1172
 msgid "%1$s, %2$s"
 msgstr ""
 
-#. translators: Appears in the credit card information form as an indicator of for how much, how and when the card would be charged.
-#: askell-registration.php:535
+#. translators: Appears in the credit card information form as an indicator of for how much, how and when the card would be charged, in addition to the length of the trial period.
+#: classes/class-main.php:1200
 msgid "Upon confirmation, your card will be charged %1$s, %2$s, after a free trial period of %3$d days. Your card may be tested and validated in the meantime."
 msgstr ""
 
-#: askell-registration.php:546
+#. translators: Appears in the credit card information form as an indicator of for how much, how and when the card would be charged.
+#: classes/class-main.php:1212
 msgid "Upon confirmation, your card will be immediately charged %1$s and then %2$s for the same amount."
 msgstr ""
 
-#: views/main-page.php:12
+#: views/admin.php:16
+#: views/subscribers-admin.php:22
 msgid "This is an early development version of Askell for WordPress. Do not use this version of the plugin on a production website!"
 msgstr ""
 
-#: views/main-page.php:17
-msgid "The Askell API key and Shared Secret values have not been set yet. Please open the Settings pane and enter the missing values."
+#: views/admin.php:28
+msgid "The Askell API key and Shared Secret values have not been set yet. Please enter the missing values."
 msgstr ""
 
-#: views/main-page.php:22
+#: views/admin.php:41
+msgid "The Askell webhook HMAC secrets have not been set yet. Please enter the missing values."
+msgstr ""
+
+#: views/admin.php:54
+msgid "Your General WordPress Settings have the option ‘anyone can register’ enabled. This enables external users to bypass the Askell registration block and can cause errors and inconsitencies between Askell and your WordPress site"
+msgstr ""
+
+#: views/admin.php:67
+msgid "The Askell Registration block has not been added to any page or post yet. Please add the block somewhere or set the URL manually below."
+msgstr ""
+
+#: views/admin.php:77
+#: views/subscribers-admin.php:44
 msgid "Askell for WordPress"
 msgstr ""
 
-#: views/main-page.php:31
-#: views/main-page.php:43
-msgid "Subscribers"
-msgstr ""
-
-#: views/main-page.php:38
-#: views/main-page.php:82
+#: views/admin.php:82
 msgid "Settings"
 msgstr ""
 
-#: views/main-page.php:47
-msgid "Name"
-msgstr ""
-
-#: views/main-page.php:48
-#: views/main-page.php:134
-msgid "Customer Reference"
-msgstr ""
-
-#: views/main-page.php:49
-#: build/frontend.js:1
-#: build/index.js:1
-#: src/askellRegistration.js:709
-msgid "Username"
-msgstr ""
-
-#: views/main-page.php:50
-#: build/frontend.js:1
-#: build/index.js:1
-#: src/askellRegistration.js:695
-msgid "Email Address"
-msgstr ""
-
-#: views/main-page.php:51
-msgid "Plan"
-msgstr ""
-
-#: views/main-page.php:52
-msgid "Registration Status"
-msgstr ""
-
-#: views/main-page.php:53
-msgid "Sign-Up Date"
-msgstr ""
-
-#: views/main-page.php:87
+#: views/admin.php:87
 msgid "API Settings"
 msgstr ""
 
-#: views/main-page.php:95
+#: views/admin.php:95
 msgid "Public API Key"
 msgstr ""
 
-#: views/main-page.php:108
+#: views/admin.php:108
 msgid "Secret Key"
 msgstr ""
 
-#: views/main-page.php:117
-msgid "Do not share this key with anyone!"
+#: views/admin.php:130
+msgid "Web Hooks"
 msgstr ""
 
-#: views/main-page.php:126
-msgid "Form Fields and References"
+#: views/admin.php:138
+msgid "Customer Webhook URL"
 msgstr ""
 
-#: views/main-page.php:144
-msgid "WordPress User ID"
+#: views/admin.php:146
+msgid "Subscription Webhook URL"
 msgstr ""
 
-#: views/main-page.php:153
-msgid "Icelandic Personal ID Number (Kennitala)"
+#: views/admin.php:154
+msgid "Customer HMAC Secret"
 msgstr ""
 
-#: views/main-page.php:155
-msgid "This is the user attribute this WordPress site and Askell use for referring to each subscriber's records."
+#: views/admin.php:167
+msgid "Subscription HMAC Secret"
 msgstr ""
 
-#: views/main-page.php:156
-msgid "Note that this should be set <strong>before the first registrations arrive</strong>, as changing this may affect the synchronisation between Askell and your website, resulting in discrepancies."
+#: views/admin.php:181
+msgid "The HMAC secrets are used for cryptographically authenticating webhook requests coming from Askell and are created in the Askell interface. As with the API secret above, do not share those with anyone."
 msgstr ""
 
-#: views/main-page.php:161
-msgid "Addresses"
+#: views/admin.php:194
+msgid "URLs"
 msgstr ""
 
-#: views/main-page.php:170
-msgid "Enable Country Selector in Addresses"
+#: views/admin.php:202
+msgid "URL for Registration Form"
 msgstr ""
 
-#: views/main-page.php:180
+#: views/admin.php:223
+msgid "URL for Terms and Conditions"
+msgstr ""
+
+#: views/admin.php:248
 msgid "Presentation"
 msgstr ""
 
-#: views/main-page.php:188
+#: views/admin.php:256
+msgid "Paywall Heading"
+msgstr ""
+
+#: views/admin.php:269
+msgid "Paywall Text Body"
+msgstr ""
+
+#: views/admin.php:277
 msgid "Styling and Design"
 msgstr ""
 
-#: views/main-page.php:197
+#: views/admin.php:286
 msgid "Enable built-in stylesheet"
 msgstr ""
 
-#: views/main-page.php:199
+#: views/admin.php:290
 msgid "Disable this to remove the additional CSS styles provided by Askell from the registration block. It may be useful for those who need to have full control of how their website is displayed."
 msgstr ""
 
-#: views/main-page.php:214
+#: views/admin.php:310
 msgid "Save Settings"
+msgstr ""
+
+#: views/profile-editor.php:24
+msgid "Personal Information"
+msgstr ""
+
+#: views/profile-editor.php:32
+#: build/frontend.js:1
+#: build/index.js:1
+#: src/askellRegistration.js:651
+msgid "First Name"
+msgstr ""
+
+#: views/profile-editor.php:45
+#: build/frontend.js:1
+#: build/index.js:1
+#: src/askellRegistration.js:665
+msgid "Last Name"
+msgstr ""
+
+#: views/profile-editor.php:58
+#: views/subscribers-admin.php:54
+#: build/frontend.js:1
+#: build/index.js:1
+#: src/askellRegistration.js:680
+msgid "Email Address"
+msgstr ""
+
+#: views/profile-editor.php:92
+msgid "Save"
+msgstr ""
+
+#: views/profile-editor.php:101
+msgid "Login information"
+msgstr ""
+
+#: views/profile-editor.php:109
+#: views/subscribers-admin.php:53
+#: build/frontend.js:1
+#: build/index.js:1
+#: src/askellRegistration.js:694
+msgid "Username"
+msgstr ""
+
+#: views/profile-editor.php:115
+#: build/frontend.js:1
+#: build/index.js:1
+#: src/askellRegistration.js:709
+msgid "Password"
+msgstr ""
+
+#: views/profile-editor.php:127
+msgid "Password (repeat)"
+msgstr ""
+
+#: views/profile-editor.php:161
+msgid "Update Password"
+msgstr ""
+
+#: views/profile-editor.php:172
+msgid "My Subscription"
+msgid_plural "My Subscriptions"
+msgstr[0] ""
+msgstr[1] ""
+
+#: views/profile-editor.php:195
+msgid "Active"
+msgstr ""
+
+#: views/profile-editor.php:197
+msgid "Pending"
+msgstr ""
+
+#: views/profile-editor.php:199
+msgid "Inactive"
+msgstr ""
+
+#: views/profile-editor.php:202
+msgid "Trial"
+msgstr ""
+
+#: views/profile-editor.php:209
+msgid "Trial Ends:"
+msgstr ""
+
+#: views/profile-editor.php:216
+msgid "Start Date:"
+msgstr ""
+
+#: views/profile-editor.php:225
+msgid "Manage Payment"
+msgstr ""
+
+#: views/profile-editor.php:307
+msgid "Danger Zone"
+msgstr ""
+
+#: views/profile-editor.php:313
+msgid "Delete Account"
+msgstr ""
+
+#: views/profile-editor.php:316
+msgid "Deletes your account from this site. This also deletes your payment information from the subscription system."
+msgstr ""
+
+#: views/profile-editor.php:326
+msgid "Confirm deletion"
+msgstr ""
+
+#: views/profile-editor.php:333
+msgid "Delete My Account"
+msgstr ""
+
+#: views/subscribers-admin.php:34
+msgid "The Askell API key and Shared Secret values have not been set yet. Please open the Settings pane and enter the missing values."
+msgstr ""
+
+#: views/subscribers-admin.php:52
+msgid "Name"
+msgstr ""
+
+#: views/subscribers-admin.php:55
+msgid "Active Plans"
+msgstr ""
+
+#: views/subscribers-admin.php:56
+msgid "Sign-Up Date"
+msgstr ""
+
+#: views/subscribers-admin.php:57
+msgid "Actions"
+msgstr ""
+
+#: views/subscribers-admin.php:92
+msgid "Manage in WP"
+msgstr ""
+
+#: views/subscribers-admin.php:100
+msgid "Manage in Askell"
+msgstr ""
+
+#: build/editor-sidebar.js:1
+#: src/askellPostSidebarPanel.js:64
+msgid "Post Availability"
+msgstr ""
+
+#: build/editor-sidebar.js:1
+#: src/askellPostSidebarPanel.js:67
+msgid "Publicly Available"
+msgstr ""
+
+#: build/editor-sidebar.js:1
+#: src/askellPostSidebarPanel.js:74
+msgid "Subscribers Only"
+msgstr ""
+
+#: build/editor-sidebar.js:1
+#: src/askellPostSidebarPanel.js:81
+msgid "Subscribers with Specific Plans"
 msgstr ""
 
 #: build/frontend.js:1
 #: build/index.js:1
-#: src/askellRegistration.js:229
+#: src/askellRegistration.js:201
 msgid "Card processing failed. Please check if the information if correct and try again."
 msgstr ""
 
 #: build/frontend.js:1
 #: build/index.js:1
-#: src/askellRegistration.js:286
+#: src/askellRegistration.js:269
 msgid "Unable to assign the payment method to your account. Please contact the site owner."
 msgstr ""
 
 #: build/frontend.js:1
 #: build/index.js:1
-#: src/askellRegistration.js:583
+#: src/askellRegistration.js:568
 msgid "Choose Your Plan"
 msgstr ""
 
 #: build/frontend.js:1
 #: build/index.js:1
-#: src/askellRegistration.js:639
+#: src/askellRegistration.js:624
 msgid "Next Step"
 msgstr ""
 
 #: build/frontend.js:1
 #: build/index.js:1
-#: src/askellRegistration.js:655
+#: src/askellRegistration.js:640
 msgid "Account Information"
 msgstr ""
 
 #: build/frontend.js:1
 #: build/index.js:1
-#: src/askellRegistration.js:658
+#: src/askellRegistration.js:643
 msgid "Here, we will create a new user for you on this site. It is necessary to enter your information into all the fields below in order to get to the next step, where you will enter your payment information."
 msgstr ""
 
 #: build/frontend.js:1
 #: build/index.js:1
-#: src/askellRegistration.js:666
-msgid "First Name"
-msgstr ""
-
-#: build/frontend.js:1
-#: build/index.js:1
-#: src/askellRegistration.js:680
-msgid "Last Name"
-msgstr ""
-
-#: build/frontend.js:1
-#: build/index.js:1
-#: src/askellRegistration.js:724
-msgid "Password"
-msgstr ""
-
-#: build/frontend.js:1
-#: build/index.js:1
-#: src/askellRegistration.js:749
+#: src/askellRegistration.js:738
 msgid "I accept the terms of service"
 msgstr ""
 
 #: build/frontend.js:1
 #: build/index.js:1
-#: src/askellRegistration.js:764
-#: src/askellRegistration.js:894
+#: src/askellRegistration.js:753
+#: src/askellRegistration.js:883
 msgid "Error: "
 msgstr ""
 
 #: build/frontend.js:1
 #: build/index.js:1
-#: src/askellRegistration.js:771
+#: src/askellRegistration.js:760
 msgid "Back"
 msgstr ""
 
 #: build/frontend.js:1
 #: build/index.js:1
-#: src/askellRegistration.js:781
+#: src/askellRegistration.js:770
 msgid "Create Account"
 msgstr ""
 
 #: build/frontend.js:1
 #: build/index.js:1
-#: src/askellRegistration.js:787
+#: src/askellRegistration.js:776
 msgid "Payment Information"
 msgstr ""
 
 #: build/frontend.js:1
 #: build/index.js:1
-#: src/askellRegistration.js:796
+#: src/askellRegistration.js:785
 msgid "Card Holder Name"
 msgstr ""
 
 #: build/frontend.js:1
 #: build/index.js:1
-#: src/askellRegistration.js:809
+#: src/askellRegistration.js:798
 msgid "Card Number"
 msgstr ""
 
 #: build/frontend.js:1
 #: build/index.js:1
-#: src/askellRegistration.js:836
+#: src/askellRegistration.js:825
 msgid "Card Expiry"
 msgstr ""
 
 #: build/frontend.js:1
 #: build/index.js:1
-#: src/askellRegistration.js:875
+#: src/askellRegistration.js:864
 msgid "Security Code"
 msgstr ""
 
 #: build/frontend.js:1
 #: build/index.js:1
-#: src/askellRegistration.js:904
+#: src/askellRegistration.js:893
 msgid "Confirm Payment"
 msgstr ""
 
 #: build/frontend.js:1
 #: build/index.js:1
-#: src/askellRegistration.js:908
+#: src/askellRegistration.js:897
 msgid "Payment processing is performed by this site&apos;s owner&apos; card merchant service, via Askell by Overcast Software, which runs over a secure transport layer and is a PCI certified recurring payments platform. Payment information is sent directly to Askell for processing."
 msgstr ""
 
 #: build/frontend.js:1
 #: build/index.js:1
-#: src/askellRegistration.js:917
+#: src/askellRegistration.js:906
 msgid "You should have received a confirmation email with the relevant details about how to edit or cancel your subscription."
 msgstr ""
 

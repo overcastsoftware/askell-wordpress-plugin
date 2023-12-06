@@ -1,10 +1,10 @@
 === Askell Registration ===
 Contributors:      overcast, aldavigdis
-Tags:              block, subscription, user registration, memberships, payment, saltpay, valitor, rapyd
+Tags:              block, paywall, subscription, user registration, membership
 Tested up to:      6.3
 Requires at least: 6.3
 Requires PHP:      8.1
-Stable tag:        0.1.0
+Stable tag:        0.2.0
 License:           GPL-3.0-or-later
 License URI:       https://www.gnu.org/licenses/gpl-3.0.html
 Let your users sign up and pay for for recurring subscriptions directly from your WordPress site using Askell by Overcast Software.
@@ -40,9 +40,13 @@ We have tested the plugin with various popular themes and value any feedback in 
 
 = Is the plugin secure? =
 
-The plugin displays a credit card form directly in a WordPress block. The payment information is transferred over a secure TLS connection to the Askell JSON API from the user's browser and from there to your payment processor, without involving your WordPress database.
+The plugin displays a credit card form directly in a WordPress block.
+
+The payment information is transferred over a secure TLS connection to the Askell JSON API from the user's browser and from there to your payment processor, without involving your WordPress database.
 
 This means that credit card information is stored securely by the payment processor of your choice, but not on your WordPress site or Askell itself, reducing the chance of liability in case of a security breach on your site.
+
+We highly recommend that you secure your website my any means you can, including using SSL/TLS encryption and following local data privacy regulations.
 
 = I would like to customise or contribute to the plugin, where can I get the source code? =
 
@@ -56,7 +60,7 @@ Please contact us via email at [hallo@overcast.is](mailto:hallo@overcast.is) or 
 
 = Does the plugin support WordPress Multisite? =
 
-The plugin has not been tested with WordPress Multisite as of yet, but we may support it in a future version.
+The plugin has not been tested with WordPress Multisite as of yet, so Multisite is currently not officially supported. If you are currently using the plugin with WordPress Multisite, we would be happy to hear from you and about your experience.
 
 = Dates and currency values are not in the correct format, what should I do? =
 
@@ -73,6 +77,15 @@ The plugin uses the following 3rd party open soruce components:
 
 == Changelog ==
 
+= 0.2.0 =
+
+* Various code quality changes
+* Now using the user's login name as the reference in Askell instead of ID. This should facilitate bidirectional sync and similar functionality in the future.
+
+= 0.1.1 =
+
+* Registration flow issues fixes
+
 = 0.1.0 =
 
-Initial development version.
+* Initial development version.

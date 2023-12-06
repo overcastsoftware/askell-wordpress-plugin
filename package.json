@@ -1,6 +1,6 @@
 {
 	"name": "askell-registration",
-	"version": "0.1.1",
+	"version": "0.2.0",
 	"description": "Sign up for recurring subscriptions directly from WordPress using Askell",
 	"author": "Overcast Software",
 	"license": "GPL-3.0-or-later",
