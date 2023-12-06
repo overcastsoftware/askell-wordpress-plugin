@@ -89,7 +89,7 @@ class AskellApi {
 		$endpoint_url = 'https://askell.is/api/customers/paymentmethod/';
 
 		$request_body = array(
-			'customer_reference' => $user->ID,
+			'customer_reference' => $user->user_login,
 			'token'              => $payment_token,
 		);
 
