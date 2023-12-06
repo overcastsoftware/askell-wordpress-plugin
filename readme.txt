@@ -1,9 +1,9 @@
 === Askell Registration ===
 Contributors:      overcast, aldavigdis
 Tags:              block, paywall, subscription, user registration, membership
-Tested up to:      6.3
+Tested up to:      6.4
 Requires at least: 6.3
-Requires PHP:      8.1
+Requires PHP:      8.0
 Stable tag:        0.2.0
 License:           GPL-3.0-or-later
 License URI:       https://www.gnu.org/licenses/gpl-3.0.html
