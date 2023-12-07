@@ -1,7 +1,7 @@
 {
     "translation-revision-date": "2023-12-07 00:23+0000",
     "generator": "WP-CLI\/2.7.1",
-    "source": "build\/editor-sidebar.js",
+    "source": "src\/askellPostSidebarPanel.js",
     "domain": "messages",
     "locale_data": {
         "messages": {

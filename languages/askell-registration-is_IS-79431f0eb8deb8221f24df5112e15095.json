@@ -1,12 +1,12 @@
 {
     "translation-revision-date": "2023-12-07 00:23+0000",
-    "generator": "Loco https://localise.biz/",
-    "source": "build/frontend.js",
-    "domain": "askell-registration",
+    "generator": "WP-CLI\/2.7.1",
+    "source": "build\/frontend.js",
+    "domain": "messages",
     "locale_data": {
-        "askell-registration": {
+        "messages": {
             "": {
-                "domain": "askell-registration",
+                "domain": "messages",
                 "lang": "is_IS",
                 "plural-forms": "nplurals=2; plural=n != 1;"
             },
