@@ -432,6 +432,11 @@ class Main {
 			self::ASSETS_VERSION,
 			false
 		);
+		wp_set_script_translations(
+			'askell-registration-editor-sidebar',
+			'askell-registration',
+			plugin_dir_path( __FILE__ ) . '/../languages'
+		);
 	}
 
 	/**
