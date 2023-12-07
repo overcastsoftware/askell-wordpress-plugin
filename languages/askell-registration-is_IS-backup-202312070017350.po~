@@ -9,7 +9,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "POT-Creation-Date: 2023-09-25T22:33:41+02:00\n"
-"PO-Revision-Date: 2023-12-07 00:23+0000\n"
+"PO-Revision-Date: 2023-12-07 00:11+0000\n"
 "Language: is_IS\n"
 "X-Generator: Loco https://localise.biz/\n"
 "X-Domain: askell-registration\n"
@@ -75,7 +75,7 @@ msgstr "Til baka"
 msgctxt "block description"
 msgid ""
 "Sign up for recurring subscriptions directly from WordPress using Askell"
-msgstr "Skráning í greiddar áskriftir beint úr WordPress í gegn um Áskel"
+msgstr ""
 
 #: build/block.json src/block.json
 msgctxt "block title"
@@ -163,7 +163,7 @@ msgstr ""
 #: views/profile-editor.php:58 views/subscribers-admin.php:54
 #: build/frontend.js:1 build/index.js:1 src/askellRegistration.js:680
 msgid "Email Address"
-msgstr "Tölvupóstfang"
+msgstr "Notandanafn"
 
 #: views/admin.php:286
 msgid "Enable built-in stylesheet"
@@ -301,18 +301,14 @@ msgid ""
 "transport layer and is a PCI certified recurring payments platform. Payment "
 "information is sent directly to Askell for processing."
 msgstr ""
-"Greiðslan fer fram í gegn um greiðslumiðlun eiganda þessa vefs í gegn um "
-"Áskel frá Overcast Software, sem keyrir yfir örugga nettengingu og er PCI-"
-"vottað kerfi fyrir reglubundnar greiðslur. Greiðsluupplýsingar eru sendar "
-"beint í Áskel til úrvinnslu."
 
 #: views/admin.php:256
 msgid "Paywall Heading"
-msgstr "Fyrirsögn greiðsluveggs"
+msgstr ""
 
 #: views/admin.php:269
 msgid "Paywall Text Body"
-msgstr "Efnistexti greiðsluveggs"
+msgstr ""
 
 #: views/profile-editor.php:197
 msgid "Pending"
@@ -377,7 +373,7 @@ msgstr "Stillingar"
 #. Description of the plugin
 msgid ""
 "Sign up for recurring subscriptions directly from WordPress using Askell"
-msgstr "Skráning í greiddar áskriftir beint úr WordPress í gegn um Áskel"
+msgstr ""
 
 #: views/subscribers-admin.php:56
 msgid "Sign-Up Date"
@@ -545,8 +541,6 @@ msgid ""
 "You should have received a confirmation email with the relevant details "
 "about how to edit or cancel your subscription."
 msgstr ""
-"Þú ættir að hafa fengið staðfestingarpóst með upplýsingum um hvernig þú "
-"breytir eða hættir við áskriftina."
 
 #: views/admin.php:54
 msgid ""

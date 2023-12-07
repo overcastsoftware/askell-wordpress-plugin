@@ -9,7 +9,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "POT-Creation-Date: 2023-09-25T22:33:41+02:00\n"
-"PO-Revision-Date: 2023-12-07 00:23+0000\n"
+"PO-Revision-Date: 2023-12-07 00:06+0000\n"
 "Language: is_IS\n"
 "X-Generator: Loco https://localise.biz/\n"
 "X-Domain: askell-registration\n"
@@ -75,7 +75,7 @@ msgstr "Til baka"
 msgctxt "block description"
 msgid ""
 "Sign up for recurring subscriptions directly from WordPress using Askell"
-msgstr "Skráning í greiddar áskriftir beint úr WordPress í gegn um Áskel"
+msgstr ""
 
 #: build/block.json src/block.json
 msgctxt "block title"
@@ -163,7 +163,7 @@ msgstr ""
 #: views/profile-editor.php:58 views/subscribers-admin.php:54
 #: build/frontend.js:1 build/index.js:1 src/askellRegistration.js:680
 msgid "Email Address"
-msgstr "Tölvupóstfang"
+msgstr "Notandanafn"
 
 #: views/admin.php:286
 msgid "Enable built-in stylesheet"
@@ -244,15 +244,15 @@ msgstr "Upplýsingar fyrir innskráningu"
 
 #: views/subscribers-admin.php:100
 msgid "Manage in Askell"
-msgstr "Stjórna í Áskeli"
+msgstr ""
 
 #: views/subscribers-admin.php:92
 msgid "Manage in WP"
-msgstr "Stjórna í WordPress"
+msgstr ""
 
 #: views/profile-editor.php:225
 msgid "Manage Payment"
-msgstr "Stjórna greiðslu"
+msgstr ""
 
 #: classes/class-main.php:1099
 msgid "monthly"
@@ -261,7 +261,7 @@ msgstr "mánaðarlega"
 #: classes/class-main.php:771 classes/class-main.php:772
 #: views/profile-editor.php:18
 msgid "My Profile"
-msgstr "Minn prófíll"
+msgstr ""
 
 #: views/profile-editor.php:172
 msgid "My Subscription"
@@ -292,7 +292,7 @@ msgstr "Lykilorð (endurtekið)"
 
 #: build/frontend.js:1 build/index.js:1 src/askellRegistration.js:776
 msgid "Payment Information"
-msgstr "Upplýsingar um greiðslu"
+msgstr ""
 
 #: build/frontend.js:1 build/index.js:1 src/askellRegistration.js:897
 msgid ""
@@ -301,30 +301,26 @@ msgid ""
 "transport layer and is a PCI certified recurring payments platform. Payment "
 "information is sent directly to Askell for processing."
 msgstr ""
-"Greiðslan fer fram í gegn um greiðslumiðlun eiganda þessa vefs í gegn um "
-"Áskel frá Overcast Software, sem keyrir yfir örugga nettengingu og er PCI-"
-"vottað kerfi fyrir reglubundnar greiðslur. Greiðsluupplýsingar eru sendar "
-"beint í Áskel til úrvinnslu."
 
 #: views/admin.php:256
 msgid "Paywall Heading"
-msgstr "Fyrirsögn greiðsluveggs"
+msgstr ""
 
 #: views/admin.php:269
 msgid "Paywall Text Body"
-msgstr "Efnistexti greiðsluveggs"
+msgstr ""
 
 #: views/profile-editor.php:197
 msgid "Pending"
-msgstr "Í bið"
+msgstr ""
 
 #: views/profile-editor.php:24
 msgid "Personal Information"
-msgstr "Persónuupplýsingar"
+msgstr ""
 
 #: build/editor-sidebar.js:1 src/askellPostSidebarPanel.js:64
 msgid "Post Availability"
-msgstr "Aðgengi að færslu"
+msgstr ""
 
 #: views/admin.php:248
 msgid "Presentation"
@@ -336,27 +332,25 @@ msgstr "Opinn API lykill"
 
 #: build/editor-sidebar.js:1 src/askellPostSidebarPanel.js:67
 msgid "Publicly Available"
-msgstr "Aðgengilegt öllum"
+msgstr ""
 
 #: classes/class-main.php:292
 msgid "Register"
-msgstr "Skrá notanda"
+msgstr ""
 
 #: classes/class-main.php:71
 msgid "Register or log in to see more"
-msgstr "Skráðu þig inn til að sjá meira"
+msgstr ""
 
 #: classes/class-main.php:76
 msgid ""
 "Registered subscribers can get access to this content. You can register to "
 "create an account or log in if you already have an account."
 msgstr ""
-"Skráðir notendur hafa aðgang að þessu efni. Þú getur búið til aðgang eða "
-"skráð þig inn ef þú ert þegar með aðgang."
 
 #: views/profile-editor.php:92
 msgid "Save"
-msgstr "Vista"
+msgstr ""
 
 #: views/admin.php:310
 msgid "Save Settings"
@@ -377,7 +371,7 @@ msgstr "Stillingar"
 #. Description of the plugin
 msgid ""
 "Sign up for recurring subscriptions directly from WordPress using Askell"
-msgstr "Skráning í greiddar áskriftir beint úr WordPress í gegn um Áskel"
+msgstr ""
 
 #: views/subscribers-admin.php:56
 msgid "Sign-Up Date"
@@ -458,8 +452,6 @@ msgstr ""
 #: classes/class-main.php:249
 msgid "This content is only available to subscribers with the following plans:"
 msgstr ""
-"Þetta efni er aðeins aðgengilegt fyrir áskrifendur í eftirfarandi "
-"áskriftarleiðum:"
 
 #. Translators: The %s stands for a single subscription plan name.
 #: classes/class-main.php:270
@@ -489,12 +481,10 @@ msgid ""
 "Unable to assign the payment method to your account. Please contact the site "
 "owner."
 msgstr ""
-"Gat ekki skráð greiðslumáta á þennan aðgang. Vinsamlegast hafðu samband við "
-"eiganda þessa vefs."
 
 #: views/profile-editor.php:161
 msgid "Update Password"
-msgstr "Uppfæra lykilorð"
+msgstr ""
 
 #. translators: Appears in the credit card information form as an indicator of for how much, how and when the card would be charged, in addition to the length of the trial period.
 #: classes/class-main.php:1200
@@ -545,8 +535,6 @@ msgid ""
 "You should have received a confirmation email with the relevant details "
 "about how to edit or cancel your subscription."
 msgstr ""
-"Þú ættir að hafa fengið staðfestingarpóst með upplýsingum um hvernig þú "
-"breytir eða hættir við áskriftina."
 
 #: views/admin.php:54
 msgid ""
