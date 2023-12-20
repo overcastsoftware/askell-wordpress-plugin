@@ -77,6 +77,11 @@ The plugin uses the following 3rd party open soruce components:
 
 == Changelog ==
 
+= 0.2.1 =
+
+* Icelandic localisation strings fixed
+* Localisation issues in post sidebar panel corrected
+
 = 0.2.0 =
 
 * Various code quality changes
