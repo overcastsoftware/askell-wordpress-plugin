@@ -28,7 +28,7 @@ class Main {
 	const WEBHOOK_TYPES  = array( 'customer', 'subscription' );
 	const POST_TYPES     = array( 'page', 'post' );
 	const PLUGIN_PATH    = 'askell-registration';
-	const ASSETS_VERSION = '0.2.0';
+	const ASSETS_VERSION = '0.2.1';
 
 	const ADMIN_ICON = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdod'
 		. 'D0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0c'
