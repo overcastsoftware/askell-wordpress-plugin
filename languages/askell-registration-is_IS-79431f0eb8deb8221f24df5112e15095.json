@@ -1,1 +1,84 @@
-{"translation-revision-date":"2023-09-26 11:54+0000","generator":"WP-CLI\/2.7.1","source":"build\/frontend.js","domain":"messages","locale_data":{"messages":{"":{"domain":"messages","lang":"is_IS","plural-forms":"nplurals=2; plural=(n != 1);"},"Username":[""],"Email Address":["Notandanafn"],"Card processing failed. Please check if the information if correct and try again.":["Ekki t\u00f3kst a\u00f0 skuldf\u00e6ra kort. Vinsamlegast athuga\u00f0u hvort allar uppl\u00fdsingar s\u00e9u r\u00e9ttar og reyndu aftur."],"Unable to assign the payment method to your account. Please contact the site owner.":["Ekki t\u00f3kst a\u00f0 vista grei\u00f0slum\u00e1tann. Vinsamlegast haf\u00f0u samband vi\u00f0 eiganda vefs\u00ed\u00f0unnar."],"Choose Your Plan":["Veldu \u00fe\u00e9r \u00e1skrift"],"Next Step":["N\u00e6sta skref"],"Account Information":["Uppl\u00fdsingar um notandareikning"],"Here, we will create a new user for you on this site. It is necessary to enter your information into all the fields below in order to get to the next step, where you will enter your payment information.":["Vi\u00f0 munum stofna notandaa\u00f0gang fyrir \u00feig. \u00dea\u00f0 er nau\u00f0synlegt a\u00f0 fylla \u00fat \u00ed alla reiti h\u00e9r a\u00f0 ne\u00f0an til \u00feess a\u00f0 komast \u00ed n\u00e6sta skref, \u00fear sem vi\u00f0 munum bi\u00f0ja \u00feig um grei\u00f0slukortauppl\u00fdsingar."],"First Name":["Eiginnafn \/ millinafn"],"Last Name":["Kenninafn"],"Password":["Lykilor\u00f0"],"I accept the terms of service":["\u00c9g sam\u00feykki skilm\u00e1lana"],"Error: ":["Villa: "],"Back":["Til baka"],"Create Account":["B\u00faa til a\u00f0gang"],"Payment Information":["Grei\u00f0sluuppl\u00fdsingar"],"Card Holder Name":["Nafn korthafa"],"Card Number":["Kortan\u00famer"],"Card Expiry":["Gildist\u00edmi"],"Security Code":["\u00d6ryggisn\u00famer"],"Confirm Payment":["Sta\u00f0festa grei\u00f0slu"],"Payment processing is performed by this site&apos;s owner&apos; card merchant service, via Askell by Overcast Software, which runs over a secure transport layer and is a PCI certified recurring payments platform. Payment information is sent directly to Askell for processing.":["Skuldf\u00e6rsla \u00e1 grei\u00f0slukort er framkv\u00e6md af f\u00e6rsluhir\u00f0i sem \u00fej\u00f3nustar eiganda \u00feessarar vefs\u00ed\u00f0u, \u00ed gegnum \u00c1skel \u00e1skriftarkerfi, sem er \u00ed eigu Overcast ehf. \u00c1skell er \u00f6ruggt, PCI votta\u00f0 grei\u00f0sluumhverfi. Grei\u00f0sluuppl\u00fdsingar eru sendar beint til \u00c1skels til frekari vinnslu."],"You should have received a confirmation email with the relevant details about how to edit or cancel your subscription.":["\u00de\u00fa \u00e6ttir a\u00f0 hafa fengi\u00f0 sta\u00f0festingarp\u00f3st me\u00f0 uppl\u00fdsingum um \u00e1skriftina"]}}}
+{
+    "translation-revision-date": "2023-12-07 00:23+0000",
+    "generator": "WP-CLI\/2.7.1",
+    "source": "build\/frontend.js",
+    "domain": "messages",
+    "locale_data": {
+        "messages": {
+            "": {
+                "domain": "messages",
+                "lang": "is_IS",
+                "plural-forms": "nplurals=2; plural=n != 1;"
+            },
+            "Account Information": [
+                "Uppl\u00fdsingar um a\u00f0gang"
+            ],
+            "Back": [
+                "Til baka"
+            ],
+            "Card Expiry": [
+                "Gildist\u00edmi korts"
+            ],
+            "Card Holder Name": [
+                "Nafn korthafa"
+            ],
+            "Card Number": [
+                "Kortan\u00famer"
+            ],
+            "Card processing failed. Please check if the information if correct and try again.": [
+                "\u00darvinnsla kortauppl\u00fdsinga gekk ekki upp. Athuga\u00f0u hvort uppl\u00fdsingarnar s\u00e9u r\u00e9ttar og reyndu aftur."
+            ],
+            "Choose Your Plan": [
+                "Veldu \u00fe\u00edna \u00e1skriftarlei\u00f0"
+            ],
+            "Confirm Payment": [
+                "Sta\u00f0festa grei\u00f0slu"
+            ],
+            "Create Account": [
+                "B\u00faa til a\u00f0gang"
+            ],
+            "Email Address": [
+                "T\u00f6lvup\u00f3stfang"
+            ],
+            "Error: ": [
+                "Villa: "
+            ],
+            "First Name": [
+                "Kenninafn"
+            ],
+            "Here, we will create a new user for you on this site. It is necessary to enter your information into all the fields below in order to get to the next step, where you will enter your payment information.": [
+                "H\u00e9r ver\u00f0ur n\u00fdr notandi b\u00fainn til fyrir \u00feig \u00e1 \u00feessum vef. \u00dea\u00f0 er nau\u00f0synlegt a\u00f0 fylla \u00fat \u00ed alla reitina h\u00e9r fyrir ne\u00f0an til a\u00f0 komast \u00ed n\u00e6sta skref \u00fear sem \u00fe\u00fa getur f\u00e6rt inn grei\u00f0sluuppl\u00fdsingar."
+            ],
+            "I accept the terms of service": [
+                "\u00c9g sam\u00feykki \u00fej\u00f3nustuskilm\u00e1lana"
+            ],
+            "Last Name": [
+                "Eftirnafn"
+            ],
+            "Next Step": [
+                "N\u00e6sta skref"
+            ],
+            "Password": [
+                "Lykilor\u00f0"
+            ],
+            "Payment Information": [
+                "Uppl\u00fdsingar um grei\u00f0slu"
+            ],
+            "Payment processing is performed by this site&apos;s owner&apos; card merchant service, via Askell by Overcast Software, which runs over a secure transport layer and is a PCI certified recurring payments platform. Payment information is sent directly to Askell for processing.": [
+                "Grei\u00f0slan fer fram \u00ed gegn um grei\u00f0slumi\u00f0lun eiganda \u00feessa vefs \u00ed gegn um \u00c1skel fr\u00e1 Overcast Software, sem keyrir yfir \u00f6rugga nettengingu og er PCI-votta\u00f0 kerfi fyrir reglubundnar grei\u00f0slur. Grei\u00f0sluuppl\u00fdsingar eru sendar beint \u00ed \u00c1skel til \u00farvinnslu."
+            ],
+            "Security Code": [
+                "\u00d6ryggisk\u00f3\u00f0i"
+            ],
+            "Unable to assign the payment method to your account. Please contact the site owner.": [
+                "Gat ekki skr\u00e1\u00f0 grei\u00f0slum\u00e1ta \u00e1 \u00feennan a\u00f0gang. Vinsamlegast haf\u00f0u samband vi\u00f0 eiganda \u00feessa vefs."
+            ],
+            "Username": [
+                "Notandanafn"
+            ],
+            "You should have received a confirmation email with the relevant details about how to edit or cancel your subscription.": [
+                "\u00de\u00fa \u00e6ttir a\u00f0 hafa fengi\u00f0 sta\u00f0festingarp\u00f3st me\u00f0 uppl\u00fdsingum um hvernig \u00fe\u00fa breytir e\u00f0a h\u00e6ttir vi\u00f0 \u00e1skriftina."
+            ]
+        }
+    }
+}

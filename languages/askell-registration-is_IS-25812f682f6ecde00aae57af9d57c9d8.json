@@ -1,0 +1,30 @@
+{
+    "translation-revision-date": "2023-12-07 00:23+0000",
+    "generator": "WP-CLI\/2.7.1",
+    "source": "src\/askellPostSidebarPanel.js",
+    "domain": "messages",
+    "locale_data": {
+        "messages": {
+            "": {
+                "domain": "messages",
+                "lang": "is_IS",
+                "plural-forms": "nplurals=2; plural=n != 1;"
+            },
+            "Askell": [
+                "\u00c1skell"
+            ],
+            "Post Availability": [
+                "A\u00f0gengi a\u00f0 f\u00e6rslu"
+            ],
+            "Publicly Available": [
+                "A\u00f0gengilegt \u00f6llum"
+            ],
+            "Subscribers Only": [
+                "A\u00f0eins fyrir \u00e1skrifendur"
+            ],
+            "Subscribers with Specific Plans": [
+                "\u00c1skrifendur me\u00f0 \u00e1kve\u00f0nar \u00e1skriftarlei\u00f0ir"
+            ]
+        }
+    }
+}
